@@ -306,3 +306,22 @@ Integrated into C5.3, C5.5, C5.11 and C5.12 above, without new modules:
   with model, config, prompt, code, a dataset table and an evidence file; an unchanged row keeps its fingerprint
   and only an edited row moves. 4 mutations red: one survived first, because the test did not assert the
   dataset move, and was fixed. `215 passed`. The ledger is unchanged ($0.339118) after the replay-mode tests.
+- **C5.5 ✅ 22:20Z.** `code/evaluation/compare.py` (evaluator side) classes each case's change and keeps two
+  kinds of added step apart: "not in the answer but supported by its cited evidence" and "unsupported".
+  - **Deterministic, base (S3) → now (C5.2–C5.5a):**
+
+    | Set | Whole-case | Correct removed | Added | Flips |
+    |---|---|---|---|---|
+    | samples | 11/32 → 11/32 | 0 | 0 | 0 |
+    | custom | 3/3 → 3/3 | 0 | 0 | 0 |
+
+    The engine's changes are correctness fixes that the samples do not score (16 + 5 + 4 target rows,
+    explained in C5.2/C5.3/C5.3b).
+  - **Agent vs deterministic, the S4 10-case bench, live (ledger $0.339118 → $0.380105):**
+    - whole-case 2/10 vs 2/10; matched 45/45, citations 45/45;
+    - correct removed 0, added 0, unsupported 0, flips 0;
+    - $0.040987 in total, $0.0041 per case, $ per improvement undefined (0 gains).
+    - Validation rejected two account picks in-loop: case_10's account_010 (it mirrors the case number with no
+      case_id in the brief) and case_12's citation of an audit row. Both were repaired to grounded answers.
+    - Reading: the agent no longer adds unsupported steps, and on these samples it also adds nothing
+      supported. S4's +1 was the case_07 shortcut.
