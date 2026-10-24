@@ -68,7 +68,7 @@ it and use Edit.
 
 ### 4. A test fixture admitted a second explanation (mutation stayed green)
 
-**2026-10-24 ~21:30 UTC — S3 C3.4, two occurrences in one checkpoint.**
+**2026-10-24 ~20:46 UTC (before commit `1bdcb99`) — S3 C3.4, two occurrences in one checkpoint.**
 - The FR-11 test put `lookup_key` in the wrapper. The exposure check never looks at that key name, so the
   mutation "count wrapper fields as exposure" stayed green. The real risk is the ledger's `subject_reference`.
 - The "claims never set state" test placed the SUCCESS claim *before* the present record. "Latest wins" alone
@@ -86,7 +86,7 @@ convenient name. Order the events so that the rule under test is the *only* thin
 
 ### 5. Wrote a data literal into a test before measuring it
 
-**2026-10-24 ~20:45 UTC — S3 C3.0.** I asserted that free-text mentions of `email_delivery_*`, `tombstone_*` and
+**2026-10-24 ~20:26 UTC (before commit `cc3c490`) — S3 C3.0.** I asserted that free-text mentions of `email_delivery_*`, `tombstone_*` and
 `object_*` would be indexed once the prefixes were derived, carrying the claim over from the resume block's
 "gap" note. A measurement then showed 0 such mentions in the data: those ids occur only as a record's own
 `resource_id`. The test was replaced with a synthetic check of the mechanism, and the fact (0 mentions) went

@@ -1,0 +1,134 @@
+"""C3.5: planner step-set rules and support levels, then the deterministic run end to end (A20: a valid row is
+not a supported verdict, so support is asserted separately from validity)."""
+import csv
+import json
+from datetime import datetime, timezone
+from pathlib import Path
+
+import pytest
+
+from conftest import CODE, DATASET, read_csv
+from ghostaudit.identity import Subject
+from ghostaudit.intent import Intent
+from ghostaudit.ownership import Link, Ownership
+from ghostaudit.planner import plan_case
+from ghostaudit.policy import Assessment, Category, CopyState
+from ghostaudit.runner import run_deterministic
+from evaluation.metrics import evaluate, load_output
+
+AUDIT = datetime(2026, 9, 15, tzinfo=timezone.utc)
+TIMES = {"ev_1": datetime(2026, 9, 1, tzinfo=timezone.utc)}
+YES = Intent(True, "high", "test")
+SUBJECT = Subject("user_1", "a@x.com", "current", ())
+
+
+def _a(rid, system, verdict, treat, ops, cite="ev_1"):
+    proof = CopyState((system, "primary"), "X", f"{cite}#1", cite, TIMES["ev_1"]) if verdict != "unknown" else None
+    return Assessment(rid, system, Category("C", "test"), treat, verdict, (), proof, ops)
+
+
+def _own(*links, account="account_1"):
+    o = Ownership("case_t")
+    for rid, tier in links:
+        o.links[rid] = Link(rid, None, tier, ("ev_1#1",))
+    o.account = o.links.get(account)
+    return o
+
+
+DEL = ("REPORT_REMAINING_RECORD", "DELETE_RECORD", "VERIFY_RECORD_ABSENT")
+RET = (None, None, "VERIFY_RECORD_PRESENT")
+ANON = ("REPORT_EXPOSED_PII", "ANONYMIZE_RECORD", "VERIFY_RECORD_ANONYMIZED")
+
+
+def test_incomplete_lists_violations_account_and_retained_records_only():
+    own = _own(("account_1", "explicit"), ("search_1", "explicit"), ("audit_record_1", "explicit"),
+               ("analytics_1", "explicit"))
+    p = plan_case("case_t", AUDIT, YES, SUBJECT, own, {
+        "account_1": _a("account_1", "account_service", "compliant", "DELETE", DEL),
+        "search_1": _a("search_1", "search_service", "violation", "DELETE", DEL),
+        "audit_record_1": _a("audit_record_1", "security_service", "compliant", "RETAIN", RET),
+        "analytics_1": _a("analytics_1", "analytics_platform", "compliant", "ANONYMIZE", ANON)}, TIMES)
+    ops = [(s["operation"], s["resource_id"], s["evidence_id"]) for s in p.steps]
+    assert p.status == "INCOMPLETE" and p.support == "resolved"
+    assert ops == [("REPORT_REMAINING_RECORD", "search_1", "ev_1"), ("DELETE_RECORD", "search_1", ""),
+                   ("VERIFY_RECORD_ABSENT", "account_1", ""), ("VERIFY_RECORD_ABSENT", "search_1", ""),
+                   ("VERIFY_RECORD_PRESENT", "audit_record_1", "")]   # the compliant analytics record is not listed
+
+
+def test_complete_cites_every_relevant_resource():
+    own = _own(("account_1", "explicit"), ("analytics_1", "explicit"))
+    p = plan_case("case_t", AUDIT, YES, SUBJECT, own, {
+        "account_1": _a("account_1", "account_service", "compliant", "DELETE", DEL),
+        "analytics_1": _a("analytics_1", "analytics_platform", "compliant", "ANONYMIZE", ANON)}, TIMES)
+    assert p.status == "COMPLETE" and {s["evidence_id"] for s in p.steps} == {"ev_1"} and len(p.steps) == 2
+
+
+def test_a_workflow_only_link_makes_the_case_weak_not_resolved():
+    own = _own(("account_1", "workflow"))
+    p = plan_case("case_t", AUDIT, YES, SUBJECT, own,
+                  {"account_1": _a("account_1", "account_service", "compliant", "DELETE", DEL)}, TIMES)
+    assert p.status == "COMPLETE" and p.support == "weak"
+
+
+def test_unknown_state_or_missing_account_is_unresolved_even_when_the_row_validates():
+    own = _own(("search_1", "explicit"), ("analytics_1", "explicit"), account=None)
+    p = plan_case("case_t", AUDIT, YES, SUBJECT, own, {
+        "search_1": _a("search_1", "search_service", "violation", "DELETE", DEL),
+        "analytics_1": _a("analytics_1", "analytics_platform", "unknown", "ANONYMIZE", ANON)}, TIMES)
+    assert p.status == "INCOMPLETE" and p.support == "unresolved"
+    assert any("no account" in r for r in p.reasons) and any("analytics_1" in r for r in p.reasons)
+
+
+def test_not_applicable_has_no_steps_and_unknown_intent_is_unresolved():
+    na = plan_case("case_t", AUDIT, Intent(False, "high", "export only"), SUBJECT, None, {}, TIMES)
+    assert (na.status, na.steps, na.support) == ("NOT_APPLICABLE", [], "resolved")
+    own = _own(("account_1", "explicit"))
+    unk = plan_case("case_t", AUDIT, Intent(None, "low", "?"), SUBJECT, own,
+                    {"account_1": _a("account_1", "account_service", "compliant", "DELETE", DEL)}, TIMES)
+    assert unk.support == "unresolved"
+
+
+def test_a_row_that_fails_validation_is_unresolved():
+    own = _own(("account_1", "explicit"))
+    p = plan_case("case_t", AUDIT, YES, SUBJECT, own,
+                  {"account_1": _a("account_1", "account_service", "compliant", "DELETE", DEL, cite="ev_404")}, TIMES)
+    assert p.support == "unresolved" and any("UNKNOWN_EVIDENCE" in r for r in p.reasons)
+
+
+# --- end to end (evaluation side: compares with sample_output.csv on the full official denominators) ---
+
+@pytest.fixture(scope="module")
+def sample_run(tmp_path_factory):
+    out = tmp_path_factory.mktemp("run")
+    summary = run_deterministic(DATASET, "samples", out, "strict")
+    return out, summary
+
+
+def test_deterministic_sample_run_validates_and_reports_support(sample_run):
+    from ghostaudit.ingest.manifest import evidence_times
+    from ghostaudit.validate import validate_file
+    out, summary = sample_run
+    requests = {r["case_id"]: r for r in read_csv(DATASET / "sample_deletion_requests.csv")}
+    assert validate_file(out / "output.csv", requests, evidence_times(DATASET)) == []
+    assert summary["rows"] == 32 and sum(summary["support"].values()) == 32
+    assert (out / "unresolved.md").exists() and len(read_csv(out / "output.csv")) == 32
+
+
+def test_deterministic_sample_baseline_regression_gate(sample_run):
+    # Measured 2026-10-24 20:52 UTC (strict): status 32/32, step precision 161/162, recall 161/193, evidence on
+    # matched 161/161. Denominators are the official ones (A20: the D10/D12/D13 gaps are not subtracted).
+    out, _ = sample_run
+    m = evaluate(load_output(out / "output.csv"), load_output(DATASET / "sample_output.csv"))
+    assert m["step_recall"]["den"] == 193 and m["status_accuracy"]["den"] == 32
+    assert m["status_accuracy"]["num"] == 32
+    assert m["step_recall"]["num"] >= 161
+    assert m["step_precision"]["den"] - m["step_precision"]["num"] <= 1
+    assert m["evidence_accuracy_on_matched"]["value"] == 1.0
+
+
+@pytest.mark.parametrize("case", sorted(p for p in (CODE / "evaluation" / "custom_cases").iterdir()
+                                        if (p / "expected_output.csv").exists()), ids=lambda p: p.name)
+def test_custom_cases_are_reproduced_exactly(case, tmp_path):
+    run_deterministic(case / "dataset", "targets", tmp_path, "strict")
+    m = evaluate(load_output(tmp_path / "output.csv"), load_output(case / "expected_output.csv"))
+    assert m["whole_case_exact"]["value"] == 1.0

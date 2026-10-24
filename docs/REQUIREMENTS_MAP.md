@@ -10,12 +10,12 @@ only when its proving checkpoint is ✅ in `docs/SESSIONS.md`. The proving comma
 | FR-03 | Discover copies across systems/formats | C2.1–C2.6 |
 | FR-04 | Admissible state at audit_at | C3.2 |
 | FR-05 | Claims vs observed state | C2.3, C3.4 |
-| FR-06 | Replicas preserved | C2.2, C3.4 |
+| FR-06 | Replicas preserved | C2.2, C3.4 (state per physical copy, A20) |
 | FR-07 | Active data flows | C3.4, C3.5 |
 | FR-08 | Restore risks with retention | C3.4, C3.5 |
 | FR-09 | Apply deletion_rules.csv | C3.4 |
 | FR-10 | Tombstone stable ref vs prohibited ids | C3.4 |
-| FR-11 | Wrapper vs business fields | C2.3 |
+| FR-11 | Wrapper vs business fields | C2.3, C3.4 (exposure reads fields only) |
 | FR-12 | Anonymous resources via lineage | C3.1, C3.3 |
 | FR-13 | Complete finding/remediation/verification sets | C3.5 |
 | FR-14 | Eligible evidence citations | C1.3, C3.5 |

@@ -13,7 +13,7 @@
 A local Python CLI holding a bounded, tool-using deletion-audit agent for HackerRank Orchestrate Oct 2026,
 "Ghost Data Still Exists". For each of the 518 requests in `dataset/deletion_requests.csv` it writes one row of
 `output.csv`: `COMPLETE` / `INCOMPLETE` / `NOT_APPLICABLE` plus canonically ordered steps grounded in
-participant evidence available at `audit_at`. Owner: Breno. State on 2026-10-24: setup (S0).
+participant evidence available at `audit_at`. Owner: Breno. State on 2026-10-24 20:56 UTC: S3 closed (deterministic baseline); S4 next.
 
 ## The requirement that breaks ties
 

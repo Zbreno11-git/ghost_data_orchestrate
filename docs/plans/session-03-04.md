@@ -4,7 +4,7 @@
 > S3+S4 session. Its first deliverable on disk is `docs/plans/session-03-04.md` (skill format: checkpoint map,
 > then Does / ✅ / 🐞 per checkpoint), carrying this content. C3.1–C3.5 all close before C4.1 starts.
 
-## Safeguards added after approval (Breno, 2026-10-24 ~20:40 UTC; A20)
+## Safeguards added after approval (Breno, 2026-10-24 ~20:29 UTC; A20)
 
 Structurally valid output can still carry unsupported conclusions, so these change the acceptance criteria
 (not the architecture or the order):
@@ -317,3 +317,22 @@ git status --short; git rev-parse HEAD origin/main                             #
 - **Spend.** It is confined to C4.3, C4.4 and C4.6, all through the gateway with the $4.50 hard stop. If S4
   overruns, S3's validated 518-row deterministic output remains the fallback.
 - **Public repo.** Stage explicit paths only. `runs/` (cache, traces) stays gitignored.
+
+## Outcome S3 (2026-10-24 20:55 UTC)
+
+All of C3.0–C3.5 closed (commits `cc3c490` … S3 close). Changes against this plan, each with its reason:
+- **The `--report-ownership` flag was not built.** Ownership recall and precision versus the answers are
+  evaluation-side, so they live in `test_ownership.py` (a regression gate) and in the evaluator's step metrics.
+  A prediction-path CLI flag would have had to read the sample answers.
+- **Strict mode** falls back, per case, to scored candidates when deduction attributes nothing (the empty
+  rows of case_01/case_04). Such a row is reported weak or unresolved, never resolved.
+- **5/518 target rows still have no grounded proposal** (case_39, 46, 53, 55, 61): no account is
+  attributable, and the remaining resources have unknown state. They stay invalid (DECIDED_EMPTY) as a loud
+  signal rather than a fabricated status, and are listed in `unresolved.md`. Before S5 publication they need
+  the agent, or Breno's decision.
+- **Baseline (strict, full official denominators):**
+  - status 32/32, whole-case 11/32;
+  - steps: precision 161/162, recall 161/193; evidence on matched 161/161; cited-evidence recall 61/75.
+- **Scored:** whole-case 14/32; steps: precision 168/180, recall 168/193.
+- **Custom cases** 3/3 exact. **Targets (strict):** 518 rows, 169 resolved, 34 weak, 315 unresolved (mostly
+  "no account attributed"), 10 NOT_APPLICABLE.

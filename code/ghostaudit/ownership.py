@@ -53,6 +53,14 @@ class Ownership:
         return any(l.tier == "workflow" for l in self.links.values())
 
 
+# Fallback owning system by resource-id prefix, for a resource no row or record names a system for.
+PREFIX_SYSTEM = {"account": "account_service", "search": "search_service", "analytics": "analytics_platform",
+                 "support": "support_platform", "export": "export_service", "data_flow": "integration_service",
+                 "backup": "backup_service", "audit_record": "security_service", "tombstone": "identity_service",
+                 "legal_hold": "legal_service", "cache": "cache_service", "email_delivery": "email_delivery_service",
+                 "marketing": "marketing_platform", "object": "object_storage"}
+
+
 def canonical_system(resource_id: str, observations: list[Observation]) -> str | None:
     """The owning system: the deletion worker's target, else the record's own system, else any activity target.
 
@@ -65,7 +73,7 @@ def canonical_system(resource_id: str, observations: list[Observation]) -> str |
         c = Counter(o.system_id for o in mine if pick(o))
         if c:
             return c.most_common(1)[0][0]
-    return None
+    return PREFIX_SYSTEM.get(resource_id.rsplit("_", 1)[0])
 
 
 class OwnerIndex:

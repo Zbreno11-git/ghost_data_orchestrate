@@ -3,6 +3,32 @@
 > One entry per session, newest on top. Narrative: what was done, what was decided and **why**, and what was
 > learned. State does not live here (see PROGRESS.md).
 
+## 2026-10-24 — S3 (first half of the merged S3+S4): deterministic baseline, honest support levels, $0
+
+**Done.** identity → cutoff → ownership → policy → planner → runner, all pure and tested (141 tests).
+- **Baseline on the 32 samples (strict, full official denominators):**
+  - status 32/32; whole-case 11/32;
+  - steps: precision 161/162, recall 161/193; evidence on matched 161/161.
+- **Scored mode:** whole-case 14/32; recall 168/193 at precision 168/180.
+- **Custom cases:** 3/3 exact.
+- **Targets:** 518 rows: 169 resolved, 34 weak, 315 unresolved. 5 rows have no grounded proposal and stay
+  invalid.
+
+**Decided.**
+- **A20 (Breno), six safeguards:** workflow links are candidates; state per copy; resolved/weak/unresolved;
+  provisional ceiling; mixed intent; offline replay.
+- **A22 (agent): policy evidence rules.**
+- **D12/D13:** post-audit-only and unobservable ids, re-checked against raw files by tests.
+
+**Learned.**
+- **Ownership of deleted accounts is the evidence limit, not a code gap.** There are 549 anchor rows for 550
+  requests, so one-to-one holds. But deduction only fixes 212 requests: the windows span 1–3 days with ~10
+  concurrent runs, and a fitted lag window forces just 69 more while leaving 13 targets with no candidate. Most
+  unresolved cases are exactly this.
+- **Policy is not the bottleneck.** Isolated from ownership, it reproduces 41/41 findings and 34/34 COMPLETE
+  verifications with their citations.
+- **Two of my fixtures let mutations survive (ERRORS #4).** Both were fixed and re-proven red.
+
 ## 2026-10-24 — S1+S2 (merged): contract and evaluator proven, every evidence file readable, $0.107
 
 **Done.**

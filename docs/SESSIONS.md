@@ -4,7 +4,7 @@ Each session is a 1–2.5 h package that ends in something verifiable, plus a di
 (command → expected number, 🐞 predicted defect) lives in `docs/plans/MASTER_PLAN.md`. This file holds the
 **state**, and any change to a checkpoint is noted here with a date and reason.
 
-**Progress: 3 of 8 sessions fully closed** (✅: S0, S1, S2; measured 2026-10-24 20:15 UTC). Partial (🔄) counts as partial.
+**Progress: 4 of 8 sessions fully closed** (✅: S0, S1, S2, S3; measured 2026-10-24 20:56 UTC). Partial (🔄) counts as partial.
 
 > **Order notes.** The order follows data dependency, not showcase value. The contract/evaluator (S1) comes before
 > ingestion because every later step is measured with it. The deterministic baseline (S3) comes before the agent (S4)
@@ -19,8 +19,10 @@ Each session is a 1–2.5 h package that ends in something verifiable, plus a di
 
 ## ▶️ Start the next session here
 
-- Session: **S3+S4 merged (A19), S3 first** — first step: write `docs/plans/session-03-04.md`, then `code/ghostaudit/identity.py` + `code/tests/test_identity.py` (C3.1: case_10/case_12 historical aliases resolve, case_28 decoy excluded)
-- Read first: `docs/PRIMER.md` (new boundaries: wrapper vs fields, absence proof, D10), `PROGRESS.md`, `code/ghostaudit/evidence.py`
+- Session: **S4 (second half of S3+S4, A19)** — first step: read the `integracoes` skill, then C4.0, the 4xx
+  settlement policy in `code/ghostaudit/llm/gateway.py` + `code/tests/test_gateway.py`
+  (400 → $0 `rejected_400`, 429 → $0 + retry, 5xx/timeout → reservation)
+- Read first: `docs/PRIMER.md` (A20 boundaries), `PROGRESS.md`, `docs/plans/session-03-04.md` §Design — S4
 - Depends on Breno: before leaving, keep the session running with unattended permissions (Bash/Edit)
 
 Timeline as approved (UTC; CDT = UTC−5): S0 16:50–18:00 · S1 18:00–19:00 · S2 19:00–21:00 · S3 21:00–23:00 ·
@@ -66,12 +68,14 @@ re-timed 05:30 UTC as the fallback. **Breno, 20:20 UTC (A18): no fixed time targ
 
 ## Block B — First end-to-end
 
-### ⬜ S3 — Identity, time, ownership, policy, planner → deterministic baseline · $0
-- [ ] C3.1 identity fixed point (historical alias found, decoy excluded)
-- [ ] C3.2 cutoff enforced in tool layer
-- [ ] C3.3 ownership link strength + strict/scored report
-- [ ] C3.4 policy registry tests
-- [ ] C3.5 deterministic run validates 32/32; baseline metrics in DIARY
+### ✅ S3 — Identity, time, ownership, policy, planner → deterministic baseline · $0 · `cc3c490`…S3 close
+> **Changed 2026-10-24 ~20:29 UTC (Breno, A20):** six safeguards added to the acceptance criteria (see `docs/plans/session-03-04.md`).
+- [x] C3.0 resource-id prefixes derived from the data (added at planning: the S2 pattern was hand-written)
+- [x] C3.1 identity fixed point: 550/550 request emails → one user; decoy excluded (mutation red)
+- [x] C3.2 cutoff in CaseView, accessors derived by introspection; suspected gaps re-checked against raw files
+- [x] C3.3 ownership tiers: explicit + deduction-only workflow; ties never forced; strict 78/111, scored 86/111
+- [x] C3.4 policy per physical copy: 41/41 findings + 34/34 COMPLETE verifications incl. citation
+- [x] C3.5 deterministic run: samples 32 rows, 0 violations; baseline in DIARY; targets 518 rows (5 without a grounded proposal, listed)
 
 ### ⬜ S4 — Agent loop + gateway/ledger/cache/resume/replay · ≈$0.30
 > **First step, carried from S2:** decide how a provider 4xx is settled. Today `gemini.py` settles any exception at the full

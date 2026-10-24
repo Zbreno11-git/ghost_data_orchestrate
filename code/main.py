@@ -3,6 +3,7 @@
   python code/main.py validate <output.csv> [--split targets|samples] [--dataset DIR]
   python code/main.py ingest [--report] [--dataset DIR]
   python code/main.py status
+  python code/main.py run --engine deterministic --split samples|targets [--ownership strict|scored] [--out DIR]
 """
 from __future__ import annotations
 
@@ -58,6 +59,23 @@ def cmd_status(args) -> int:
     return 0
 
 
+def cmd_run(args) -> int:
+    from datetime import datetime, timezone
+
+    from ghostaudit.runner import run_deterministic
+
+    run_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + f"-det-{args.split}-{args.ownership}"
+    out = Path(args.out) if args.out else REPO_ROOT / "runs" / run_id
+    summary = run_deterministic(Path(args.dataset), args.split, out, args.ownership)
+    print(f"{summary['rows']} rows → {out / 'output.csv'}")
+    print(f"status {summary['status']}  support {summary['support']}")
+    print(f"workflow assignment {summary['workflow_assignment']}  ambiguous {summary['workflow_ambiguous_requests']}")
+    if summary["ingest_failed_files"]:
+        print("ingest failed:", summary["ingest_failed_files"])
+        return 1
+    return 0
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="main.py")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -71,6 +89,13 @@ def main(argv=None) -> int:
     p.add_argument("--dataset", default=str(REPO_ROOT / "dataset"))
     p.add_argument("--allow-paid", action="store_true", help="permit vision calls for PNGs missing from the cache")
     p.set_defaults(fn=cmd_ingest)
+    p = sub.add_parser("run")
+    p.add_argument("--engine", choices=["deterministic"], default="deterministic")
+    p.add_argument("--split", choices=sorted(REQUEST_FILES), default="targets")
+    p.add_argument("--ownership", choices=["strict", "scored"], default="strict")
+    p.add_argument("--dataset", default=str(REPO_ROOT / "dataset"))
+    p.add_argument("--out", help="output directory (default runs/<run_id>/)")
+    p.set_defaults(fn=cmd_run)
     p = sub.add_parser("status")
     p.set_defaults(fn=cmd_status)
     args = ap.parse_args(argv)

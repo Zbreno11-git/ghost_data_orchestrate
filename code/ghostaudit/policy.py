@@ -13,6 +13,7 @@ from dataclasses import dataclass
 
 from .evidence import Observation
 from .identity import Subject
+from .ownership import PREFIX_SYSTEM
 from .temporal import CaseView
 
 # canonical system → (default category, alternative category or None)
@@ -35,11 +36,6 @@ SYSTEM_CATEGORY = {
 }
 # Rule categories no participant source holds, with the reason; re-checked against the raw files by a test.
 UNMAPPED = {"SECONDARY_IDENTIFIER": "no evidence file names a secondary identifier record (raw search 2026-10-24)"}
-PREFIX_SYSTEM = {"account": "account_service", "search": "search_service", "analytics": "analytics_platform",
-                 "support": "support_platform", "export": "export_service", "data_flow": "integration_service",
-                 "backup": "backup_service", "audit_record": "security_service", "tombstone": "identity_service",
-                 "legal_hold": "legal_service", "cache": "cache_service", "email_delivery": "email_delivery_service",
-                 "marketing": "marketing_platform", "object": "object_storage"}
 WORKER_ACTION = {"DELETE_RECORD": "DELETE", "ANONYMIZE_RECORD": "ANONYMIZE", "REDACT_RECORD": "REDACT"}
 
 DIRECT_KEYS = ("email", "phone", "name", "email_hash", "matched_value")      # substrings of field names

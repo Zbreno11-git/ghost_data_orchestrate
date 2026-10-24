@@ -3,9 +3,9 @@
 > **For:** Breno, and anyone who needs the state without reading code. No jargon. **Updated at the end of each
 > session, with the date.** Numbers are re-checked at the source when written, never copied from the previous version.
 
-**Last update: 2026-10-24 20:15 UTC.**
+**Last update: 2026-10-24 20:56 UTC.**
 
-`██████░░░░░░░░░░ 3 of 8 sessions closed`
+`████████░░░░░░░░ 4 of 8 sessions closed`
 
 ## 2026-10-24 — The project folder now tracks the official challenge files
 
@@ -59,3 +59,27 @@ because the improvement session gets shorter.
 ## Timeline you can hold us to (your time, CDT; as approved, before the re-time above)
 - ~23:00 tonight: a complete, validated **safety package** (output.csv + code.zip + log.txt) is ready to upload.
 - ~04:00 tomorrow: final package frozen. You upload around 05:00; the deadline is 07:00.
+
+## 2026-10-24 20:56 UTC — the program now answers every request on its own, without AI, and says how sure it is
+
+**What changed:**
+- The program goes from a request to an answer by itself: it finds the person (including old email addresses),
+  ignores evidence dated after the audit, finds the person's records, and applies the deletion rules.
+- **On the 32 examples:** every deletion status is right (32/32), and when it lists a step it's right in 161
+  of 162 cases. It still misses about 1 step in 6, mostly accounts that were already deleted and that no
+  evidence ties back to the person.
+- **On the 518 real requests:** it writes 518 answers and labels each one:
+  - 169 "solid";
+  - 34 "plausible, weak link";
+  - 315 "unresolved", most of them only because the deleted account can't be identified from the evidence.
+  5 answers can't be built at all yet; it says so instead of guessing.
+- Your six safeguards are now rules with tests.
+
+**How we know:** 141 automatic tests pass. The three test cases written by a helper agent are reproduced exactly.
+
+**Spent:** $0 this session ($0.107 total of $4.50).
+
+**Missing:**
+- **From you:** nothing new. At some point before publishing, a decision on the 5 answers that have no evidence
+  to stand on.
+- **From us:** next, the AI investigator (session 4), measured against this baseline.
