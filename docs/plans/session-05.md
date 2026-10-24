@@ -341,3 +341,19 @@ Integrated into C5.3, C5.5, C5.11 and C5.12 above, without new modules:
     - targets: case_53 COMPLETE (invalid) → INCOMPLETE with `REPORT_EXPOSED_PII support_1034` citing
       evidence_28, the 05-24 console showing the customer's email.
   - Invalid rows now: case_39, case_55, case_61.
+- **C5.6 ✅ 22:21Z: owner table (shown to Breno before final publication).** The three rows still without a
+  grounded proposal after C5.2–C5.6a. A bounded `gemini-3.8-flash` review of all three ($0.040754,
+  through the gateway) found no link either; it submitted account null each time.
+
+  | case (subject) | candidates | supporting evidence (≤ audit_at) | missing link | recommended prediction (heuristic, flagged) and its limits |
+  |---|---|---|---|---|
+  | case_39 (user_14; audit 08-08 10:00; claim COMPLETE) | data_flow_1121; accounts 2434/7637/6805/8819 (timing only) | evidence_14 Topology row names the flow with the subject's email; panel "Status Healthy · Continuous sync · last contact 07:59" (08-07 08:00); catalog row activity_4002 (08-07) | an explicit enablement at the cutoff: only health/config is shown. `enabled=true` exists only in evidence_01, captured 09-15 (after audit) | INCOMPLETE: REPORT_ACTIVE_DATA_FLOW data_flow_1121 (evidence_14), DISABLE_DATA_FLOW, VERIFY_DATA_FLOW_DISABLED. Limits: amendment 1 says health/config is not enablement; no account step |
+  | case_55 (user_16; audit 04-30 11:00; claim NOT_STARTED) | backup_9287; accounts 7249/1618/9993 (timing only) | evidence_32 Archives row 3 + detail panel name the backup with the subject's email (04-29 09:00): retention to 26 Jul, checksum verified, last drill 29 Mar; catalog row activity_4006 | the restore permission at the cutoff. `eligible=true, deletion_block=false` exists only in evidence_01 (09-15) | INCOMPLETE: REPORT_RESTORE_RISK backup_9287 (evidence_32), BLOCK_RESTORE, VERIFY_RESTORE_BLOCKED. Limits: retention ≠ restorable; the workflow claims nothing was started |
+  | case_61 (user_07; audit 02-14 10:00; claim PARTIALLY_COMPLETE) | object_19; accounts 1957/9034/7023/6373/2761/3584 (timing only) | catalog row activity_4007 (02-13 08:07): "object_19 (delivery_confirmation_19.pdf) belongs only to" the subject; evidence_46 storage browser (02-13 08:00) lists that file, v3, modified 12 Feb | a direct observation naming object_19: the screen names only the file alias, and the alias comes from a catalog claim row | INCOMPLETE: REPORT_REMAINING_RECORD object_19 (evidence_46), DELETE_RECORD, VERIFY_RECORD_ABSENT (SUPPORT_ATTACHMENT → DELETE, rule_06). Limits: alias lineage; the same person's sample case_07 does not list object_19 |
+
+  - **Alternative for each row:** leave it invalid (COMPLETE with no steps fails our validator). An empty
+    COMPLETE would claim verification that does not exist, and an INCOMPLETE needs a cited finding. No other
+    row shape exists without inventing evidence.
+  - **case_46 note:** it validates through account_6523, a profile lookup keyed by the subject's email that
+    returns NOT_FOUND. That pairs the account with the subject (the same evidence type as every sample
+    account), but it is listed here because absence is not ownership.
