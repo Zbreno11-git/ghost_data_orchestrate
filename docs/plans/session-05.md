@@ -246,3 +246,21 @@ Integrated into C5.3, C5.5, C5.11 and C5.12 above, without new modules:
 
   S4 (a decoy link kept as an ambiguity) is now capped at weak by `support_of`. It is not excluded: the record
   does name the subject.
+- **C5.3 ✅ 22:00Z.** Explicit state reads plus row-bound screens (A25). Ten new tests were red first;
+  `193 passed`. Six mutations are red: one survived at first, because the fixture's first-row resource was
+  skipped by the document loop; that skip was removed (0 rows change in samples and targets) and the
+  mutation re-run red.
+
+  Case-by-case vs C5.2:
+
+  | Split | Rows changed | Detail | Metrics |
+  |---|---|---|---|
+  | samples | 0 | — | identical (11/32, 161/162, 161/193, cited 61/75) |
+  | targets | 5, no status flip | case_41 and case_264 unresolved → resolved, each newly citing an explicit BLOCKED/DISABLED/REDACTED observation | — |
+
+  Removed findings and links, each checked against the raw screen rows:
+  - case_33/52: export_1258/59/61 belong to other owners in an exports table;
+  - case_35: search_1874 is the look-alike `…jr@` row;
+  - case_55: backup_9286/88/91 sit in other customers' rows.
+
+  Targets: resolved 172, weak 20, unresolved 326; 4 invalid rows (case_39's flow is now honestly unknown).

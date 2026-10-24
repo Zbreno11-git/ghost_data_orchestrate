@@ -13,7 +13,7 @@ from dataclasses import dataclass
 
 from .evidence import Observation
 from .identity import Subject
-from .ownership import PREFIX_SYSTEM
+from .ownership import PREFIX_SYSTEM, ROW_KEY
 from .temporal import CaseView
 
 # canonical system → (default category, alternative category or None)
@@ -148,23 +148,31 @@ class CopyState:
     basis: str = DIRECT
 
 
+# A field value that states the content was removed (measured: 30 support messages carry exactly this).
+REDACTION_MARKERS = {"[redacted]", "<redacted>", "redacted"}
+
+
 def _record_state(o: Observation, treat: str, subject) -> tuple[str, str]:
     f = {k.rsplit(".", 1)[-1].lower(): v for k, v in o.fields.items()}
     res = (o.result or "").upper()
     if treat == "DISABLE_FLOW":
         if res == "ACTIVE" or str(f.get("enabled", "")).lower() in ("true", "1"):
             return "ACTIVE", "enabled"
-        if str(f.get("enabled", "")).lower() in ("false", "0"):
-            return "DISABLED", "enabled=false"
+        if res == "DISABLED" or str(f.get("enabled", "")).lower() in ("false", "0"):
+            return "DISABLED", "enabled=false" if res != "DISABLED" else "lookup reports disabled"
         return "UNKNOWN", "flow state not stated"
     if treat == "BLOCK_RESTORE":
         allowed = str(f.get("restore_allowed", "")).lower()
-        if res == "ACTIVE" or allowed in ("true", "1") or (str(f.get("eligible", "")).lower() == "true"
-                                                          and str(f.get("deletion_block", "")).lower() == "false"):
+        decision = str(f.get("decision", "")).lower()
+        if res == "ACTIVE" or allowed in ("true", "1") or decision in ("allow", "allowed") or (
+                str(f.get("eligible", "")).lower() == "true" and str(f.get("deletion_block", "")).lower() == "false"):
             return "RESTORABLE", "restore allowed"
-        if allowed in ("false", "0") or str(f.get("deletion_block", "")).lower() == "true":
-            return "BLOCKED", "restore blocked"
+        if res == "BLOCKED" or allowed in ("false", "0") or decision in ("deny", "denied") or \
+                str(f.get("deletion_block", "")).lower() == "true":
+            return "BLOCKED", "restore blocked" if res != "BLOCKED" else "lookup reports blocked"
         return "UNKNOWN", "restore state not stated"
+    if res == "REDACTED":
+        return "REDACTED", "lookup reports redacted"
     if res == "IDENTIFIABLE":
         return "PRESENT_EXPOSED", "lookup reports identifiable"
     if res == "ANONYMIZED":
@@ -174,10 +182,30 @@ def _record_state(o: Observation, treat: str, subject) -> tuple[str, str]:
     exposed = exposure(o, treat, subject)
     if exposed:
         return "PRESENT_EXPOSED", "exposed " + ",".join(exposed)
+    if any(isinstance(v, str) and v.strip().lower() in REDACTION_MARKERS for v in o.fields.values()):
+        return "REDACTED", "content marked redacted"
     shown = [k for k in o.fields if any(d in k.lower() for d in DIRECT_KEYS + LINK_KEYS)]
     if not shown:
         return "UNKNOWN", "present, but no identifying fields are shown"
     return ("ANONYMIZED" if treat == "ANONYMIZE" else "REDACTED"), "identifying fields empty"
+
+
+def _unit_naming(o: Observation, resource_id: str) -> str:
+    """The text that must also carry the subject for `o` to be a copy of `resource_id`: the table row that names
+    the resource when the screen is a table (a row belongs to one customer), else the whole document (a PDF page
+    names the resource in a header and the customer in the body)."""
+    rows: dict[str, list[str]] = defaultdict(list)
+    loose: list[str] = []
+    for k, v in o.fields.items():
+        if not isinstance(v, str) or k.startswith("ids."):
+            continue
+        m = ROW_KEY.match(k)
+        (rows[m.group(1)] if m else loose).append(v)
+    hit = [" | ".join(vs) for vs in rows.values() if resource_id in " | ".join(vs)]
+    if hit:
+        return " || ".join(hit)
+    whole = " | ".join(loose + [v for vs in rows.values() for v in vs])
+    return whole if resource_id in whole else ""
 
 
 def scope_covers(scope: Observation, system: str, view: CaseView) -> bool:
@@ -200,15 +228,15 @@ def copy_states(resource_id: str, system: str | None, treat: str, view: CaseView
             state, why = _record_state(o, treat, subject)
             events[copy_key(o)].append((o.captured_at, state, o, why))
     # A business document (PDF page, screen) that names the resource next to the subject's identifiers is a copy
-    # of that record outside its system: present, and exposed where the treatment is redaction/anonymization.
-    if subject is not None:
+    # of that *record* outside its system: present, and exposed where the treatment is redaction/anonymization.
+    # A flow or a backup is a process, not personal data: a screen showing one is not a copy of it, and health
+    # ("Healthy"), configuration ("Continuous") or a past restore never prove it enabled at audit_at (S5 C5.3).
+    if subject is not None and treat not in ("DISABLE_FLOW", "BLOCK_RESTORE"):
         mine = {i.norm for i in subject.identifiers if i.strong} | {i.raw.lower() for i in subject.identifiers if i.strong}
         for o in view.by_resource(resource_id):
-            if o.kind != "text" or o.resource_id == resource_id:
+            if o.kind != "text":
                 continue
-            # Ownership was decided upstream with single-subject units; for state, the whole document counts.
-            whole = " | ".join(v for k, v in o.fields.items() if isinstance(v, str) and not k.startswith("ids."))
-            if resource_id in whole and any(x and x in whole.lower() for x in mine):
+            if any(x and x in _unit_naming(o, resource_id).lower() for x in mine):
                 state = "PRESENT" if treat in ("DELETE", "RETAIN") else "PRESENT_EXPOSED"
                 events[(system or o.system_id, "document")].append((o.captured_at, state, o, "named in a document"))
     # Absence by scope only for deletion targets: a capture that covers the system and lacks the row proves the

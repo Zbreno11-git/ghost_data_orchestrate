@@ -162,3 +162,82 @@ def test_sample_policy_regression_gates(store, sample_gold, sample_requests):
     # Measured 2026-10-24: 41/41 findings and 34/34 COMPLETE verifications, verdict + op + citation.
     assert tally["finding", True] == 41 and tally["finding", False] == 0
     assert tally["complete", True] == 34 and tally["complete", False] == 0
+
+
+# --- S5 C5.3: explicit state results, and screens never infer current activity (amendment 1) ---
+
+def _subject():
+    ids = [{"user_id": "user_1", "name": "Ana", "email": "ana@x.com", "phone": "", "email_hash": "", "updated_at": ""}]
+    return IdentityIndex(ids, []).resolve("ana@x.com", AUDIT)
+
+
+def _assess_s(obs, resource, system, prefixes=None):
+    store = EvidenceStore(resource_prefixes=prefixes or [resource.rsplit("_", 1)[0]])
+    for o in obs:
+        store.add(o)
+    return assess(resource, system, CaseView(store, AUDIT), RULES, _subject())
+
+
+def _screen(oid, days, rows, first_resource=None, title="Panel"):
+    """A screen panel as ingestion makes it: one text observation, row-keyed labels, first row's id."""
+    fields = {"screen_title": "Console", "panel": title}
+    for i, (row, label, value) in enumerate(rows):
+        fields[f"rows.{i}.row {row}: {label}" if row else f"rows.{i}.{label}"] = value
+    return _rec(oid, days, None, first_resource, fields, kind="text", source=oid)
+
+
+@pytest.mark.parametrize("resource,system,result,state", [
+    ("backup_1", "backup_service", "BLOCKED", "BLOCKED"),
+    ("data_flow_1", "integration_service", "DISABLED", "DISABLED"),
+    ("support_1", "support_platform", "REDACTED", "REDACTED")])
+def test_an_explicit_lookup_result_is_the_state(resource, system, result, state):
+    a = _assess_s([_rec("l1", 2, system, resource, {"resource_id": resource}, kind="lookup", result=result)],
+                  resource, system)
+    assert a.verdict == "compliant" and [c.state for c in a.copies] == [state]
+
+
+def test_a_denied_restore_decision_blocks_the_restore():
+    a = _assess_s([_rec("tr1", 2, "backup_service", "backup_1",
+                        {"resource_id": "backup_1", "decision": "deny", "policy": "privacy_deletion"})],
+                  "backup_1", "backup_service")
+    assert a.verdict == "compliant" and a.copies[0].state == "BLOCKED"
+
+
+def test_a_redaction_marker_is_a_redacted_message():
+    a = _assess_s([_rec("m1", 2, "support_platform", "support_1",
+                        {"resource_id": "support_1", "message_text": "[REDACTED]"})], "support_1", "support_platform")
+    assert a.verdict == "compliant" and a.copies[0].state == "REDACTED"
+
+
+def test_a_healthy_continuous_connector_screen_does_not_override_a_disabled_record():
+    screen = _screen("ev_s", 3, [("1", "Connector", "data_flow_9"), ("1", "Selector", "other@y.com"),
+                                 ("2", "Connector", "data_flow_1"), ("2", "Selector", "ana@x.com"),
+                                 ("2", "Mode", "Continuous"), (None, "Status", "Healthy")], "data_flow_9")
+    rec = _rec("cfg", 2, "integration_service", "data_flow_1", {"resource_id": "data_flow_1", "enabled": "false"})
+    a = _assess_s([screen, rec], "data_flow_1", "integration_service")
+    assert a.verdict == "compliant" and [c.state for c in a.copies] == ["DISABLED"]
+
+
+def test_health_or_configuration_alone_never_proves_a_flow_active():
+    screen = _screen("ev_s", 3, [("2", "Connector", "data_flow_1"), ("2", "Selector", "ana@x.com"),
+                                 ("2", "Mode", "Continuous"), (None, "Status", "Healthy")], "data_flow_9")
+    a = _assess_s([screen], "data_flow_1", "integration_service")
+    assert a.verdict == "unknown" and not a.copies
+
+
+def test_a_completed_restore_followed_by_a_restore_block_is_blocked():
+    screen = _screen("ev_s", 1, [(None, "25 Apr", "backup_1 restored · Completed"), (None, "Account", "ana@x.com")],
+                     None, "Activity")
+    rec = _rec("pol", 3, "backup_service", "backup_1", {"resource_id": "backup_1", "restore_allowed": "false"})
+    a = _assess_s([screen, rec], "backup_1", "backup_service")
+    assert a.verdict == "compliant" and [c.state for c in a.copies] == ["BLOCKED"]
+
+
+def test_a_table_row_is_a_copy_only_when_the_subject_is_in_that_row():
+    screen = _screen("ev_s", 3, [("1", "Ticket", "support_1"), ("1", "Customer", "other@y.com"),
+                                 ("2", "Ticket", "support_2"), ("2", "Customer", "ana@x.com")], "support_1")
+    rec = _rec("m1", 2, "support_platform", "support_1", {"resource_id": "support_1", "message_text": "[REDACTED]"})
+    a = _assess_s([screen, rec], "support_1", "support_platform")
+    assert a.verdict == "compliant" and [c.state for c in a.copies] == ["REDACTED"]
+    b = _assess_s([screen], "support_2", "support_platform")
+    assert b.verdict == "violation" and b.copies[0].copy[1] == "document"   # row 2 does name the subject

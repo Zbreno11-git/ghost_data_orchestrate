@@ -145,8 +145,9 @@ def explicit_links(subject: Subject, view: CaseView, resource_re, owners: "Owner
     """resource → supporting obs_ids, from observations carrying a strong identifier of the subject.
 
     For free text (PDF pages, screen panels) co-occurrence is a link only inside a unit that names this subject
-    and nobody else: a single-subject document links at page level; a screen listing several customers splits into
-    rows (measured: a connector panel otherwise tied user_14's flow to user_15's case)."""
+    and nobody else: a single-subject document links at page level; a table screen always splits into rows
+    (measured: a connector panel otherwise tied user_14's flow to user_15's case, and an exports table linked
+    four owners' exports to one subject)."""
     out: dict[str, set[str]] = defaultdict(set)
     mine = subject.keys(strong_only=True)
     for key in mine:
@@ -156,7 +157,10 @@ def explicit_links(subject: Subject, view: CaseView, resource_re, owners: "Owner
                     out[obs.resource_id].add(obs.obs_id)
                 continue
             whole = _whole_text(obs)
-            units = [whole] if not owners.others_in_text(whole, subject.user_id, view.audit_at) else text_units(obs)
+            # A table row belongs to one entity, whoever the other rows name (S5 C5.3: an exports table of four
+            # owners, a results table with a look-alike row); other text splits only when it names someone else.
+            table = any(ROW_KEY.match(k) for k in obs.fields)
+            units = text_units(obs) if table or owners.others_in_text(whole, subject.user_id, view.audit_at) else [whole]
             for unit in units:
                 if owners.keys_in_text(unit) & mine and not owners.others_in_text(unit, subject.user_id, view.audit_at):
                     for r in resource_re.findall(unit):

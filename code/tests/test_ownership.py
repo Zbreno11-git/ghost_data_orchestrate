@@ -174,3 +174,21 @@ def test_the_as_of_assignment_never_holds_rows_after_the_cutoff():
     wf = AssignmentsAsOf(rows, [x], lambda q, at: q).for_case("case_X")
     assert all(o.captured_at <= x.audit_at for o in wf.rows)
     assert all(o.captured_at <= x.audit_at for rs in wf.worker_rows.values() for o in rs)
+
+
+def test_a_table_screen_links_only_the_rows_that_name_the_subject():
+    # A results table (case_35's shape): the subject's row and a look-alike row; no other *known* user is named,
+    # so a whole-panel unit would link both. A table row belongs to one entity.
+    from ghostaudit.evidence import EvidenceStore
+    from ghostaudit.ownership import explicit_links
+    ids = [{"user_id": "user_1", "name": "G", "email": "g.silva@x.com", "phone": "", "email_hash": "", "updated_at": ""}]
+    idx = IdentityIndex(ids, [])
+    store = EvidenceStore(resource_prefixes=["search"])
+    t = T - timedelta(days=1)
+    store.add(Observation(obs_id="ev_s#panel:1", source_id="ev_s", source_kind="png", kind="text", captured_at=t,
+                          observed_at=t, system_id=None, resource_id="search_1", container="Results",
+                          fields={"panel": "Results (2)", "rows.0.row 1: _id": "search_1",
+                                  "rows.1.row 1: Email": "g.silva@x.com", "rows.2.row 2: _id": "search_2",
+                                  "rows.3.row 2: Email": "g.silva.jr@x.com"}, locator="panel:1"))
+    subject = idx.resolve("g.silva@x.com", T)
+    assert explicit_links(subject, CaseView(store, T), store.resource_re, OwnerIndex(idx)) == {"search_1": ["ev_s#panel:1"]}
