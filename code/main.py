@@ -68,8 +68,12 @@ def cmd_run(args) -> int:
     run_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + f"-{tag}-{args.split}-{args.ownership}"
     out = Path(args.out) if args.out else REPO_ROOT / "runs" / run_id
     cases = set(args.cases.split(",")) if args.cases else None
+    from ghostaudit.config import load_config
+    cfg = load_config()
+    if args.agent_scope:
+        cfg["agent"] = {**cfg["agent"], "scope": args.agent_scope}
     summary = run(Path(args.dataset), args.split, out, args.ownership, engine=args.engine, gateway_mode=args.mode,
-                  model=args.model, cases=cases, run_id=run_id)
+                  model=args.model, cases=cases, run_id=run_id, config=cfg)
     print(f"{summary['rows']} rows → {out / 'output.csv'}")
     print(f"status {summary['status']}  support {summary['support']}")
     print(f"workflow assignment {summary['workflow_assignment']}  ambiguous {summary['workflow_ambiguous_requests']}")
@@ -99,6 +103,8 @@ def main(argv=None) -> int:
     p.add_argument("--mode", choices=["live", "replay"], default="live",
                    help="agent only: replay serves cached responses and never contacts the provider")
     p.add_argument("--model", help="agent model (default: [agent].model in config)")
+    p.add_argument("--agent-scope", choices=["all", "non_resolved"],
+                   help="agent reviews every authorized case or only weak/unresolved ones (default: [agent].scope)")
     p.add_argument("--cases", help="comma-separated case_ids to run (default: every case of the split)")
     p.add_argument("--split", choices=sorted(REQUEST_FILES), default="targets")
     p.add_argument("--ownership", choices=["strict", "scored"], default="strict")

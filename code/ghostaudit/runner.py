@@ -148,7 +148,10 @@ def run(dataset: Path, split: str, out_dir: Path, mode: str = "strict", engine: 
                 plan.support = "weak"
         if engine == "agent":
             extra = {"agent": None}
-            if intent.authorizes_deletion is not False and isinstance(subject, Subject):
+            in_scope = cfg["agent"].get("scope", "all") == "all" or plan.support != "resolved"
+            if not in_scope:
+                agent_stats["skipped_resolved"] += 1
+            if in_scope and intent.authorizes_deletion is not False and isinstance(subject, Subject):
                 from .agent import investigate
                 from .tools import CaseTools
                 tools = CaseTools(cid, view, subject, own, workflow, rules, store.resource_re, owners=owners)

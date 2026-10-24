@@ -235,3 +235,25 @@ def test_every_ambiguity_producer_in_ownership_reaches_the_cap():
         p = plan_case("case_t", AUDIT, YES, SUBJECT, own,
                       {"account_1": _a("account_1", "account_service", "compliant", "DELETE", DEL)}, TIMES)
         assert p.support != "resolved"
+
+
+def test_agent_scope_non_resolved_never_sends_a_resolved_case_to_the_model(tmp_path, monkeypatch):
+    # S5 C5.7: with scope non_resolved a resolved proposal is published as is; replay guarantees no provider.
+    # The intent batch is replaced by the deterministic rule so only the scope gate is under test (a replayed
+    # batch for a different subset of cases misses the cache and would lower intent confidence).
+    import ghostaudit.intent as intent_mod
+    from ghostaudit.config import load_config
+    from ghostaudit.runner import run
+    monkeypatch.setattr(intent_mod, "classify_all",
+                        lambda rows, gw, cfg: {r["case_id"]: intent_mod.classify(r["request_text"]) for r in rows})
+    det = run(DATASET, "samples", tmp_path / "det", engine="deterministic")
+    resolved = sorted(json.loads(l)["case_id"] for l in open(tmp_path / "det" / "decisions.jsonl")
+                      if json.loads(l)["support"] == "resolved")
+    assert det["support"]["resolved"] == len(resolved) >= 1
+    cfg = load_config()
+    cfg["agent"] = {**cfg["agent"], "scope": "non_resolved"}
+    s = run(DATASET, "samples", tmp_path / "agent", engine="agent", gateway_mode="replay", cases=set(resolved),
+            run_id="scope-test", config=cfg)
+    assert s["agent"]["skipped_resolved"] == len(resolved) and s["agent"].get("model_calls", 0) == 0
+    det_rows = {r["case_id"]: r for r in read_csv(tmp_path / "det" / "output.csv")}
+    assert all(det_rows[r["case_id"]] == r for r in read_csv(tmp_path / "agent" / "output.csv"))

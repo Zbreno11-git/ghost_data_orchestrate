@@ -370,3 +370,28 @@ Integrated into C5.3, C5.5, C5.11 and C5.12 above, without new modules:
       in-command `sed -i` at log.txt:492, the subagent paraphrase at log.txt:358 and its label).
   - Matching rule: messages under 40 characters must be a whole line of a prompt field, so "wait" can't match
     inside other text.
+- **C5.7 ✅ 22:27Z (MASTER_PLAN C5.1): pilot.** `main.py run --engine agent --mode live --split targets --cases
+  <30>`; the cases come from `scripts/analysis/pilot_cases.py runs/s5/c56-targets` (stratified 14
+  unresolved / 8 weak / 8 resolved, round-robin over failure classes, seed 20261024).
+  - **Agent vs deterministic on the same 30:** 0 rows changed, 0 support moves (14 unresolved, 8 weak,
+    8 resolved before and after); 137 model calls; 1 in-loop rejection repaired.
+  - **Cost:** $0.105477 ($0.0035 per case). Ledger $0.421172 → $0.529548, the difference including
+    ≈$0.003 of new intent batches.
+  - **Projection:**
+    - agent on all 508 authorized ≈ $1.79;
+    - on non-resolved only (172 resolved skip; ≈346 cases) ≈ $1.22;
+    - either way the cumulative total stays under $2.4.
+  - **Added `--agent-scope all|non_resolved`** (`[agent].scope`, in the fingerprint). Test: resolved cases
+    never reach the model and publish the deterministic row; mutation red; `219 passed`.
+  - **Finding:** intent-batch cache keys depend on batch composition, so a subset run re-pays the intent pass
+    (cents); the full run reuses the S4 batches.
+  - **Recommendation to Breno:** non_resolved scope. Across 40 measured cases the validated agent changed
+    nothing, but A20 (his rule) requires weak and unresolved cases to be investigated before publication, and
+    the gate keeps the agent from adding unsupported steps. Waiting for his answer.
+- **C5.13 (part) ✅ 22:27Z:** `scripts/stage_traces.py --dry-run` lists 8 files:
+  - the session JSONL, 18.2 MB;
+  - 3 subagent JSONL + meta files;
+  - the ChatGPT transcription.
+
+  0 redactions needed; JSONL lines re-parse. The project folder is found by Claude Code's encoding (any
+  non-alphanumeric → "-"); an empty trace exits 1.

@@ -42,6 +42,9 @@ cache_dir = "runs/cache/llm"
 model = "gemini-3.1-flash-lite"   # A7 default; C4.6 benchmarks it against 3.8-flash
 max_tool_rounds = 4
 max_repairs = 2
+# Which deterministic proposals the agent reviews: "all" authorized cases, or "non_resolved" only (weak and
+# unresolved, A20). Part of the config, so it enters every checkpoint fingerprint.
+scope = "all"
 max_output_tokens = 2048
 est_input_tokens = 4000
 thinking_level = { "gemini-3.8-flash" = "LOW", "gemini-3.1-flash-lite" = "MINIMAL" }
