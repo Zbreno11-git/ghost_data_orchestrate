@@ -50,3 +50,33 @@ def test_a_resource_seen_only_after_the_cutoff_does_not_exist_for_the_case():
     store.add(_obs("after_cutoff", AUDIT + timedelta(seconds=1)))
     v = CaseView(store, AUDIT)
     assert v.resources() == [] and v.by_resource("search_1") == []
+
+
+# --- S5 C5.3b: capture time vs observation time (Breno, 2026-10-24 21:59:56 UTC) ---
+
+def _rec(name, captured, observed, oid=None):
+    return Observation(obs_id=oid or f"{name}#r", source_id=name, source_kind="json", kind="record",
+                       captured_at=captured, observed_at=observed, system_id="search_service",
+                       resource_id="search_1", fields={"email": "a@x.com"}, locator="r")
+
+
+def test_an_observation_of_an_event_after_audit_at_is_rejected_even_inside_an_admissible_artifact():
+    store = EvidenceStore(resource_prefixes=["search"])
+    store.add(_rec("contradictory", AUDIT - timedelta(days=2), AUDIT + timedelta(hours=1)))   # observed > captured
+    store.add(_rec("boundary", AUDIT - timedelta(days=2), AUDIT, "boundary#r2"))
+    v = CaseView(store, AUDIT)
+    assert [o.source_id for o in v.observations] == ["boundary"]           # observed == audit_at is admissible
+
+
+def test_an_older_observation_does_not_admit_an_artifact_captured_after_audit_at():
+    store = EvidenceStore(resource_prefixes=["search"])
+    store.add(_rec("late_export", AUDIT + timedelta(days=1), AUDIT - timedelta(days=3)))
+    assert CaseView(store, AUDIT).observations == []      # AGENTS §6.6: never an item captured after audit_at
+
+
+def test_a_missing_observation_time_falls_back_to_the_capture_time():
+    from ghostaudit.temporal import event_time
+    store = EvidenceStore(resource_prefixes=["search"])
+    o = _rec("screen", AUDIT - timedelta(days=1), None)
+    store.add(o)
+    assert CaseView(store, AUDIT).observations == [o] and event_time(o) == o.captured_at

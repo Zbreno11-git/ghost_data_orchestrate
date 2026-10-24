@@ -1,7 +1,22 @@
 """CaseView: the evidence store as it stood at one case's audit_at. Every engine and tool read goes through it.
 
-Admissible means `captured_at <= audit_at` (inclusive). For files, captured_at is the manifest capture time; for
-activity and audit rows it is the event time (csv_tables sets both clocks the same), so one rule covers all.
+Two clocks per observation (both kept, with their provenance in ingest):
+- `captured_at`: when the artifact was captured, which is the manifest time for files. For activity and audit
+  rows it is the event time.
+- `observed_at`: when the event or record inside the artifact happened, if the source states one:
+  - SQL row: `captured_at`/`observed_at` column, else the snapshot's file time;
+  - log line or trace: the line's `ts`;
+  - JSON lookup: `recorded_at`; JSON bundle record: its `observed_at`, else the bundle time;
+  - PDF table row: its timestamp column;
+  - txt record: the file time;
+  - activity/audit row: the event time;
+  - screen panels and PDF free text: none (a screen shows the state at its capture).
+
+Admissible (S5 C5.3b) means `captured_at <= audit_at` (AGENTS §6.6: never an item captured after audit_at, even
+if it holds older timestamps) **and** `event_time <= audit_at` (an observation of something after the cutoff
+is rejected even inside an admissible artifact). Inclusive at both ends. An observation timed after its own
+artifact's capture is contradictory; it is admitted only for cutoffs after its observation time, which is what
+this rule already gives (2 such observations in the data, measured 2026-10-24 ~22:02 UTC).
 """
 from __future__ import annotations
 
@@ -10,13 +25,23 @@ from datetime import datetime
 from .evidence import EvidenceStore, Observation
 
 
+def event_time(obs: Observation) -> datetime:
+    """The time an observation describes: its own observation time, or its capture time when the source states
+    none (screens, PDF free text), the only justified fallback. Used to order states within one copy."""
+    return obs.observed_at or obs.captured_at
+
+
+def time_basis(obs: Observation) -> str:
+    return "observed" if obs.observed_at is not None else "captured"
+
+
 class CaseView:
     def __init__(self, store: EvidenceStore, audit_at: datetime):
         self._store = store
         self.audit_at = audit_at
 
     def admissible(self, obs: Observation) -> bool:
-        return obs.captured_at <= self.audit_at
+        return obs.captured_at <= self.audit_at and event_time(obs) <= self.audit_at
 
     @property
     def observations(self) -> list[Observation]:

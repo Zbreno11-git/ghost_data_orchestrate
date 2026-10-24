@@ -264,3 +264,18 @@ Integrated into C5.3, C5.5, C5.11 and C5.12 above, without new modules:
   - case_55: backup_9286/88/91 sit in other customers' rows.
 
   Targets: resolved 172, weak 20, unresolved 326; 4 invalid rows (case_39's flow is now honestly unknown).
+- **C5.3b ✅ 22:04Z (added by Breno, 21:59:56 UTC: temporal correctness).** Capture vs observation time
+  (A26). Per-format timestamp semantics are documented in `temporal.py`; `CaseView.admissible` needs both
+  clocks ≤ audit_at. A copy's state is the latest by event time, and disagreement at the same instant is
+  `CONFLICT`. `CopyState.at`/`time_basis` carry the clock used, and the tools expose both timestamps.
+  - Tests: 9 new, covering the boundary, a post-audit observation inside an admissible file, a later artifact
+    with an older timestamp, a missing timestamp, shuffled input order, a same-instant conflict, cross-artifact
+    order, and a clean primary vs a dirty replica. 7 were red first; `202 passed`. Five mutations are red.
+  - Case-by-case vs C5.3:
+    - samples: 0 rows changed, metrics identical;
+    - targets: 4 rows changed, all INCOMPLETE→COMPLETE and each investigated, all improved correctness that
+      the samples cannot score.
+      - case_86 and case_390: FOUND days earlier, NOT_FOUND at the cutoff.
+      - case_135 and case_383: the FOUND is observed two days after audit_at.
+  - No derived cache was involved: the engine re-ingests each run, the vision cache holds extraction only, and
+    LLM responses are keyed by request content.

@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from .evidence import Observation
 from .identity import Subject
 from .ownership import PREFIX_SYSTEM, ROW_KEY
-from .temporal import CaseView
+from .temporal import CaseView, event_time, time_basis
 
 # canonical system → (default category, alternative category or None)
 SYSTEM_CATEGORY = {
@@ -143,9 +143,10 @@ class CopyState:
                             # RESTORABLE BLOCKED UNKNOWN
     obs_id: str
     source_id: str
-    captured_at: object
+    at: object              # the event time the state is read at (event_time of its observation)
     detail: str = ""
     basis: str = DIRECT
+    time_basis: str = "observed"    # observed: the record's own time; captured: its artifact's capture time
 
 
 # A field value that states the content was removed (measured: 30 support messages carry exactly this).
@@ -223,10 +224,10 @@ def copy_states(resource_id: str, system: str | None, treat: str, view: CaseView
         if o.kind == "activity" or o.resource_id != resource_id:
             continue
         if o.kind == "lookup" and (o.result or "").upper() == "NOT_FOUND":
-            events[copy_key(o)].append((o.captured_at, "ABSENT", o, "lookup not found"))
+            events[copy_key(o)].append((event_time(o), "ABSENT", o, "lookup not found"))
         elif o.kind in ("record", "lookup"):
             state, why = _record_state(o, treat, subject)
-            events[copy_key(o)].append((o.captured_at, state, o, why))
+            events[copy_key(o)].append((event_time(o), state, o, why))
     # A business document (PDF page, screen) that names the resource next to the subject's identifiers is a copy
     # of that *record* outside its system: present, and exposed where the treatment is redaction/anonymization.
     # A flow or a backup is a process, not personal data: a screen showing one is not a copy of it, and health
@@ -238,7 +239,7 @@ def copy_states(resource_id: str, system: str | None, treat: str, view: CaseView
                 continue
             if any(x and x in _unit_naming(o, resource_id).lower() for x in mine):
                 state = "PRESENT" if treat in ("DELETE", "RETAIN") else "PRESENT_EXPOSED"
-                events[(system or o.system_id, "document")].append((o.captured_at, state, o, "named in a document"))
+                events[(system or o.system_id, "document")].append((event_time(o), state, o, "named in a document"))
     # Absence by scope only for deletion targets: a capture that covers the system and lacks the row proves the
     # row is gone (4/75 sample citations). For a retained record, flow or backup a missing row proves nothing,
     # because a capture bundle may hold only some subjects' records.
@@ -250,20 +251,31 @@ def copy_states(resource_id: str, system: str | None, treat: str, view: CaseView
             key = (system, s.topology or "primary")
             # inference never overrides a direct observation of the same copy (a later capture may be partial)
             if key not in direct and (s.source_id, s.container) not in present_in and scope_covers(s, system, view):
-                inferred[key].append((s.captured_at, "ABSENT", s, "scope lacks the row"))
+                inferred[key].append((event_time(s), "ABSENT", s, "scope lacks the row"))
         events.update(inferred)
     out = []
     for key, evs in events.items():
-        evs.sort(key=lambda e: (e[0], e[1] != "ABSENT", e[2].obs_id))   # at a tie, presence wins (conservative)
-        t, state, o, why = evs[-1]
-        out.append(CopyState(key, state, o.obs_id, o.source_id, t, why, INFERRED if o.kind == "scope" else DIRECT))
+        # The copy's state is its latest observation by event time, never by input order. Observations of the
+        # same copy at the same instant that disagree are a conflict: unknown, never resolved by a tie-break.
+        t = max(e[0] for e in evs)
+        last = sorted((e for e in evs if e[0] == t), key=lambda e: e[2].obs_id)
+        states = {e[1] for e in last}
+        if len(states) > 1:
+            o = last[-1][2]
+            out.append(CopyState(key, "CONFLICT", o.obs_id, o.source_id, t,
+                                 "same-instant observations disagree: " + ", ".join(
+                                     f"{e[2].obs_id}={e[1]}" for e in last), DIRECT, time_basis(o)))
+            continue
+        _, state, o, why = last[-1]
+        out.append(CopyState(key, state, o.obs_id, o.source_id, t, why, INFERRED if o.kind == "scope" else DIRECT,
+                             time_basis(o)))
     return sorted(out, key=lambda c: (str(c.copy), c.obs_id))
 
 
 def _proof_rank(c: CopyState):
     """Which compliant copy is cited: direct evidence of the row before scope inference, the live primary before
     other copies, then the latest capture."""
-    return (c.basis == DIRECT, c.copy[1] == "primary", c.captured_at, c.obs_id)
+    return (c.basis == DIRECT, c.copy[1] == "primary", c.at, c.obs_id)
 
 
 def _scopes(view: CaseView, system: str) -> list[Observation]:
@@ -313,7 +325,7 @@ def assess(resource_id: str, system_id: str | None, view: CaseView, rules: dict[
     ops = TREATMENT_OPS[treat]
     bad = [c for c in copies if c.state in VIOLATION[treat]]
     if bad:
-        proof = max(bad, key=lambda c: (c.captured_at, c.obs_id))
+        proof = max(bad, key=lambda c: (c.at, c.obs_id))
         return Assessment(resource_id, system_id, cat, treat, "violation", copies, proof, ops,
                           f"{len(bad)}/{len(copies)} copies violate {treat}")
     if treat == "RETAIN" and copies and all(c.state == "ABSENT" for c in copies):

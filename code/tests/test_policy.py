@@ -241,3 +241,44 @@ def test_a_table_row_is_a_copy_only_when_the_subject_is_in_that_row():
     assert a.verdict == "compliant" and [c.state for c in a.copies] == ["REDACTED"]
     b = _assess_s([screen], "support_2", "support_platform")
     assert b.verdict == "violation" and b.copies[0].copy[1] == "document"   # row 2 does name the subject
+
+
+# --- S5 C5.3b: state ordered by the observation's own time within one physical copy ---
+
+def _lookup(oid, source, captured_days, observed_hours, result, topology=None):
+    t = T + timedelta(days=captured_days)
+    return Observation(obs_id=f"{source}#{oid}", source_id=source, source_kind="json", kind="lookup", captured_at=t,
+                       observed_at=T + timedelta(hours=observed_hours), system_id="search_service",
+                       resource_id="search_1", result=result, container="search_service", topology=topology,
+                       fields={"resource_id": "search_1"}, locator=oid)
+
+
+@pytest.mark.parametrize("order", [0, 1])
+def test_inside_one_export_the_later_observation_wins_whatever_the_input_order(order):
+    # An export captured at day 2 holds FOUND at 10:00 and NOT_FOUND at 14:00 of day 1.
+    pair = [_lookup("a", "export_x", 2, 24 + 10, "FOUND"), _lookup("b", "export_x", 2, 24 + 14, "NOT_FOUND")]
+    a = _assess(pair if order == 0 else pair[::-1], "search_1", "search_service")
+    assert a.verdict == "compliant" and [c.state for c in a.copies] == ["ABSENT"]
+    assert a.copies[0].obs_id == "export_x#b"
+
+
+@pytest.mark.parametrize("order", [0, 1])
+def test_conflicting_observations_at_the_same_instant_stay_ambiguous(order):
+    pair = [_lookup("a", "export_x", 2, 30, "FOUND"), _lookup("b", "export_x", 2, 30, "NOT_FOUND")]
+    a = _assess(pair if order == 0 else pair[::-1], "search_1", "search_service")
+    assert a.verdict == "unknown" and [c.state for c in a.copies] == ["CONFLICT"]
+
+
+def test_a_later_observation_in_an_earlier_artifact_outranks_an_older_one_in_a_later_artifact():
+    later_capture_older_fact = _lookup("a", "bundle", 5, 24, "FOUND")          # captured day 5, observed day 1
+    earlier_capture_newer_fact = _lookup("b", "trace_log", 3, 48, "NOT_FOUND")  # captured day 3, observed day 2
+    a = _assess([later_capture_older_fact, earlier_capture_newer_fact], "search_1", "search_service")
+    assert [c.state for c in a.copies] == ["ABSENT"] and a.copies[0].time_basis == "observed"
+
+
+def test_a_clean_primary_still_never_clears_a_dirty_replica_under_observation_time():
+    primary = _lookup("p", "log_a", 3, 70, "NOT_FOUND")
+    replica = _lookup("r", "log_b", 3, 20, "FOUND", topology="read_replica")
+    a = _assess([primary, replica], "search_1", "search_service")
+    assert a.verdict == "violation" and {c.copy[1]: c.state for c in a.copies} == {"primary": "ABSENT",
+                                                                                   "read_replica": "PRESENT"}

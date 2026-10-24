@@ -12,7 +12,7 @@ from .evidence import Observation, normalize_identifier
 from .identity import Subject
 from .ownership import Ownership, WorkflowAssignment, canonical_system
 from .policy import assess, copy_states, categorize, treatment
-from .temporal import CaseView
+from .temporal import CaseView, event_time
 
 PAGE_SIZE = 8
 FIELD_CHARS = 400
@@ -21,7 +21,8 @@ FIELD_CHARS = 400
 def summarize(o: Observation, full: bool = False) -> dict:
     fields = o.fields if full else {k: (v[:120] if isinstance(v, str) else v) for k, v in list(o.fields.items())[:12]}
     out = {"obs_id": o.obs_id, "source_id": o.source_id, "kind": o.kind, "claim": o.kind == "activity",
-           "captured_at": o.captured_at.isoformat(), "system_id": o.system_id, "resource_id": o.resource_id,
+           "captured_at": o.captured_at.isoformat(),
+           "observed_at": o.observed_at.isoformat() if o.observed_at else None, "system_id": o.system_id, "resource_id": o.resource_id,
            "container": o.container, "topology": o.topology, "result": o.result, "fields": fields}
     if o.wrapper:
         out["wrapper_not_record_content"] = o.wrapper
@@ -62,7 +63,7 @@ class CaseTools:
             key = key or (("user_id", q) if q.startswith("user_") else None)
             if key:
                 hits = [h[0] for h in self.view.by_identifier(key)]
-        hits = sorted({o.obs_id: o for o in hits}.values(), key=lambda o: (o.captured_at, o.obs_id))
+        hits = sorted({o.obs_id: o for o in hits}.values(), key=lambda o: (event_time(o), o.obs_id))
         start = max(0, page) * PAGE_SIZE
         chunk = hits[start:start + PAGE_SIZE]
         return {"query": q, "total": len(hits), "page": page, "results": self._ret(chunk),
@@ -80,7 +81,7 @@ class CaseTools:
 
     def resource_timeline(self, resource_id: str) -> dict:
         """Every admissible observation of a resource in time order; activity rows are claims, not state."""
-        obs = sorted(self.view.by_resource(resource_id), key=lambda o: (o.captured_at, o.obs_id))
+        obs = sorted(self.view.by_resource(resource_id), key=lambda o: (event_time(o), o.obs_id))
         return {"resource_id": resource_id, "system_id": canonical_system(resource_id, obs),
                 "events": self._ret(obs[-20:]), "omitted_older": max(0, len(obs) - 20)}
 
@@ -95,7 +96,7 @@ class CaseTools:
         self.seen.update(c.obs_id for c in copies)
         return {"resource_id": resource_id, "system_id": system, "copies": [
             {"copy": list(c.copy), "state": c.state, "obs_id": c.obs_id, "basis": c.basis,
-             "captured_at": c.captured_at.isoformat(), "detail": c.detail} for c in copies]}
+             "at": c.at.isoformat(), "time_basis": c.time_basis, "detail": c.detail} for c in copies]}
 
     def inspect_flows_restores(self) -> dict:
         """Policy verdicts for the subject's data flows and backups (can they recreate deleted data?)."""
