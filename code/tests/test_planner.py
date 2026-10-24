@@ -146,3 +146,37 @@ def test_agent_resume_never_reinvestigates_a_checkpointed_case(tmp_path):
                   run_id="resume-test")
     assert summary["agent"]["resumed"] == 1 and summary["agent"].get("model_calls", 0) == 0
     assert read_csv(tmp_path / "output.csv")[0]["steps_json"].count("account_001") == 1
+
+
+# --- support caps (S5 C5.2): an ambiguity or an unknown never leaves a case resolved ---
+
+def test_any_ownership_ambiguity_caps_support_at_weak():
+    own = _own(("account_1", "explicit"), ("search_1", "explicit"))
+    own.ambiguities.append("search_1: supporting record also carries identifiers of ['user_9']")
+    p = plan_case("case_t", AUDIT, YES, SUBJECT, own, {
+        "account_1": _a("account_1", "account_service", "compliant", "DELETE", DEL),
+        "search_1": _a("search_1", "search_service", "violation", "DELETE", DEL)}, TIMES)
+    assert p.status == "INCOMPLETE" and p.support == "weak"
+
+
+def test_an_unknown_retained_record_in_an_incomplete_case_is_unresolved():
+    own = _own(("account_1", "explicit"), ("search_1", "explicit"), ("audit_record_1", "explicit"))
+    p = plan_case("case_t", AUDIT, YES, SUBJECT, own, {
+        "account_1": _a("account_1", "account_service", "compliant", "DELETE", DEL),
+        "search_1": _a("search_1", "search_service", "violation", "DELETE", DEL),
+        "audit_record_1": _a("audit_record_1", "security_service", "unknown", "RETAIN", RET)}, TIMES)
+    assert p.status == "INCOMPLETE" and p.support == "unresolved"
+    assert any("audit_record_1" in r and "unknown" in r for r in p.reasons)
+
+
+def test_every_ambiguity_producer_in_ownership_reaches_the_cap():
+    # Derived: every `ambiguities.append` in ownership.py feeds Ownership.ambiguities, which the planner caps
+    # without reading its text; the count pins the producers so a new one is noticed.
+    src = (CODE / "ghostaudit" / "ownership.py").read_text()
+    assert src.count("ambiguities.append(") >= 5
+    for text in ("anything at all", ""):
+        own = _own(("account_1", "explicit"))
+        own.ambiguities.append(text or "x")
+        p = plan_case("case_t", AUDIT, YES, SUBJECT, own,
+                      {"account_1": _a("account_1", "account_service", "compliant", "DELETE", DEL)}, TIMES)
+        assert p.support != "resolved"

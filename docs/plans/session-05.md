@@ -222,3 +222,27 @@ Integrated into C5.3, C5.5, C5.11 and C5.12 above, without new modules:
     - screens naming a flow or backup become a fake "physical copy" (case_39, case_55).
   - Cases 41/264/390 are the state class, caused by the first three.
   - Sample mismatches (31 missing steps, 1 extra) are classed evaluator-side in C5.5.
+- **C5.2 ✅ 21:55Z.** As-of owner index and workflow solver, plus one `support_of()` (A24). Six new tests were
+  red first; `183 passed`. Five mutations are red, then restored:
+  - ignore the acquisition time;
+  - keep later requests unrelinked;
+  - keep post-cutoff rows;
+  - drop the ambiguity cap;
+  - drop retained-unknown.
+  
+  T3 (corroboration from a post-audit worker row) is inert by construction: every feasible row is ≤ audit_at,
+  so a later worker row corroborates all of them equally. The as-of activity filter now removes it
+  structurally.
+
+  Case-by-case (base vs c52, 21:53Z):
+
+  | Split | Rows changed | Support moves | Metrics |
+  |---|---|---|---|
+  | samples | 0 | case_15 resolved → weak (decoy ambiguity) | identical |
+  | targets | 16 (no status flip) | 14 weak → unresolved | — |
+
+  The 16 target rows are accounts the global solve had deduced from later information. Targets support:
+  resolved 169, weak 20, unresolved 329.
+
+  S4 (a decoy link kept as an ambiguity) is now capped at weak by `support_of`. It is not excluded: the record
+  does name the subject.

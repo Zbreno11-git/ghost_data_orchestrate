@@ -8,7 +8,6 @@ from __future__ import annotations
 import json
 from collections import Counter
 from dataclasses import asdict
-from datetime import datetime, timezone
 from pathlib import Path
 
 from .identity import IdentityIndex, Subject
@@ -16,13 +15,12 @@ from .ingest.csv_tables import load_tables
 from .ingest.manifest import evidence_times
 from .ingest.pipeline import ingest_all
 from .intent import classify
-from .ownership import OwnerIndex, WorkflowAssignment, build_requests, link_case
+from .ownership import AssignmentsAsOf, OwnerIndex, build_requests, link_case, request_at
 from .planner import Plan, plan_case
 from .policy import assess, load_rules
 from .serialize import dumps, write_output_csv
 from .temporal import CaseView
 
-FAR_FUTURE = datetime(2100, 1, 1, tzinfo=timezone.utc)
 SPLITS = {"targets": "requests", "samples": "sample_requests"}
 
 
@@ -56,10 +54,13 @@ def run(dataset: Path, split: str, out_dir: Path, mode: str = "strict", engine: 
     store, coverage = ingest_all(dataset, allow_paid=False)
     failed = [c.file_id for c in coverage.files if c.status == "failed"]
     identity = IdentityIndex(tables["identities"], tables["audit"])
-    owners = OwnerIndex(identity, FAR_FUTURE)
+    owners = OwnerIndex(identity)                               # queried as of each case's audit_at
     everyone = tables.get("requests", []) + tables.get("sample_requests", [])
     reqs, resolved = build_requests(everyone, identity, store, store.resource_re, owners)
-    workflow = WorkflowAssignment(store.observations, reqs)   # one-to-one across every request in the dataset
+    by_row = {r["case_id"]: r for r in everyone}
+    # One-to-one across every request in the dataset, solved per case from what existed at its audit_at (C5.2).
+    workflows = AssignmentsAsOf(store.observations, reqs, lambda q, at: request_at(
+        by_row[q.case_id], at, identity, store, store.resource_re, owners)[0])
     by_case = {q.case_id: q for q in reqs}
     rules = load_rules(tables["rules"])
     times = evidence_times(dataset)
@@ -79,6 +80,7 @@ def run(dataset: Path, split: str, out_dir: Path, mode: str = "strict", engine: 
         llm_intents = classify_all(selected, gateway, cfg)
 
     plans: list[Plan] = []
+    how: dict[str, str] = {}                    # case → how its as-of assignment was decided
     for row in tables[SPLITS[split]]:
         cid = row["case_id"]
         if cases and cid not in cases:
@@ -93,6 +95,8 @@ def run(dataset: Path, split: str, out_dir: Path, mode: str = "strict", engine: 
         own, assessments = None, {}
         if isinstance(subject, Subject):
             view = CaseView(store, audit_at)
+            workflow = workflows.for_case(cid)
+            how[cid] = workflow.assigned[cid][1] if cid in workflow.assigned else "ambiguous"
             own = link_case(by_case[cid], view, workflow, owners, mode)
             assessments = {r: assess(r, l.system_id, view, rules, subject) for r, l in own.links.items()}
         if audit_at is None:
@@ -140,8 +144,8 @@ def run(dataset: Path, split: str, out_dir: Path, mode: str = "strict", engine: 
         "status": dict(Counter(p.status for p in plans)),
         "support": dict(Counter(p.support for p in plans)),
         "status_by_support": {f"{s}/{st}": n for (s, st), n in sorted(Counter((p.support, p.status) for p in plans).items())},
-        "workflow_assignment": dict(Counter(how for _, how, _ in workflow.assigned.values())),
-        "workflow_ambiguous_requests": len(workflow.ambiguous),
+        "workflow_assignment": dict(Counter(v for v in how.values() if v != "ambiguous")),
+        "workflow_ambiguous_requests": sum(v == "ambiguous" for v in how.values()),
         "ingest_failed_files": failed,
     }
     (out_dir / "summary.json").write_text(json.dumps(summary, indent=1) + "\n")

@@ -88,18 +88,26 @@ def plan_case(case_id: str, audit_at: datetime, intent: Intent, subject, own: Ow
             if a.treatment == "RETAIN" and a.resource_id not in listed:
                 steps.append(_step("VERIFY_RECORD_PRESENT", a.system_id, a.resource_id, ""))
         for a in unknown:
-            if a.treatment != "RETAIN":
-                reasons.append(f"{a.resource_id}: state unknown ({a.reason})")
+            reasons.append(f"{a.resource_id}: state unknown ({a.reason})")
     else:
         status = "COMPLETE"
         for a in compliant:
             steps.append(_step(a.ops[2], a.system_id, a.resource_id, a.proof.source_id))
         for a in unknown:
             reasons.append(f"{a.resource_id}: state unknown, cannot be verified ({a.reason})")
-    unresolved = (intent.authorizes_deletion is None or account is None
-                  or any("state unknown" in x for x in reasons))
-    support = "unresolved" if unresolved else ("weak" if weak_used or intent.confidence != "high" else "resolved")
+    support = support_of(intent, account is not None, bool(unknown), bool(weak_used), bool(own.ambiguities))
     return _finish(Plan(case_id, status, steps, support, reasons, decisions), audit_at, evidence_times)
+
+
+def support_of(intent: Intent, account: bool, unknown: bool, weak_links: bool, ambiguous: bool) -> str:
+    """The one place a support level is decided (S5 C5.2). Unresolved: no intent, no account, or any resource in
+    an unknown state (a retained record included). Weak: a workflow-only link, any ownership ambiguity (whatever
+    its text), or a low-confidence intent. Only a case with none of these is resolved."""
+    if intent.authorizes_deletion is None or not account or unknown:
+        return "unresolved"
+    if weak_links or ambiguous or intent.confidence != "high":
+        return "weak"
+    return "resolved"
 
 
 def _finish(p: Plan, audit_at: datetime, evidence_times: dict[str, datetime]) -> Plan:

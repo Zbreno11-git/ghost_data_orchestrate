@@ -47,7 +47,7 @@ def test_a_repeated_person_does_not_inherit_the_earlier_requests_account():
     wf = WorkflowAssignment(rows, [first, second])
     assert wf.assigned["case_first"][0].resource_id == "account_old"
     assert wf.assigned["case_second"][0].resource_id == "account_new"
-    owners = OwnerIndex(IdentityIndex([], []), FAR)
+    owners = OwnerIndex(IdentityIndex([], []))
     from ghostaudit.evidence import EvidenceStore
     own = link_case(second, CaseView(EvidenceStore(), FAR), wf, owners)
     assert own.account.resource_id == "account_new" and "account_old" not in own.links
@@ -61,7 +61,7 @@ def test_a_tie_stays_ambiguous_and_is_never_forced(mode):
     wf = WorkflowAssignment(rows, [a, b])
     assert wf.assigned == {} and set(wf.ambiguous) == {"case_A", "case_B"}
     from ghostaudit.evidence import EvidenceStore
-    owners = OwnerIndex(IdentityIndex([], []), FAR)
+    owners = OwnerIndex(IdentityIndex([], []))
     for q in (a, b):
         own = link_case(q, CaseView(EvidenceStore(), FAR), wf, owners, mode)
         if mode == "strict":
@@ -75,7 +75,7 @@ def test_workflow_links_keep_their_tier_and_supporting_rows():
     q = _req("case_A", "user_a", -60, 30)
     wf = WorkflowAssignment(rows, [q])
     from ghostaudit.evidence import EvidenceStore
-    own = link_case(q, CaseView(EvidenceStore(), FAR), wf, OwnerIndex(IdentityIndex([], []), FAR), "scored")
+    own = link_case(q, CaseView(EvidenceStore(), FAR), wf, OwnerIndex(IdentityIndex([], [])), "scored")
     assert own.account.tier == "workflow" and own.account.reasons == ("r1#row",)
     assert own.links["analytics_9"].tier == "workflow" and own.links["analytics_9"].reasons == ("r1#row", "r2#row")
     assert own.weak
@@ -87,13 +87,16 @@ def test_workflow_links_keep_their_tier_and_supporting_rows():
 def linked(store):
     ids, audit = read_csv(DATASET / "user_identities.csv"), read_csv(DATASET / "user_audit_log.csv")
     idx = IdentityIndex(ids, audit)
-    owners = OwnerIndex(idx, FAR)
+    owners = OwnerIndex(idx)
     rows = read_csv(DATASET / "sample_deletion_requests.csv") + read_csv(DATASET / "deletion_requests.csv")
     reqs, _ = build_requests(rows, idx, store, store.resource_re, owners)
-    wf = WorkflowAssignment(store.observations, reqs)
+    from ghostaudit.ownership import AssignmentsAsOf, request_at
+    by_row = {r["case_id"]: r for r in rows}
+    wfs = AssignmentsAsOf(store.observations, reqs,
+                          lambda q, at: request_at(by_row[q.case_id], at, idx, store, store.resource_re, owners)[0])
     byq = {q.case_id: q for q in reqs}
     samples = [r["case_id"] for r in read_csv(DATASET / "sample_deletion_requests.csv")]
-    return {m: {c: link_case(byq[c], CaseView(store, byq[c].audit_at), wf, owners, m) for c in samples}
+    return {m: {c: link_case(byq[c], CaseView(store, byq[c].audit_at), wfs.for_case(c), owners, m) for c in samples}
             for m in ("strict", "scored")}
 
 
@@ -105,11 +108,69 @@ def test_the_look_alike_record_is_never_the_subjects(linked, sample_requests):
 def test_sample_ownership_regression_gates(linked, sample_gold):
     # Measured 2026-10-24 (strict): 78/111 gold resources linked, 2 extras (object_19, tombstone_17: the
     # subject's own, not listed in the answers). A drop or a new extra must be explained, not absorbed.
+    # S5 C5.2 (as-of solver): case_17 also keeps account_6523, linked by a profile lookup keyed with the
+    # subject's email (NOT_FOUND). Only case_63's *later* deduction had claimed its worker row, which case_17
+    # cannot know at its cutoff; it is compliant (absent) in an INCOMPLETE case, so no step changes.
     gold = {c: {s["resource_id"] for s in steps} for c, (_, steps) in sample_gold.items()}
     assert sum(map(len, gold.values())) == 111
     strict = linked["strict"]
     found = sum(len(gold[c] & set(strict[c].links)) for c in gold)
     extra = sorted((c, r) for c in gold for r in set(strict[c].links) - gold[c])
     assert found >= 78, found
-    assert extra == [("case_07", "object_19"), ("case_17", "tombstone_17")], extra
+    assert extra == [("case_07", "object_19"), ("case_17", "account_6523"), ("case_17", "tombstone_17")], extra
     assert all(l.reasons for own in strict.values() for l in own.links.values())
+
+
+# --- temporal isolation of the global helpers (S5 C5.2): nothing after a case's audit_at may change it ---
+
+def test_an_identifier_acquired_by_someone_else_after_the_cutoff_does_not_change_an_earlier_case():
+    from ghostaudit.evidence import EvidenceStore
+    from ghostaudit.ownership import explicit_links
+    audit_x = T
+    later_a, later_b = T + timedelta(days=10), T + timedelta(days=20)
+    ids = [{"user_id": "user_a", "name": "A", "email": "a.new@x.com", "phone": "", "email_hash": "", "updated_at": ""},
+           {"user_id": "user_b", "name": "B", "email": "shared@x.com", "phone": "", "email_hash": "", "updated_at": ""}]
+    audit = [{"audit_id": "au1", "user_id": "user_a", "field_name": "email", "old_value": "shared@x.com",
+              "new_value": "a.new@x.com", "event_time": later_a.isoformat()},
+             {"audit_id": "au2", "user_id": "user_b", "field_name": "email", "old_value": "b.old@x.com",
+              "new_value": "shared@x.com", "event_time": later_b.isoformat()}]
+    idx = IdentityIndex(ids, audit)
+    store = EvidenceStore(resource_prefixes=["support"])
+    t = audit_x - timedelta(days=1)
+    store.add(Observation(obs_id="doc#p1", source_id="doc", source_kind="pdf", kind="text", captured_at=t,
+                          observed_at=t, system_id=None, resource_id=None, container="doc",
+                          fields={"text": "Ticket support_7 from shared@x.com about a late parcel"}, locator="p1"))
+    subject = idx.resolve("shared@x.com", audit_x)
+    assert isinstance(subject, Subject) and subject.user_id == "user_a"   # A held it at the cutoff
+    links = explicit_links(subject, CaseView(store, audit_x), store.resource_re, OwnerIndex(idx))
+    assert links == {"support_7": ["doc#p1"]}       # B only acquires the address 20 days later
+
+
+def test_a_later_request_cannot_take_or_force_an_earlier_cases_workflow_row():
+    from ghostaudit.ownership import AssignmentsAsOf
+    rows = [_row("r1", 0, "account_1"), _row("r2", 10, "account_2")]
+    x = _Req("case_X", Subject("user_x", "x@x.com", "current", ()), T - timedelta(minutes=60),
+             T + timedelta(minutes=50), T + timedelta(minutes=60), {})
+    # Y's explicit link to account_2 comes from evidence captured long after X's audit_at.
+    y = _Req("case_Y", Subject("user_y", "y@x.com", "current", ()), T - timedelta(minutes=60),
+             T + timedelta(minutes=50), T + timedelta(days=5), {"account_2": ["late#1"]})
+
+    def relink(q, at):      # Y as it could be known at `at`: the late evidence is not admissible yet
+        return _Req(q.case_id, q.subject, q.requested_at, min(q.reported_at, at), at, {})
+
+    glob = WorkflowAssignment(rows, [x, y])
+    assert glob.assigned["case_X"][0].resource_id == "account_1"     # what the global solver concludes
+    asof = AssignmentsAsOf(rows, [x, y], relink)
+    wx = asof.for_case("case_X")
+    assert "case_X" not in wx.assigned and sorted(wx.ambiguous["case_X"]) == ["account_1", "account_2"]
+    assert asof.for_case("case_Y").assigned["case_Y"][0].resource_id == "account_2"   # Y still knows its link
+
+
+def test_the_as_of_assignment_never_holds_rows_after_the_cutoff():
+    from ghostaudit.ownership import AssignmentsAsOf
+    rows = [_row("r1", 0, "account_1"), _row("w1", 90, "search_1", "search_service")]
+    x = _Req("case_X", Subject("user_x", "x@x.com", "current", ()), T - timedelta(minutes=60),
+             T + timedelta(minutes=50), T + timedelta(minutes=60), {"search_1": ["ev#1"]})
+    wf = AssignmentsAsOf(rows, [x], lambda q, at: q).for_case("case_X")
+    assert all(o.captured_at <= x.audit_at for o in wf.rows)
+    assert all(o.captured_at <= x.audit_at for rs in wf.worker_rows.values() for o in rs)

@@ -17,7 +17,7 @@ from __future__ import annotations
 import re
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from .evidence import Observation
 from .identity import IdentityIndex, Subject
@@ -77,14 +77,22 @@ def canonical_system(resource_id: str, observations: list[Observation]) -> str |
 
 
 class OwnerIndex:
-    """Strong identifier → user_ids that ever held it, used to recognize records that belong to someone else."""
+    """Strong identifier → the users who held it and since when, to recognize records that belong to someone else.
 
-    def __init__(self, identity: IdentityIndex, far_future: datetime):
-        self.owners: dict[tuple[str, str], set[str]] = defaultdict(set)
+    Queried as of a case's audit_at: an address another user acquires only after the cutoff is not "theirs" for
+    that case (S5 C5.2). The set a user holds only grows with time (as_of keeps historical values), so each
+    (identifier, user) pair has one acquisition time: None when held from the start of the record."""
+
+    def __init__(self, identity: IdentityIndex):
+        self.owners: dict[tuple[str, str], dict[str, datetime | None]] = defaultdict(dict)
         for uid in identity.snapshot:
-            for i in identity.identifiers(uid, far_future):
-                if i.strong:
-                    self.owners[i.key].add(uid)
+            for t in [None] + sorted({a["t"] for a in identity.changes.get(uid, ())}):
+                for i in identity.identifiers(uid, t or datetime.min.replace(tzinfo=timezone.utc)):
+                    if i.strong:
+                        self.owners[i.key].setdefault(uid, t)
+
+    def holders(self, key: tuple[str, str], at: datetime) -> set[str]:
+        return {u for u, since in self.owners.get(key, {}).items() if since is None or since <= at}
 
     @staticmethod
     def keys_in_text(text: str) -> set[tuple[str, str]]:
@@ -95,18 +103,18 @@ class OwnerIndex:
         keys |= {k for p in re.findall(r"\+\d[\d ()\-]{7,}\d", text) if (k := normalize_identifier("phone", p))}
         return keys
 
-    def others_in_text(self, text: str, user_id: str) -> set[str]:
+    def others_in_text(self, text: str, user_id: str, at: datetime) -> set[str]:
         found = set()
         for key in self.keys_in_text(text):
-            found |= self.owners.get(key, set()) - {user_id}
+            found |= self.holders(key, at) - {user_id}
         return found
 
-    def others(self, obs: Observation, user_id: str) -> set[str]:
+    def others(self, obs: Observation, user_id: str, at: datetime) -> set[str]:
         from .evidence import identifiers_in
         found = set()
         for k, v in obs.fields.items():
             for key in identifiers_in(k.rsplit(".", 1)[-1], v):
-                found |= self.owners.get(key, set()) - {user_id}
+                found |= self.holders(key, at) - {user_id}
         return found
 
 
@@ -148,9 +156,9 @@ def explicit_links(subject: Subject, view: CaseView, resource_re, owners: "Owner
                     out[obs.resource_id].add(obs.obs_id)
                 continue
             whole = _whole_text(obs)
-            units = [whole] if not owners.others_in_text(whole, subject.user_id) else text_units(obs)
+            units = [whole] if not owners.others_in_text(whole, subject.user_id, view.audit_at) else text_units(obs)
             for unit in units:
-                if owners.keys_in_text(unit) & mine and not owners.others_in_text(unit, subject.user_id):
+                if owners.keys_in_text(unit) & mine and not owners.others_in_text(unit, subject.user_id, view.audit_at):
                     for r in resource_re.findall(unit):
                         out[r].add(obs.obs_id)
     return {r: sorted(v) for r, v in out.items()}
@@ -338,7 +346,7 @@ def link_case(q: _Req, view: CaseView, wf: WorkflowAssignment, owners: OwnerInde
                     continue
                 inside = [c for c, win in windows.items() if win and win[0] <= w.captured_at <= win[1]]
                 obs = view.by_resource(r)
-                foreign = set().union(*(owners.others(o, q.subject.user_id) for o in obs)) if obs else set()
+                foreign = set().union(*(owners.others(o, q.subject.user_id, q.audit_at) for o in obs)) if obs else set()
                 if foreign:
                     own.excluded[r] = f"carries identifiers of {sorted(foreign)}"
                 elif inside == [q.case_id]:
@@ -355,10 +363,21 @@ def link_case(q: _Req, view: CaseView, wf: WorkflowAssignment, owners: OwnerInde
         for oid in l.reasons:
             o = view.get(oid)
             if o is not None:
-                foreign |= owners.others(o, q.subject.user_id)
+                foreign |= owners.others(o, q.subject.user_id, q.audit_at)
         if foreign:
             own.ambiguities.append(f"{r}: supporting record also carries identifiers of {sorted(foreign)}")
     return own
+
+
+def request_at(row: dict, at: datetime, identity: IdentityIndex, store, resource_re,
+               owners: OwnerIndex) -> tuple[_Req | None, object]:
+    """A request as it could be known at `at` (≤ its own audit_at): subject, report time and explicit links are
+    all taken as of `at`; a report not yet made by then ends the run window at `at`."""
+    s = identity.resolve(row["email"], at)
+    if not isinstance(s, Subject):
+        return None, s
+    return _Req(row["case_id"], s, parse_ts(row["requested_at"]), min(parse_ts(row["reported_at"]), at), at,
+                explicit_links(s, CaseView(store, at), resource_re, owners)), s
 
 
 def build_requests(rows: list[dict], identity: IdentityIndex, store, resource_re,
@@ -366,11 +385,37 @@ def build_requests(rows: list[dict], identity: IdentityIndex, store, resource_re
     """(_Req per resolvable request, {case_id: resolve result}) — explicit links computed in each case's view."""
     reqs, resolved = [], {}
     for q in rows:
-        audit = parse_ts(q["audit_at"])
-        s = identity.resolve(q["email"], audit)
-        resolved[q["case_id"]] = s
-        if isinstance(s, Subject):
-            view = CaseView(store, audit)
-            reqs.append(_Req(q["case_id"], s, parse_ts(q["requested_at"]), parse_ts(q["reported_at"]), audit,
-                             explicit_links(s, view, resource_re, owners)))
+        req, resolved[q["case_id"]] = request_at(q, parse_ts(q["audit_at"]), identity, store, resource_re, owners)
+        if req is not None:
+            reqs.append(req)
     return reqs, resolved
+
+
+class AssignmentsAsOf:
+    """The workflow assignment each case is allowed to know (S5 C5.2).
+
+    The one-to-one solver couples requests, so a global solve lets a later request's rows, explicit links and
+    matching edges decide an earlier case. Here the solve for a case uses only what existed at its audit_at:
+    activity rows up to the cutoff, requests already made by then, and each later request re-derived as of the
+    cutoff (`relink`). Solved once per distinct cutoff (81 on this dataset)."""
+
+    def __init__(self, activity_obs: list[Observation], requests: list[_Req], relink):
+        self.activity = sorted((o for o in activity_obs if o.kind == "activity"), key=lambda o: o.captured_at)
+        self.requests = {q.case_id: q for q in requests}
+        self.relink = relink
+        self._solved: dict[datetime, WorkflowAssignment] = {}
+
+    def at(self, cutoff: datetime) -> WorkflowAssignment:
+        if cutoff not in self._solved:
+            known = []
+            for q in self.requests.values():
+                if q.requested_at > cutoff:
+                    continue
+                q_at = q if q.audit_at <= cutoff else self.relink(q, cutoff)
+                if q_at is not None:
+                    known.append(q_at)
+            self._solved[cutoff] = WorkflowAssignment([o for o in self.activity if o.captured_at <= cutoff], known)
+        return self._solved[cutoff]
+
+    def for_case(self, case_id: str) -> WorkflowAssignment:
+        return self.at(self.requests[case_id].audit_at)
