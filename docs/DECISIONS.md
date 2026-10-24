@@ -43,6 +43,8 @@ Upstream inspected at `0eddbbd` (2026-10-24 15:20Z, "Update AGENTS.md"); the han
 | A15 | S1 and S2 run as one merged session (one plan file, checkpoints unchanged) | ~1h45 behind schedule at 19:46 UTC | **Breno**, 2026-10-24 19:46 UTC | Separate sessions | — |
 | A16 | `CHAT_GPT_TRANSCRIPT_PRE_CLAUDE.md` stays in the repo | It will be organized into the full chat-transcript delivery at the end | **Breno**, 2026-10-24 19:52 UTC | Move to `~/agent-trace/` | final packaging (S7) |
 | A17 | PNG vision extracts cached in `state/vision_cache/` and **committed**; each PNG read by `gemini-3.8-flash` and cross-checked by `gemini-3.1-flash-lite` (a disagreement marks the file partial) | A clean clone, CI and the judge's replay need no key; the dual read turns a silent misread into a visible one, for ≈$0.05 | agent, 2026-10-24 | Cache in gitignored `runs/` (every clean clone re-pays and replay needs a key) | organizers forbid derived caches, or the two models disagree on more than 2/11 images |
+| A18 | No fixed time target for now: keep working session by session; the 12:00 UTC deadline is the only hard limit | Owner instruction after S1+S2 closed early | **Breno**, 2026-10-24 20:20 UTC | Re-aim at the 04:00 UTC safety package (proposed by the agent) | Breno sets a target, or <4 h remain without a safety package |
+| A19 | S3 and S4 run as one merged session (one plan file `docs/plans/session-03-04.md`), executed one at a time: S3 checkpoints close before S4 starts | Momentum after S1+S2 closed early; S4 measures the agent against S3's baseline, so the order cannot flip | **Breno**, 2026-10-24 20:16 UTC | Separate sessions | — |
 
 ## A good trigger
 

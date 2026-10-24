@@ -4,63 +4,108 @@
 > handoff moves to `docs/HANDOFFS.md`, after relocating what lives only here (open decision → SESSIONS,
 > lesson → ERRORS, constraint → PRIMER).
 
-## ▶️ RESUME HERE — 2026-10-24 20:15 UTC (15:15 CDT) — S1+S2 closed, S3 next
+## ▶️ RESUME HERE — 2026-10-24 20:20 UTC (15:20 CDT) — before a compact; S3+S4 next
 
-**Repository state:** tree clean after the "Close S1+S2" commit (HEAD = origin/main; check below) · locks: none ·
-background runs: none · CI: `.github/workflows/ci.yml` added in the close commit (offline: pytest, validate, ingest)
+**Repository state:** tree clean after the "Checkpoint before compact (S3+S4 next)" commit · HEAD = origin/main (check
+below) · locks: none (`state/usage_ledger.lock` is the persistent fcntl lock file, not a held lock) · background runs: none.
+CI: run `tests` on `0ac781f` = **success** (checked by headSha 20:14 UTC). The checkpoint commit triggers a new run; check
+it by its own SHA.
 
-**State of the world (measured 20:12 UTC):**
-- Ledger: settled **$0.1074**, outstanding $0, 54 rows. S2 spent $0.1069; $0.0176 of that is a 400 error settled at its
-  reservation (S4 first step decides that policy).
-- Tests: `78 passed`. Ingest: `94 files, 7604 observations, 94 processed, 0 partial, 0 failed`.
-- Deadline 2026-10-25 12:00 UTC: 15h45m left. **≈2h35 ahead** of the re-timed plan (S1+S2 was due 22:50).
+**State of the world (measured 20:16 UTC):**
+- Ledger: settled **$0.107400**, outstanding $0, 54 rows.
+- `78 passed`. Ingest: 94/94 processed, 7,604 observations.
+- Deadline 2026-10-25 12:00 UTC: 15h44m left. **No fixed intermediate time target (Breno, A18).**
 
-**Current goal: S3.** Identity fixed point, cutoff in the tool layer, ownership link strength (strict/scored), policy
-registry, planner → a deterministic no-LLM proposal for the 32 samples, validated and scored (the baseline S4 must beat).
+**Current goal: S3+S4 merged (A19), one at a time.**
+- **S3:** a deterministic, no-LLM proposal for all 32 samples, which validates 32/32 and has baseline metrics.
+- **S4:** a tool-using Gemini investigator on top, with the gateway (budget refusal), cache, resume and replay, plus
+  the model benchmark.
+- S3's checkpoints C3.1–C3.5 must all close before C4.1.
 
 **Exact next step:**
-1. Write `docs/plans/session-03.md` (skill format, C3.1–C3.5 from MASTER_PLAN §S3).
-2. `code/ghostaudit/identity.py` + `code/tests/test_identity.py`: resolve request email → user_id + every current and
-   historical identifier (identities + audit log; emails case-insensitive). Expected: case_10 and case_12 resolve historical
-   aliases; the case_28 look-alike email is excluded.
+1. Write `docs/plans/session-03-04.md`. Use the skill format; checkpoints C3.1–C3.5, then C4.1–C4.6, come from
+   `docs/plans/MASTER_PLAN.md` §S3/§S4; fold in the sample patterns below.
+2. `code/ghostaudit/identity.py` + `code/tests/test_identity.py` (C3.1): the request email resolves to a user_id plus
+   all current and historical identifiers (identities + audit log, case-insensitive email, phones by digits).
+   Expected: case_10 and case_12 resolve historical aliases, and the case_28 look-alike email (another user) is excluded.
 
-**What S3 builds on (lives in code; read these):**
-- `ghostaudit/evidence.py`: `Observation` (kind record/lookup/scope/activity/audit/text; `fields` vs `wrapper`;
-  `captured_at` = admissibility clock) and `EvidenceStore` indexes `by_resource`, `by_identifier[(type, norm)] →
-  (obs, role, key)`, `by_source`, `by_trace`.
-- `ghostaudit/ingest/pipeline.py: ingest_all(dataset)` (≈0.5 s, no network; PNGs from `state/vision_cache`).
-- `ghostaudit/validate.py`, `serialize.py`, `evaluation/metrics.py`: the S3 output goes through these unchanged.
+**Sample patterns (measured 2026-10-24 20:16 UTC on sample_output.csv; tuning exposure: disclose in the report)**
+- **Account:** 32/32 cases verify the account_service account ABSENT.
+  - When the account still exists (3 cases): REPORT_REMAINING_RECORD → DELETE_RECORD → VERIFY_RECORD_ABSENT.
+  - Otherwise there is only the verification: cited in COMPLETE cases, `""` in INCOMPLETE ones.
+- **Retained audit record:** 24/32 cases have VERIFY_RECORD_PRESENT on a security_service `audit_record_*` (rule_12
+  RETAIN). Cases 01, 02, 04–08 and 10 have none.
+- **Ops per system** (findings / remediation / verification):
 
-**Don't forget (measured 2026-10-24; not obvious from the code):**
-- **Absence is proven by scope:** 4/75 sample citations are ABSENT checks citing a snapshot (`evidence_54` SQL tables,
-  `evidence_51` bundle scope) that covers the system and lacks the row. The resource id is not mentioned anywhere
-  (account_001/002/004/4857).
-- **D10:** `audit_record_5569/6645` (case_18/20, future VERIFY_RECORD_PRESENT) exist in no participant file. The ceiling is
-  109/111 resources and 191/193 steps. Never invent them.
-- **Lookups are claims about other systems:** ledger/`operational_record_history`/`record_lookup`/TXT rows carry
-  `system`+`resource_id`+`result` FOUND/NOT_FOUND, with the subject in the wrapper. Some results are ANONYMIZED,
-  IDENTIFIABLE or ACTIVE, and the subject can be prose ("no direct identifier").
-- **Inventory SQL `snapshot_scope`** lists which systems a capture covers. evidence_90 covers only account_service and
-  holds 0 rows, which proves account absence.
-- **Logs:** `profile_service` (cloud grammar) is the account service's function name; payload events also include
-  `*_pii_scan` (matched_value), `connector_heartbeat` (enabled, scheduler_registered), `restore_candidate_evaluated`
-  (eligible, deletion_block), and `deletion_marker_check`.
-- **Ownership baseline:** 82/111 sample resources have an explicit co-occurring subject link (`scripts/analysis/linkaudit.py`).
-- **Gemini:** `gemini-3.8-flash` rejects `thinking_level=MINIMAL` (400), so use LOW. Always append the model `Content`
-  unchanged (thought_signature).
+  | System | Findings | Remediation | Verification |
+  |---|---|---|---|
+  | search | 12 REMAINING | 12 DELETE | 12 ABSENT |
+  | analytics | 5 EXPOSED_PII | 5 ANONYMIZE | 12 ANONYMIZED |
+  | support | 5 EXPOSED_PII | 5 REDACT | 8 REDACTED |
+  | integration | 6 ACTIVE_DATA_FLOW | 6 DISABLE | 9 DISABLED |
+  | backup | 3 RESTORE_RISK | 3 BLOCK | 6 BLOCKED |
+  | export | 2 REMAINING | 2 DELETE | 2 ABSENT |
+  | identity_service `tombstone_*` | 1 EXPOSED_PII | 1 REDACT | 2 REDACTED |
+
+  Exceptions:
+  - case_12 analytics_9914: REMAINING → DELETE → ABSENT (likely a marketing/contact profile: `contact_lookup_completed
+    email_opt_in`, rule_10 DELETE).
+  - Support: 3 cases go REMAINING → DELETE → ABSENT, all subject-only attachments/records (rule_06): case_07 PDF
+    `evidence_58`, case_10 `support_replica.log` `evidence_61`, case_13.
+- **INCOMPLETE verification set** = account ABSENT + audit PRESENT (if any) + one verification per remediated resource,
+  all with `""`.
+- **COMPLETE** = verification of every relevant resource, each citing proof:
+  - an analytics record that is already anonymized gets VERIFY_RECORD_ANONYMIZED;
+  - a connector already disabled gets VERIFY_DATA_FLOW_DISABLED;
+  - a backup with `restore_allowed=false` gets VERIFY_RESTORE_BLOCKED;
+  - support already redacted gets VERIFY_RECORD_REDACTED.
+- **Citations:** 31/32 cases cite exactly one file for all steps (the comprehensive latest admissible snapshot:
+  `evidence_92`/`94`/`51`/`54`/`03`/`01`/`05`). case_04 cites two (`evidence_54` account, `evidence_56` analytics report).
+  Hypothesis for S3: "latest admissible file that covers the resource's state".
+- **Gap:** `evidence.RESOURCE_RE` lacks `tombstone_`, so free-text mentions of tombstones are not indexed (record
+  resource_ids still are). Add it in S3.
+
+**Don't forget (measured 2026-10-24, still true):**
+- **Absence by scope:** 4/75 citations are ABSENT checks on a snapshot covering the system without the row (`evidence_54`
+  SQL tables, `evidence_51` bundle scope). evidence_90 `snapshot_scope` covers only account_service and has 0 rows.
+- **D10:** `audit_record_5569/6645` are unobservable. The ceiling is 109/111 resources and 191/193 steps. Never invent them.
+- **Lookup claims:** ledger / `operational_record_history` / `record_lookup` / TXT rows put `system`+`resource_id`+
+  `result` in the observation and the subject in `wrapper`. Results include FOUND, NOT_FOUND, ANONYMIZED, IDENTIFIABLE
+  and ACTIVE.
+- **Logs:** `profile_service` is the account service's function name. The payload events are `*_pii_scan`,
+  `connector_heartbeat`, `restore_candidate_evaluated` and `deletion_marker_check`.
+- **Ownership baseline:** 82/111 explicitly linked (`scripts/analysis/linkaudit.py`). A5: strict vs scored, decided in S6.
+- **Gemini:**
+  - `3.8-flash` rejects `thinking_level=MINIMAL`, so it runs at LOW;
+  - append the model `Content` unchanged (`thought_signature`);
+  - every call needs `max_output_tokens`.
+- **S4's first step:** the 4xx settlement policy. `gemini.py` settles any exception at the reservation; one 400 cost
+  $0.0176 in the ledger.
+
+**Re-read, in this order:**
+1. `AGENTS.md`: contract and logging (log.txt every turn: `tool=Claude Code`, `model=claude-opus-5-5`)
+2. `docs/PRIMER.md`: rules and boundaries (wrapper vs fields, absence proof, D10)
+3. this block
+4. `docs/plans/MASTER_PLAN.md` §S3 and §S4
+5. `docs/DECISIONS.md`: A4, A5, A6, A7, A10, A17–A19, D6, D9, D10
+6. the skills `software-build` and `testes-que-provam`; `integracoes` before S4's gateway
+7. code: `ghostaudit/evidence.py`, `ingest/pipeline.py`, `validate.py`, `serialize.py`, `evaluation/metrics.py`,
+   `llm/gemini.py`, `llm/ledger.py`
 
 **Depends on Breno:**
-- Confirm the schedule. Proposal: aim for the original 04:00 UTC safety package, with 05:30 UTC as the fallback.
 - Keep the session running with unattended permissions overnight.
-- (Answered 19:52 UTC: the ChatGPT transcript stays in the repo, A16.)
+- (Answered: no fixed time target, A18; S3+S4 merged and run one at a time, A19; transcript stays in the repo, A16.)
 
-**Risks of the next step:** none paid or irreversible (S3 is $0). Main correctness risk: ownership of weakly linked
-resources (A5).
+**Risks of the next step:**
+- S3 costs $0.
+- S4 spends ≈$0.30 (intent batch + benchmark of 10 samples × 2 models), all through the ledger. The hard stop is $4.50.
 
 **Before trusting this block, check:**
-- `git status --short` → empty; `git rev-parse HEAD origin/main` → identical; `git log -1 --format=%s` starts "Close S1+S2"
+- `git status --short` → empty; `git rev-parse HEAD origin/main` → identical; `git log -1 --format=%s` starts
+  "Checkpoint before compact (S3+S4"
 - `.venv/bin/python code/main.py status` → settled $0.107400, outstanding $0.000000
 - `.venv/bin/python -m pytest code/tests -q` → `78 passed`
+- `ls code/ghostaudit` → no `identity.py` yet
 
 ## Proofs from S1+S2
 

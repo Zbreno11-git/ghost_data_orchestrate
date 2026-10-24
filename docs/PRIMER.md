@@ -39,7 +39,8 @@ participant evidence available at `audit_at`. Owner: Breno. State on 2026-10-24:
 
 ## Current session
 
-⚠️ **S3 (2026-10-24): identity, time, ownership, policy, planner → deterministic baseline on the 32 samples.**
+⚠️ **S3+S4 merged (2026-10-24, A19), one at a time: S3 deterministic baseline on the 32 samples, then S4 agent loop +
+gateway/cache/resume/replay measured against it.** Plan: `docs/plans/session-03-04.md`. No fixed time target (A18).
 
 Previous (S1+S2 merged, 2026-10-24, A15): contract/serializer/validator/evaluator proven on samples (193/193 legal,
 32/32 canonical, 0 violations); all 94 evidence files → 7,604 Observations (94/94 processed, 0 unparsed); 3 custom

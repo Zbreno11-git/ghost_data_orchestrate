@@ -14,9 +14,12 @@ Each session is a 1–2.5 h package that ends in something verifiable, plus a di
 > checkpoints C1.1–C1.4 then C2.1–C2.6 in that order. The reason is speed: S0 closed at ~17:25 UTC, but S1 had not
 > started by 19:46 UTC, so the schedule had slipped ~1h45.
 
+> **2026-10-24 20:16 UTC: S3 + S4 merged (Breno, A19), executed one at a time.** One plan file,
+> `docs/plans/session-03-04.md`; C3.1–C3.5 all close (baseline measured on the samples) before C4.1 starts.
+
 ## ▶️ Start the next session here
 
-- Session: **S3** — first step: write `docs/plans/session-03.md`, then `code/ghostaudit/identity.py` + `code/tests/test_identity.py` (C3.1: case_10/case_12 historical aliases resolve, case_28 decoy excluded)
+- Session: **S3+S4 merged (A19), S3 first** — first step: write `docs/plans/session-03-04.md`, then `code/ghostaudit/identity.py` + `code/tests/test_identity.py` (C3.1: case_10/case_12 historical aliases resolve, case_28 decoy excluded)
 - Read first: `docs/PRIMER.md` (new boundaries: wrapper vs fields, absence proof, D10), `PROGRESS.md`, `code/ghostaudit/evidence.py`
 - Depends on Breno: before leaving, keep the session running with unattended permissions (Bash/Edit)
 
@@ -31,7 +34,7 @@ Cut order if late: S6 scope → +2 custom cases → S8. S5 and S7 are never cut.
 
 **2026-10-24 20:15 UTC: S1+S2 closed at ~20:15**, ≈2h35 ahead of the re-timed plan and ≈45 min ahead of the original
 (S2 was due 21:00). Proposal: run S3 now and keep the original 04:00 UTC safety-package target as the goal, with the
-re-timed 05:30 UTC as the fallback. Breno still has to confirm.
+re-timed 05:30 UTC as the fallback. **Breno, 20:20 UTC (A18): no fixed time target for now — keep working.**
 
 ---
 
