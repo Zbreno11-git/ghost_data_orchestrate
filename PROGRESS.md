@@ -45,7 +45,16 @@
     the fixtures (ERRORS #4).
 - ✅ C3.5: `intent.py` (508 deletion + 10 NA on the targets; mixed-intent tests in 5 languages; mutation red),
   `planner.py` (resolved / weak / unresolved), `runner.py`, `main.py run`. Baseline in DIARY. **S3 closed.**
-- ▶️ Next: S4, C4.0 (see the resume block).
+- ✅ C4.0 + C4.1: `llm/gateway.py`.
+  - Settlement by error class (A21), checked with the SDK's real `ClientError`/`ServerError`: 400/401/403/404
+    → $0, not retried; 429 → $0 + retry; 5xx/timeout/transport → reservation + finite retry.
+  - Budget refusal before sending, and 8 concurrent threads never overspend.
+  - A response cache keyed by request hash.
+  - Replay builds no provider and reads no key (the test patches `genai.Client`, `_api_key` and `socket` to
+    fail, with the env key set); a miss is `ReplayMiss` with the ledger unchanged.
+  - `gemini.py` is now a lazy provider (90 s timeout, SDK retries off); `generate_content` appears only there.
+  - Mutations M5 (5xx at $0) and M8 (replay fall-through) both go red. 156 tests passing.
+- ▶️ Next: C4.2 `tools.py` + `test_tools.py`.
 
 ## ▶️ RESUME HERE — 2026-10-24 20:57 UTC (15:57 CDT) — S3 closed; S4 next (second half of S3+S4, A19)
 

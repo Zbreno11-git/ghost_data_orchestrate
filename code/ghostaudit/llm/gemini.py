@@ -1,19 +1,16 @@
-"""Gemini adapter: the only place that sends paid requests (S0 minimal version; S4 adds cache/retries).
+"""Gemini provider: the only module that talks to the SDK. Paid calls go through llm/gateway.py.
 
-Each call reserves an upper-bound cost in the ledger, sends one request, and settles
-the measured cost from usage_metadata. Output price covers candidate + thinking tokens.
+The client is built lazily, on the first paid request only, so replay never constructs it or reads a key
+(A20). The SDK's own retries are disabled: the gateway retries, and ledgers each attempt.
 """
 from __future__ import annotations
 
 import os
-import time
-from pathlib import Path
 
 from google import genai
 from google.genai import types
 
 from ..config import REPO_ROOT, load_config, price_for
-from .ledger import Ledger
 
 
 def _api_key() -> str:
@@ -43,31 +40,24 @@ def usage_cost(usage, model: str, config: dict) -> dict:
     }
 
 
-class Gemini:
-    def __init__(self, run_id: str, config: dict | None = None, ledger: Ledger | None = None):
-        self.config = config or load_config()
-        self.ledger = ledger or Ledger(REPO_ROOT / self.config["budget"]["ledger_path"],
-                                       self.config["budget"]["ceiling_usd"])
-        self.run_id = run_id
-        self.client = genai.Client(api_key=_api_key())
+class GeminiProvider:
+    def __init__(self, timeout_s: float):
+        self.timeout_s = timeout_s
+        self._client = None
 
-    def generate(self, *, model: str, contents, config: types.GenerateContentConfig, purpose: str,
-                 est_input_tokens: int, case_id: str | None = None):
-        if not config.max_output_tokens:
-            raise ValueError("max_output_tokens is required so the reservation is a true upper bound")
-        pin, pout = price_for(self.config, model)
-        est = (est_input_tokens * pin + config.max_output_tokens * pout) / 1_000_000
-        res_id = self.ledger.reserve(est_usd=est, model=model, purpose=purpose, run_id=self.run_id, case_id=case_id)
-        t0 = time.monotonic()
-        try:
-            resp = self.client.models.generate_content(model=model, contents=contents, config=config)
-        except Exception as exc:
-            # The request may have been billed; settle at the reserved estimate (conservative).
-            self.ledger.settle(res_id, status="error", cost_usd=est, error=type(exc).__name__,
-                               latency_ms=int((time.monotonic() - t0) * 1000), cost_basis="reservation")
-            raise
-        measured = usage_cost(resp.usage_metadata, model, self.config)
-        self.ledger.settle(res_id, status="ok", latency_ms=int((time.monotonic() - t0) * 1000),
-                           model_version=getattr(resp, "model_version", None), cost_basis="usage_metadata",
-                           **measured)
-        return resp, measured
+    def send(self, *, model: str, contents, config: types.GenerateContentConfig):
+        if self._client is None:
+            self._client = genai.Client(api_key=_api_key(), http_options=types.HttpOptions(
+                timeout=int(self.timeout_s * 1000), retry_options=types.HttpRetryOptions(attempts=1)))
+        return self._client.models.generate_content(model=model, contents=contents, config=config)
+
+
+class Gemini:
+    """Compatibility facade (vision ingestion, smoke script): a live gateway with the default cache."""
+
+    def __init__(self, run_id: str, config: dict | None = None, ledger=None):
+        from .gateway import Gateway
+        self.gateway = Gateway(run_id=run_id, config=config or load_config(), ledger=ledger, mode="live")
+
+    def generate(self, **kwargs):
+        return self.gateway.generate(**kwargs)
