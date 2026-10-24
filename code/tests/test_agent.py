@@ -1,6 +1,6 @@
 """C4.3 (offline): the agent loop through the real gateway with a scripted provider — tool call → submit, repair of
-import json
 an invalid citation, fallback on provider error or exhausted repairs. Live behaviour is checked by C4.3's live run."""
+import json
 from datetime import datetime, timedelta, timezone
 
 import pytest
