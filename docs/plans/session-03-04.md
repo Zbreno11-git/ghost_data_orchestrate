@@ -337,7 +337,7 @@ All of C3.0–C3.5 closed (commits `cc3c490` … S3 close). Changes against this
 - **Custom cases** 3/3 exact. **Targets (strict):** 518 rows, 169 resolved, 34 weak, 315 unresolved (mostly
   "no account attributed"), 10 NOT_APPLICABLE.
 
-## Outcome S4 (2026-10-24 21:20 UTC)
+## Outcome S4 (2026-10-24 21:13 UTC)
 
 All of C4.0–C4.6 closed (`8a0683c` … S4 close). Measured:
 - **C4.0/C4.1:** settlement by error class (A21), tested with the SDK's real error classes. Budget refusal

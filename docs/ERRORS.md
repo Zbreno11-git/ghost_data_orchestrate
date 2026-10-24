@@ -18,7 +18,7 @@
 | 2 | Staged with `git add -A` without listing new untracked files | 1 | `git status --short` and review every `??` before staging; stage explicit paths |
 | 3 | Wrote over a tracked file without reading it first | 1 | `git ls-files <path>` / Read before any `cat >` to a path in the repo |
 | 4 | A test fixture admitted a second explanation (mutation stayed green) | 2 | Build the fixture from the real shape that carries the risk, and order events so only the rule under test can explain the result |
-| 5 | Wrote a data literal into a test before measuring it | 1 | Measure the fact first (one query), then pin it |
+| 5 | Wrote a fact (a data literal, a timestamp) before measuring it | 3 | Measure the fact first (one query, `date -u`, `git log`), then write it |
 
 ---
 
@@ -84,7 +84,7 @@ convenient name. Order the events so that the rule under test is the *only* thin
 
 ---
 
-### 5. Wrote a data literal into a test before measuring it
+### 5. Wrote a fact (a data literal, a timestamp) before measuring it
 
 **2026-10-24 ~20:26 UTC (before commit `cc3c490`) — S3 C3.0.** I asserted that free-text mentions of `email_delivery_*`, `tombstone_*` and
 `object_*` would be indexed once the prefixes were derived, carrying the claim over from the resume block's
@@ -96,4 +96,14 @@ into the commit message.
 
 **The antidote, concrete:** for every literal in a test, write the one-line query that produced it, and run it
 before writing the assert.
+
+**2nd and 3rd occurrences, 2026-10-24, S3+S4: timestamps.** Twice I wrote times into the docs by estimating
+instead of reading the clock.
+- At C3.4 I wrote "~21:30" and "~20:45" when the commits were at 20:48 and 20:28. The S3 close caught it.
+- At the S4 close I wrote "21:18–21:22 UTC" into PRIMER, SESSIONS, STATUS, PROGRESS and A23 when the clock
+  read 21:15 and the close commit is at 21:13. The pre-compact check caught it.
+
+All stamps were corrected to commit-backed times. What is new: a timestamp is a measurement too.
+
+> **Never type a time from memory: `date -u` or `git log --date=format-local:%H:%MZ` first.**
 

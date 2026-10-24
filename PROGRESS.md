@@ -4,7 +4,7 @@
 > handoff moves to `docs/HANDOFFS.md`, after relocating what lives only here (open decision → SESSIONS,
 > lesson → ERRORS, constraint → PRIMER).
 
-## ⏱ Live — S3+S4 in progress (updated at each checkpoint)
+## ⏱ Live — S3+S4 closed 2026-10-24 21:13 UTC (`79f33e4`); log of its checkpoints
 
 - Plan: `docs/plans/session-03-04.md`, with Breno's six safeguards integrated after approval (A20: weak workflow
   links, copy-level state, resolved/weak/unresolved, provisional ceiling, mixed intent, offline replay). The 4xx
@@ -78,12 +78,12 @@
 - ✅ C4.6: benchmark 10 × 2 models → flash-lite kept (A23); the agent ≈ the baseline. **S4 closed.**
 - ▶️ Next: S5 (see the resume block).
 
-## ▶️ RESUME HERE — 2026-10-24 21:22 UTC (16:22 CDT) — S3+S4 closed; S5 next
+## ▶️ RESUME HERE — 2026-10-24 21:17 UTC (16:17 CDT) — before a compact; S3+S4 closed; S5 next
 
 **Repository state:** see the check list below. HEAD = the "Close S4" commit, pushed. Background runs: none.
 Locks: none.
 
-**State of the world (measured 21:20 UTC):**
+**State of the world (measured 21:15 UTC):**
 - Ledger settled $0.339118, outstanding $0.004447. The open amount is one reservation in flight when C4.5
   killed a run on purpose; by design it stays counted, because it may have been billed.
 - 177 tests passing. Deadline 12:00 UTC (≈14.5 h). No intermediate target (A18).
@@ -119,6 +119,25 @@ Root `output.csv` is published only after validation.
 - **Remaining ambiguity, for Breno:** unresolved rows carry the grounded proposal's status, flagged; the 5
   rows with no proposal need a decision.
 
+**S5 checkpoints** (MASTER_PLAN §S5; copy them into `session-05.md`, adapting each with its reason):
+- C5.1 pilot projection;
+- C5.2 full 518 run, validated, with the unresolved count;
+- C5.3 `code/evaluation/evaluation_report.md`: status, step, field, sequence and evidence metrics, the
+  confusion matrix, 3 custom cases, the tuning-exposure note, and D10/D12/D13 explained beside the full
+  denominators (A20);
+- C5.4 `code/evaluation/usage_report.md` from the ledger rows of the run, plus cumulative spend, including the
+  $0.0176 S2 400 row and the open $0.0044;
+- C5.5 `scripts/package_code.py` + a clean-unpack replay (D2 layout: `README.md` + `code/`);
+- C5.6 commit/push + STATUS upload instructions.
+
+**Risks of the next step:**
+- **Paid spend:** pilot ≈ $0.11, full run ≈ $1.2–1.8, all through the gateway with the hard stop at $4.50.
+- **Root `output.csv`:** it is overwritten only by the validated full run (PRIMER rule), written atomically.
+- **code.zip on a clean unpack can replay only if `runs/cache/llm/` ships with it.** Decide in C5.5, and
+  record the decision.
+- **Timing:** MASTER_PLAN's S5 targets the safety package at 04:00 UTC. A18 says no fixed target unless
+  fewer than 4 h remain without one; 04:00 UTC is ≈6.7 h away (measured 21:15 UTC).
+
 **Re-read, in this order:**
 1. `AGENTS.md`
 2. `docs/PRIMER.md`
@@ -132,7 +151,8 @@ Root `output.csv` is published only after validation.
 
 **Before trusting this block, check:**
 - `git status --short` → empty; `git rev-parse HEAD origin/main` → identical; `git log -1 --format=%s` starts
-  "Close S4"
+  "Checkpoint before compact (S5"; CI on that SHA green (`gh api repos/Zbreno11-git/ghost_data_orchestrate/actions/runs?head_sha=<sha>`)
+- `ls code/ghostaudit/agent.py code/ghostaudit/llm/gateway.py` → both exist; `ls docs/plans/session-05.md` → no such file yet
 - `main.py status` → settled $0.339118, outstanding $0.004447
 - `pytest code/tests -q` → `177 passed`
 
@@ -143,10 +163,10 @@ Root `output.csv` is published only after validation.
 | gateway | `pytest code/tests/test_gateway.py -q` | `15 passed`; mutations M5, M8 red | 21:00Z |
 | live agent | `main.py run --engine agent --mode live --cases case_28` | `submitted 1, model_calls 5, cost_usd_x1e6 4143` | 21:04Z |
 | intent | `scripts/intent_check.py`; targets batch | `samples deletion 32/32; fixtures right 14/14`; targets `(True,'high'): 508, (False,'high'): 10` | 21:06Z |
-| resume | kill after 4 cases, then rerun the same `--out` | `resumed 4, submitted 6`; `duplicates: 0` over 79 keyed calls | 21:12Z |
-| replay | `env -u GEMINI_API_KEY main.py run --engine agent --mode replay …` + `cmp` | `cache_hits 49`, `replay byte-identical (10 cases)` | 21:13Z |
-| benchmark | 10 cases × {lite, flash} | see A23 | 21:17Z |
-| suite | `pytest code/tests -q` | `177 passed` | 21:19Z |
+| resume | kill after 4 cases, then rerun the same `--out` | `resumed 4, submitted 6`; `duplicates: 0` over 79 keyed calls | ≤21:13Z |
+| replay | `env -u GEMINI_API_KEY main.py run --engine agent --mode replay …` + `cmp` | `cache_hits 49`, `replay byte-identical (10 cases)` | ≤21:13Z |
+| benchmark | 10 cases × {lite, flash} | see A23 | ≤21:13Z |
+| suite | `pytest code/tests -q` | `177 passed` | 21:13Z |
 
 ## Proofs from S3
 

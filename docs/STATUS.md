@@ -3,7 +3,7 @@
 > **For:** Breno, and anyone who needs the state without reading code. No jargon. **Updated at the end of each
 > session, with the date.** Numbers are re-checked at the source when written, never copied from the previous version.
 
-**Last update: 2026-10-24 21:20 UTC.**
+**Last update: 2026-10-24 21:13 UTC.**
 
 `██████████░░░░░░ 5 of 8 sessions closed`
 
@@ -84,7 +84,7 @@ because the improvement session gets shorter.
   to stand on.
 - **From us:** next, the AI investigator (session 4), measured against this baseline.
 
-## 2026-10-24 21:20 UTC — the AI investigator works, costs a third of a cent per request, and doesn't guess
+## 2026-10-24 21:13 UTC — the AI investigator works, costs a third of a cent per request, and doesn't guess
 
 **What changed:**
 - **Every paid call goes through one gate.** It books each call before sending it, stops at your $4.50
