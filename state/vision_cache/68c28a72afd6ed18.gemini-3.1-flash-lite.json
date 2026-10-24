@@ -1,0 +1,192 @@
+{
+ "extract": {
+  "panels": [
+   {
+    "rows": [
+     {
+      "label": "Title",
+      "value": "user_17"
+     },
+     {
+      "label": "Status",
+      "value": "Retained reference"
+     },
+     {
+      "label": "Metadata",
+      "value": "Customer key · Account Platform · eu-west"
+     }
+    ],
+    "title": "Header Information"
+   },
+   {
+    "rows": [
+     {
+      "label": "Reference type",
+      "value": "Customer key"
+     },
+     {
+      "label": "Created",
+      "value": "11 Jan 2024 08:42 UTC"
+     },
+     {
+      "label": "Most recent update",
+      "value": "10 Mar 2026 07:18 UTC"
+     },
+     {
+      "label": "Owner team",
+      "value": "Account Platform"
+     }
+    ],
+    "title": "Summary Cards"
+   },
+   {
+    "rows": [
+     {
+      "label": "row 1: System",
+      "value": "Orders"
+     },
+     {
+      "label": "row 1: Record reference",
+      "value": "ORD-20263245"
+     },
+     {
+      "label": "row 1: Relationship",
+      "value": "Linked to customer"
+     },
+     {
+      "label": "row 1: Created (UTC)",
+      "value": "11 Jan 2024 08:45"
+     },
+     {
+      "label": "row 1: Status",
+      "value": "Active"
+     },
+     {
+      "label": "row 2: System",
+      "value": "Support"
+     },
+     {
+      "label": "row 2: Record reference",
+      "value": "CS-3245"
+     },
+     {
+      "label": "row 2: Relationship",
+      "value": "Linked to customer"
+     },
+     {
+      "label": "row 2: Created (UTC)",
+      "value": "14 Feb 2024 12:16"
+     },
+     {
+      "label": "row 2: Status",
+      "value": "Active"
+     },
+     {
+      "label": "row 3: System",
+      "value": "Support"
+     },
+     {
+      "label": "row 3: Record reference",
+      "value": "CS-3378"
+     },
+     {
+      "label": "row 3: Relationship",
+      "value": "Linked to customer"
+     },
+     {
+      "label": "row 3: Created (UTC)",
+      "value": "03 Jun 2024 09:27"
+     },
+     {
+      "label": "row 3: Status",
+      "value": "Active"
+     },
+     {
+      "label": "row 4: System",
+      "value": "Finance"
+     },
+     {
+      "label": "row 4: Record reference",
+      "value": "FIN-7742"
+     },
+     {
+      "label": "row 4: Relationship",
+      "value": "Linked to customer"
+     },
+     {
+      "label": "row 4: Created (UTC)",
+      "value": "22 Aug 2024 15:03"
+     },
+     {
+      "label": "row 4: Status",
+      "value": "Active"
+     }
+    ],
+    "title": "Overview"
+   },
+   {
+    "rows": [
+     {
+      "label": "10 Mar 2026",
+      "value": "Metadata reviewed"
+     },
+     {
+      "label": "22 Aug 2024",
+      "value": "Finance link added"
+     },
+     {
+      "label": "03 Jun 2024",
+      "value": "Support link added"
+     },
+     {
+      "label": "14 Feb 2024",
+      "value": "Support link added"
+     },
+     {
+      "label": "11 Jan 2024",
+      "value": "Reference created"
+     }
+    ],
+    "title": "History"
+   },
+   {
+    "rows": [
+     {
+      "label": "Reference created",
+      "value": "Recorded"
+     },
+     {
+      "label": "Order link added",
+      "value": "ORD-20263245"
+     },
+     {
+      "label": "Support links added",
+      "value": "CS-3245, CS-3378"
+     },
+     {
+      "label": "Finance link added",
+      "value": "FIN-7742"
+     },
+     {
+      "label": "Metadata reviewed",
+      "value": "Recorded"
+     }
+    ],
+    "title": "Activity"
+   }
+  ],
+  "screen_title": "Customer Reference Registry"
+ },
+ "file": "evidence/images/deleted_account_reference_20260310.png",
+ "finish_reason": "FinishReason.STOP",
+ "model": "gemini-3.1-flash-lite",
+ "model_version": "gemini-3.1-flash-lite",
+ "sha256": "68c28a72afd6ed184d5990d15c543f8a516face204f0360f732755a8a63c28be",
+ "usage": {
+  "cached_tokens": 0,
+  "cost_usd": 0.002184,
+  "input_tokens": 1206,
+  "output_tokens": 1255,
+  "thought_tokens": 0
+ }
+}

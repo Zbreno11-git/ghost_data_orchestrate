@@ -1,0 +1,168 @@
+{
+ "extract": {
+  "panels": [
+   {
+    "rows": [
+     {
+      "label": "Name",
+      "value": "Soo-jin Park"
+     },
+     {
+      "label": "Status",
+      "value": "Live"
+     },
+     {
+      "label": "ID",
+      "value": "marketing_001"
+     },
+     {
+      "label": "Email",
+      "value": "sj.park@naver.com"
+     },
+     {
+      "label": "Phone",
+      "value": "+82 10-5837-9451"
+     }
+    ],
+    "title": "Header"
+   },
+   {
+    "rows": [
+     {
+      "label": "Market",
+      "value": "South Korea"
+     },
+     {
+      "label": "Language",
+      "value": "Korean"
+     },
+     {
+      "label": "Email opt-in",
+      "value": "Yes"
+     },
+     {
+      "label": "SMS opt-in",
+      "value": "No"
+     },
+     {
+      "label": "Last refreshed",
+      "value": "15 Sep 2026 23:40 UTC"
+     }
+    ],
+    "title": "Summary Cards"
+   },
+   {
+    "rows": [
+     {
+      "label": "row 1: Time",
+      "value": "23:40"
+     },
+     {
+      "label": "row 1: Activity",
+      "value": "Product-category update"
+     },
+     {
+      "label": "row 1: Detail",
+      "value": "Desk accessories · Drinkware"
+     },
+     {
+      "label": "row 2: Time",
+      "value": "23:38"
+     },
+     {
+      "label": "row 2: Activity",
+      "value": "Campaign eligibility check"
+     },
+     {
+      "label": "row 2: Detail",
+      "value": "Autumn offers · Eligible"
+     },
+     {
+      "label": "row 3: Time",
+      "value": "23:35"
+     },
+     {
+      "label": "row 3: Activity",
+      "value": "Profile refresh"
+     },
+     {
+      "label": "row 3: Detail",
+      "value": "Live profile fields updated"
+     },
+     {
+      "label": "row 4: Time",
+      "value": "23:32"
+     },
+     {
+      "label": "row 4: Activity",
+      "value": "Audience evaluation"
+     },
+     {
+      "label": "row 4: Detail",
+      "value": "Returning customers — East Asia"
+     }
+    ],
+    "title": "Profile Table"
+   },
+   {
+    "rows": [
+     {
+      "label": "Audience",
+      "value": "Returning customers — East Asia"
+     },
+     {
+      "label": "Segments",
+      "value": "Repeat customer · Home & lifestyle · Mobile shopper"
+     },
+     {
+      "label": "Preferred categories",
+      "value": "Desk accessories · Drinkware"
+     },
+     {
+      "label": "Last campaign",
+      "value": "Autumn offers"
+     },
+     {
+      "label": "Open rate",
+      "value": "32.4%"
+     },
+     {
+      "label": "Click rate",
+      "value": "6.8%"
+     }
+    ],
+    "title": "Audience membership"
+   },
+   {
+    "rows": [
+     {
+      "label": "Item 1",
+      "value": "Autumn offers 32.4% open rate"
+     },
+     {
+      "label": "Item 2",
+      "value": "Home & Lifestyle Picks 28.7% open rate"
+     },
+     {
+      "label": "Item 3",
+      "value": "Profile refreshed from live data Recorded"
+     }
+    ],
+    "title": "Activity"
+   }
+  ],
+  "screen_title": "Audience Operations"
+ },
+ "file": "evidence/images/marketing_profile_console.png",
+ "finish_reason": "FinishReason.STOP",
+ "model": "gemini-3.1-flash-lite",
+ "model_version": "gemini-3.1-flash-lite",
+ "sha256": "51fa0e6a38f8fa3629ba1b0d0b90b4ed139715956b97bfd09a6f1a6232c15df5",
+ "usage": {
+  "cached_tokens": 0,
+  "cost_usd": 0.00183,
+  "input_tokens": 1206,
+  "output_tokens": 1019,
+  "thought_tokens": 0
+ }
+}

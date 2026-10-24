@@ -1,0 +1,237 @@
+{
+ "extract": {
+  "other_text": [
+   "Northstar Shop",
+   "Vault Recovery Manager",
+   "Production",
+   "Help",
+   "VR",
+   "Overview",
+   "Recovery Manager",
+   "Customer platforms",
+   "Restore requests",
+   "Infrastructure",
+   "Reports",
+   "Vault Recovery Manager",
+   "Production workspace",
+   "build 2026.10.4",
+   "Northstar Shop / Vault Recovery Manager / Recovery Manager",
+   "Healthy",
+   "Northstar Production · weekly snapshots",
+   "Filter",
+   "Export",
+   "Actions",
+   "Archives",
+   "Recent restores",
+   "Infrastructure health",
+   "Updated moments ago · 4 records"
+  ],
+  "panels": [
+   {
+    "rows": [
+     {
+      "label": "Service health",
+      "value": "Healthy"
+     },
+     {
+      "label": "Storage growth",
+      "value": "+12.4%"
+     },
+     {
+      "label": "Restore success",
+      "value": "99.6%"
+     },
+     {
+      "label": "Stored",
+      "value": "1.35 PB"
+     }
+    ],
+    "title": "Archives KPI Metrics"
+   },
+   {
+    "rows": [
+     {
+      "label": "row 1: Archive ID",
+      "value": "backup_9291"
+     },
+     {
+      "label": "row 1: Account",
+      "value": "bluepeakco@outlook.com"
+     },
+     {
+      "label": "row 1: Region",
+      "value": "ap-southeast-1"
+     },
+     {
+      "label": "row 1: Created",
+      "value": "26 Apr 02:00"
+     },
+     {
+      "label": "row 1: Size",
+      "value": "102.3 GB"
+     },
+     {
+      "label": "row 1: Encryption",
+      "value": "AES-256"
+     },
+     {
+      "label": "row 1: Tier",
+      "value": "Archive"
+     },
+     {
+      "label": "row 2: Archive ID",
+      "value": "backup_9288"
+     },
+     {
+      "label": "row 2: Account",
+      "value": "miller.logistics@company.com"
+     },
+     {
+      "label": "row 2: Region",
+      "value": "us-west-2"
+     },
+     {
+      "label": "row 2: Created",
+      "value": "26 Apr 02:00"
+     },
+     {
+      "label": "row 2: Size",
+      "value": "67.1 GB"
+     },
+     {
+      "label": "row 2: Encryption",
+      "value": "AES-256"
+     },
+     {
+      "label": "row 2: Tier",
+      "value": "Archive"
+     },
+     {
+      "label": "row 3: Archive ID",
+      "value": "backup_9287"
+     },
+     {
+      "label": "row 3: Account",
+      "value": "areed1433@gmail.com"
+     },
+     {
+      "label": "row 3: Region",
+      "value": "eu-west-1"
+     },
+     {
+      "label": "row 3: Created",
+      "value": "26 Apr 02:00"
+     },
+     {
+      "label": "row 3: Size",
+      "value": "84.7 GB"
+     },
+     {
+      "label": "row 3: Encryption",
+      "value": "AES-256"
+     },
+     {
+      "label": "row 3: Tier",
+      "value": "Archive"
+     },
+     {
+      "label": "row 4: Archive ID",
+      "value": "backup_9286"
+     },
+     {
+      "label": "row 4: Account",
+      "value": "summit-retail@company.com"
+     },
+     {
+      "label": "row 4: Region",
+      "value": "us-east-1"
+     },
+     {
+      "label": "row 4: Created",
+      "value": "26 Apr 02:00"
+     },
+     {
+      "label": "row 4: Size",
+      "value": "91.4 GB"
+     },
+     {
+      "label": "row 4: Encryption",
+      "value": "AES-256"
+     },
+     {
+      "label": "row 4: Tier",
+      "value": "Archive"
+     }
+    ],
+    "title": "Archives"
+   },
+   {
+    "rows": [
+     {
+      "label": "Account",
+      "value": "areed1433@gmail.com"
+     },
+     {
+      "label": "Path",
+      "value": "s3://northstar-backups/customer-platform/weekly/segment-42-20260426.tar.zst"
+     },
+     {
+      "label": "Region",
+      "value": "eu-west-1"
+     },
+     {
+      "label": "Created",
+      "value": "26 Apr 2026 02:00 UTC"
+     },
+     {
+      "label": "Encryption",
+      "value": "AES-256"
+     },
+     {
+      "label": "Checksum",
+      "value": "Verified"
+     },
+     {
+      "label": "Last drill",
+      "value": "29 Mar 2026"
+     },
+     {
+      "label": "Retention end",
+      "value": "26 Jul 2026"
+     }
+    ],
+    "title": "backup_9287"
+   },
+   {
+    "rows": [
+     {
+      "label": "25 Apr",
+      "value": "backup_9286 restored · Completed"
+     },
+     {
+      "label": "24 Apr",
+      "value": "backup_9281 restored · Completed"
+     },
+     {
+      "label": "22 Apr",
+      "value": "checksum verification · Completed"
+     }
+    ],
+    "title": "Activity"
+   }
+  ],
+  "screen_title": "Customer-platform archives"
+ },
+ "file": "evidence/images/backup_restore_console_20260429.png",
+ "finish_reason": "FinishReason.STOP",
+ "model": "gemini-3.8-flash",
+ "model_version": "gemini-3.8-flash",
+ "sha256": "2c246aa5843bec609b9ddfdf1154cd81e0fd61996f83954735e9856e48c18bf3",
+ "usage": {
+  "cached_tokens": 0,
+  "cost_usd": 0.004095,
+  "input_tokens": 1180,
+  "output_tokens": 856,
+  "thought_tokens": 0
+ }
+}

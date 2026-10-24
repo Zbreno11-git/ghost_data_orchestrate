@@ -1,0 +1,190 @@
+{
+ "extract": {
+  "other_text": [
+   "Northstar Shop",
+   "Inbox",
+   "My tickets",
+   "Assigned to me",
+   "Mentions",
+   "Customer search",
+   "Knowledge base",
+   "Reports",
+   "Helpline Console",
+   "Production workspace",
+   "build 2026.10.4",
+   "Search tickets, customers, orders...",
+   "Production",
+   "Help",
+   "HC",
+   "Northstar Shop / Helpline Console / Inbox",
+   "CS-5034 · Where is my delivery?",
+   "SLA 01:42",
+   "support_1034 · Kofi Agyeman · Normal priority",
+   "Filter",
+   "Export",
+   "Actions",
+   "Conversation",
+   "Internal notes",
+   "Activity",
+   "Updated moments ago · 4 records"
+  ],
+  "panels": [
+   {
+    "rows": [
+     {
+      "label": "Customer",
+      "value": "Kofi Agyeman"
+     }
+    ],
+    "title": "Customer"
+   },
+   {
+    "rows": [
+     {
+      "label": "Email",
+      "value": "kagyeman8947@fastmail.com"
+     }
+    ],
+    "title": "Email"
+   },
+   {
+    "rows": [
+     {
+      "label": "Assigned",
+      "value": "Maya Chen"
+     }
+    ],
+    "title": "Assigned"
+   },
+   {
+    "rows": [
+     {
+      "label": "Tags",
+      "value": "Delivery · Tracking · Order update"
+     }
+    ],
+    "title": "Tags"
+   },
+   {
+    "rows": [
+     {
+      "label": "row 1: Time",
+      "value": "1 09:12"
+     },
+     {
+      "label": "row 1: Sender",
+      "value": "Kofi Agyeman"
+     },
+     {
+      "label": "row 1: Message",
+      "value": "Could you let me know where my order is and when it is expected to arrive?"
+     },
+     {
+      "label": "row 2: Time",
+      "value": "2 09:13"
+     },
+     {
+      "label": "row 2: Sender",
+      "value": "Northstar Bot"
+     },
+     {
+      "label": "row 2: Message",
+      "value": "We received your message and are checking the order details."
+     },
+     {
+      "label": "row 3: Time",
+      "value": "3 09:28"
+     },
+     {
+      "label": "row 3: Sender",
+      "value": "Maya Chen"
+     },
+     {
+      "label": "row 3: Message",
+      "value": "The parcel reached the regional hub and is on track for delivery on 26 May."
+     },
+     {
+      "label": "row 4: Time",
+      "value": "4 09:35"
+     },
+     {
+      "label": "row 4: Sender",
+      "value": "Kofi Agyeman"
+     },
+     {
+      "label": "row 4: Message",
+      "value": "Thanks for the update."
+     }
+    ],
+    "title": "Conversation"
+   },
+   {
+    "rows": [
+     {
+      "label": "Product",
+      "value": "Running shoes"
+     },
+     {
+      "label": "Status",
+      "value": "In transit"
+     },
+     {
+      "label": "Carrier",
+      "value": "SwiftShip"
+     },
+     {
+      "label": "Tracking",
+      "value": "SWF-884103"
+     },
+     {
+      "label": "Expected",
+      "value": "26 May 2026"
+     },
+     {
+      "label": "Assigned agent",
+      "value": "Maya Chen"
+     }
+    ],
+    "title": "Order ORD-20265034"
+   },
+   {
+    "rows": [
+     {
+      "label": "22 May",
+      "value": "Order confirmed"
+     },
+     {
+      "label": "23 May",
+      "value": "Dispatched"
+     },
+     {
+      "label": "24 May 07:46",
+      "value": "Reached regional hub"
+     },
+     {
+      "label": "24 May 08:15",
+      "value": "In transit"
+     },
+     {
+      "label": "26 May",
+      "value": "Delivery expected"
+     }
+    ],
+    "title": "Activity"
+   }
+  ],
+  "screen_title": "Helpline Console"
+ },
+ "file": "evidence/images/support_ticket_console_20260524.png",
+ "finish_reason": "FinishReason.STOP",
+ "model": "gemini-3.8-flash",
+ "model_version": "gemini-3.8-flash",
+ "sha256": "542b7aec17e6b2f38827896e7eb52c70e4bfaaca22433621be1f80f54884e944",
+ "usage": {
+  "cached_tokens": 0,
+  "cost_usd": 0.00560175,
+  "input_tokens": 1194,
+  "output_tokens": 1199,
+  "thought_tokens": 56
+ }
+}

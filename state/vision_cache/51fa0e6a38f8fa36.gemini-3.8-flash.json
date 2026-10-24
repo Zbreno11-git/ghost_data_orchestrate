@@ -1,0 +1,173 @@
+{
+ "extract": {
+  "other_text": [
+   "Northstar Shop",
+   "Home",
+   "Audience Operations",
+   "Campaigns",
+   "Journeys",
+   "Products",
+   "Analytics",
+   "Data",
+   "Settings",
+   "Audience Operations",
+   "Production workspace",
+   "build 2026.10.4",
+   "Search customers, audiences, campaigns...",
+   "Production",
+   "Help",
+   "AO",
+   "Northstar Shop / Audience Operations / Audience Operations",
+   "Soo-jin Park",
+   "Live",
+   "Filter",
+   "Export",
+   "Actions",
+   "marketing_001 · sj.park@naver.com · +82 10-5837-9451",
+   "Profile",
+   "Attributes",
+   "Memberships",
+   "Activity",
+   "Updated moments ago · 4 records"
+  ],
+  "panels": [
+   {
+    "rows": [
+     {
+      "label": "Market",
+      "value": "South Korea"
+     },
+     {
+      "label": "Language",
+      "value": "Korean"
+     },
+     {
+      "label": "Email opt-in",
+      "value": "Yes"
+     },
+     {
+      "label": "SMS opt-in",
+      "value": "No"
+     },
+     {
+      "label": "Last refreshed",
+      "value": "15 Sep 2026 23:40 UTC"
+     }
+    ],
+    "title": "Header Meta"
+   },
+   {
+    "rows": [
+     {
+      "label": "row 1: Time",
+      "value": "23:40"
+     },
+     {
+      "label": "row 1: Activity",
+      "value": "Product-category update"
+     },
+     {
+      "label": "row 1: Detail",
+      "value": "Desk accessories · Drinkware"
+     },
+     {
+      "label": "row 2: Time",
+      "value": "23:38"
+     },
+     {
+      "label": "row 2: Activity",
+      "value": "Campaign eligibility check"
+     },
+     {
+      "label": "row 2: Detail",
+      "value": "Autumn offers · Eligible"
+     },
+     {
+      "label": "row 3: Time",
+      "value": "23:35"
+     },
+     {
+      "label": "row 3: Activity",
+      "value": "Profile refresh"
+     },
+     {
+      "label": "row 3: Detail",
+      "value": "Live profile fields updated"
+     },
+     {
+      "label": "row 4: Time",
+      "value": "23:32"
+     },
+     {
+      "label": "row 4: Activity",
+      "value": "Audience evaluation"
+     },
+     {
+      "label": "row 4: Detail",
+      "value": "Returning customers — East Asia"
+     }
+    ],
+    "title": "Profile"
+   },
+   {
+    "rows": [
+     {
+      "label": "Audience",
+      "value": "Returning customers — East Asia"
+     },
+     {
+      "label": "Segments",
+      "value": "Repeat customer · Home & lifestyle · Mobile shopper"
+     },
+     {
+      "label": "Preferred categories",
+      "value": "Desk accessories · Drinkware"
+     },
+     {
+      "label": "Last campaign",
+      "value": "Autumn offers"
+     },
+     {
+      "label": "Open rate",
+      "value": "32.4%"
+     },
+     {
+      "label": "Click rate",
+      "value": "6.8%"
+     }
+    ],
+    "title": "Audience membership"
+   },
+   {
+    "rows": [
+     {
+      "label": "Autumn offers",
+      "value": "32.4% open rate"
+     },
+     {
+      "label": "Home & Lifestyle Picks",
+      "value": "28.7% open rate"
+     },
+     {
+      "label": "Profile refreshed from live data",
+      "value": "Recorded"
+     }
+    ],
+    "title": "Activity"
+   }
+  ],
+  "screen_title": "Audience Operations"
+ },
+ "file": "evidence/images/marketing_profile_console.png",
+ "finish_reason": "FinishReason.STOP",
+ "model": "gemini-3.8-flash",
+ "model_version": "gemini-3.8-flash",
+ "sha256": "51fa0e6a38f8fa3629ba1b0d0b90b4ed139715956b97bfd09a6f1a6232c15df5",
+ "usage": {
+  "cached_tokens": 0,
+  "cost_usd": 0.00491325,
+  "input_tokens": 1206,
+  "output_tokens": 1069,
+  "thought_tokens": 0
+ }
+}

@@ -1,0 +1,235 @@
+{
+ "extract": {
+  "other_text": [
+   "Northstar Shop",
+   "Production",
+   "Help",
+   "HC",
+   "Northstar Shop / Helpline Console / Inbox",
+   "Filter",
+   "Export",
+   "Actions",
+   "Conversation",
+   "Internal notes",
+   "Activity",
+   "Updated moments ago · 4 records",
+   "Inbox",
+   "My tickets",
+   "Assigned to me",
+   "Mentions",
+   "Customer search",
+   "Knowledge base",
+   "Reports",
+   "Helpline Console",
+   "Production workspace",
+   "build 2026.10.4"
+  ],
+  "panels": [
+   {
+    "rows": [
+     {
+      "label": "row 1: Ticket ID",
+      "value": "CS-5034"
+     },
+     {
+      "label": "row 2: Subject",
+      "value": "Where is my delivery?"
+     },
+     {
+      "label": "row 3: SLA",
+      "value": "01:42"
+     },
+     {
+      "label": "row 4: User ID",
+      "value": "support_1034"
+     },
+     {
+      "label": "row 5: Customer Name",
+      "value": "Kofi Agyeman"
+     },
+     {
+      "label": "row 6: Priority",
+      "value": "Normal priority"
+     }
+    ],
+    "title": "Ticket Header"
+   },
+   {
+    "rows": [
+     {
+      "label": "row 1: Customer",
+      "value": "Kofi Agyeman"
+     }
+    ],
+    "title": "Customer Info"
+   },
+   {
+    "rows": [
+     {
+      "label": "row 1: Email",
+      "value": "kagyeman8947@fastmail.com"
+     }
+    ],
+    "title": "Email Info"
+   },
+   {
+    "rows": [
+     {
+      "label": "row 1: Assigned",
+      "value": "Maya Chen"
+     }
+    ],
+    "title": "Assigned Info"
+   },
+   {
+    "rows": [
+     {
+      "label": "row 1: Tags",
+      "value": "Delivery · Tracking · Order update"
+     }
+    ],
+    "title": "Tags Info"
+   },
+   {
+    "rows": [
+     {
+      "label": "row 1: Time",
+      "value": "09:12"
+     },
+     {
+      "label": "row 1: Sender",
+      "value": "Kofi Agyeman"
+     },
+     {
+      "label": "row 1: Message",
+      "value": "Could you let me know where my order is and when it is expected to arrive?"
+     },
+     {
+      "label": "row 2: Time",
+      "value": "09:13"
+     },
+     {
+      "label": "row 2: Sender",
+      "value": "Northstar Bot"
+     },
+     {
+      "label": "row 2: Message",
+      "value": "We received your message and are checking the order details."
+     },
+     {
+      "label": "row 3: Time",
+      "value": "09:28"
+     },
+     {
+      "label": "row 3: Sender",
+      "value": "Maya Chen"
+     },
+     {
+      "label": "row 3: Message",
+      "value": "The parcel reached the regional hub and is on track for delivery on 26 May."
+     },
+     {
+      "label": "row 4: Time",
+      "value": "09:35"
+     },
+     {
+      "label": "row 4: Sender",
+      "value": "Kofi Agyeman"
+     },
+     {
+      "label": "row 4: Message",
+      "value": "Thanks for the update."
+     }
+    ],
+    "title": "Conversation"
+   },
+   {
+    "rows": [
+     {
+      "label": "row 1: Product",
+      "value": "Running shoes"
+     },
+     {
+      "label": "row 2: Status",
+      "value": "In transit"
+     },
+     {
+      "label": "row 3: Carrier",
+      "value": "SwiftShip"
+     },
+     {
+      "label": "row 4: Tracking",
+      "value": "SWF-884103"
+     },
+     {
+      "label": "row 5: Expected",
+      "value": "26 May 2026"
+     },
+     {
+      "label": "row 6: Assigned agent",
+      "value": "Maya Chen"
+     }
+    ],
+    "title": "Order ORD-20265034"
+   },
+   {
+    "rows": [
+     {
+      "label": "row 1: Date",
+      "value": "22 May"
+     },
+     {
+      "label": "row 1: Event",
+      "value": "Order confirmed"
+     },
+     {
+      "label": "row 2: Date",
+      "value": "23 May"
+     },
+     {
+      "label": "row 2: Event",
+      "value": "Dispatched"
+     },
+     {
+      "label": "row 3: Date",
+      "value": "24 May 07:46"
+     },
+     {
+      "label": "row 3: Event",
+      "value": "Reached regional hub"
+     },
+     {
+      "label": "row 4: Date",
+      "value": "24 May 08:15"
+     },
+     {
+      "label": "row 4: Event",
+      "value": "In transit"
+     },
+     {
+      "label": "row 5: Date",
+      "value": "26 May"
+     },
+     {
+      "label": "row 5: Event",
+      "value": "Delivery expected"
+     }
+    ],
+    "title": "Activity"
+   }
+  ],
+  "screen_title": "Helpline Console"
+ },
+ "file": "evidence/images/support_ticket_console_20260524.png",
+ "finish_reason": "FinishReason.STOP",
+ "model": "gemini-3.1-flash-lite",
+ "model_version": "gemini-3.1-flash-lite",
+ "sha256": "542b7aec17e6b2f38827896e7eb52c70e4bfaaca22433621be1f80f54884e944",
+ "usage": {
+  "cached_tokens": 0,
+  "cost_usd": 0.002598,
+  "input_tokens": 1194,
+  "output_tokens": 1533,
+  "thought_tokens": 0
+ }
+}

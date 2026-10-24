@@ -1,0 +1,302 @@
+{
+ "extract": {
+  "other_text": [
+   "Northstar Shop",
+   "Sentinel",
+   "Search events, users, IP addresses or references...",
+   "Production",
+   "Help",
+   "S",
+   "Overview",
+   "Threats",
+   "Account events",
+   "Audit logs",
+   "Detections",
+   "Investigations",
+   "Reports",
+   "Northstar Shop / Sentinel / Account events",
+   "6 signed events",
+   "Subject filter: user_03 · 18–26 Aug 2026 UTC",
+   "Filter",
+   "Export",
+   "Actions",
+   "Events (6)",
+   "Timeline",
+   "Integrity",
+   "Updated moments ago · 6 records",
+   "1",
+   "2",
+   "3",
+   "4",
+   "5",
+   "6",
+   "...",
+   "Sentinel",
+   "Production workspace",
+   "build 2026.10.4"
+  ],
+  "panels": [
+   {
+    "rows": [
+     {
+      "label": "Events",
+      "value": "6"
+     },
+     {
+      "label": "Categories",
+      "value": "5"
+     },
+     {
+      "label": "Integrity failures",
+      "value": "0"
+     },
+     {
+      "label": "Partition",
+      "value": "2026-Q3"
+     }
+    ],
+    "title": "Metrics"
+   },
+   {
+    "rows": [
+     {
+      "label": "row 1: Time (UTC)",
+      "value": "25 Aug 04:03"
+     },
+     {
+      "label": "row 1: Event",
+      "value": "Account closure recorded"
+     },
+     {
+      "label": "row 1: Category",
+      "value": "Account lifecycle"
+     },
+     {
+      "label": "row 1: Subject",
+      "value": "user_03"
+     },
+     {
+      "label": "row 1: Actor",
+      "value": "Automated workflow"
+     },
+     {
+      "label": "row 1: Integrity",
+      "value": "Valid"
+     },
+     {
+      "label": "row 1: Reference",
+      "value": "audit_record_003"
+     },
+     {
+      "label": "row 2: Time (UTC)",
+      "value": "25 Aug 03:21"
+     },
+     {
+      "label": "row 2: Event",
+      "value": "Session revoked"
+     },
+     {
+      "label": "row 2: Category",
+      "value": "Session management"
+     },
+     {
+      "label": "row 2: Subject",
+      "value": "user_03"
+     },
+     {
+      "label": "row 2: Actor",
+      "value": "Security system"
+     },
+     {
+      "label": "row 2: Integrity",
+      "value": "Valid"
+     },
+     {
+      "label": "row 2: Reference",
+      "value": "audit_record_002"
+     },
+     {
+      "label": "row 3: Time (UTC)",
+      "value": "24 Aug 16:14"
+     },
+     {
+      "label": "row 3: Event",
+      "value": "Recovery challenge completed"
+     },
+     {
+      "label": "row 3: Category",
+      "value": "Authentication"
+     },
+     {
+      "label": "row 3: Subject",
+      "value": "user_03"
+     },
+     {
+      "label": "row 3: Actor",
+      "value": "User (self)"
+     },
+     {
+      "label": "row 3: Integrity",
+      "value": "Valid"
+     },
+     {
+      "label": "row 3: Reference",
+      "value": "audit_record_001"
+     },
+     {
+      "label": "row 4: Time (UTC)",
+      "value": "22 Aug 11:27"
+     },
+     {
+      "label": "row 4: Event",
+      "value": "Email change confirmed"
+     },
+     {
+      "label": "row 4: Category",
+      "value": "Profile update"
+     },
+     {
+      "label": "row 4: Subject",
+      "value": "user_03"
+     },
+     {
+      "label": "row 4: Actor",
+      "value": "User (self)"
+     },
+     {
+      "label": "row 4: Integrity",
+      "value": "Valid"
+     },
+     {
+      "label": "row 4: Reference",
+      "value": "audit_record_006"
+     },
+     {
+      "label": "row 5: Time (UTC)",
+      "value": "20 Aug 09:42"
+     },
+     {
+      "label": "row 5: Event",
+      "value": "Login from new device"
+     },
+     {
+      "label": "row 5: Category",
+      "value": "Authentication"
+     },
+     {
+      "label": "row 5: Subject",
+      "value": "user_03"
+     },
+     {
+      "label": "row 5: Actor",
+      "value": "User (self)"
+     },
+     {
+      "label": "row 5: Integrity",
+      "value": "Valid"
+     },
+     {
+      "label": "row 5: Reference",
+      "value": "audit_record_005"
+     },
+     {
+      "label": "row 6: Time (UTC)",
+      "value": "18 Aug 14:05"
+     },
+     {
+      "label": "row 6: Event",
+      "value": "Password changed"
+     },
+     {
+      "label": "row 6: Category",
+      "value": "Authentication"
+     },
+     {
+      "label": "row 6: Subject",
+      "value": "user_03"
+     },
+     {
+      "label": "row 6: Actor",
+      "value": "User (self)"
+     },
+     {
+      "label": "row 6: Integrity",
+      "value": "Valid"
+     },
+     {
+      "label": "row 6: Reference",
+      "value": "audit_record_004"
+     }
+    ],
+    "title": "Events (6)"
+   },
+   {
+    "rows": [
+     {
+      "label": "event_type",
+      "value": "account_closure_recorded"
+     },
+     {
+      "label": "subject",
+      "value": "user_03"
+     },
+     {
+      "label": "actor",
+      "value": "automated account workflow"
+     },
+     {
+      "label": "recorded_at",
+      "value": "2026-08-25T04:03:00Z"
+     },
+     {
+      "label": "fingerprint",
+      "value": "8f0c...31ad"
+     },
+     {
+      "label": "signature",
+      "value": "Valid"
+     },
+     {
+      "label": "journal",
+      "value": "2026-Q3"
+     }
+    ],
+    "title": "audit_record_003 · Raw event"
+   },
+   {
+    "rows": [
+     {
+      "label": "25 Aug",
+      "value": "Account closure recorded"
+     },
+     {
+      "label": "25 Aug",
+      "value": "Session revoked"
+     },
+     {
+      "label": "24 Aug",
+      "value": "Recovery challenge completed"
+     },
+     {
+      "label": "22 Aug",
+      "value": "Email change confirmed"
+     }
+    ],
+    "title": "Activity"
+   }
+  ],
+  "screen_title": "Account events"
+ },
+ "file": "evidence/images/security_audit_explorer_20260905.png",
+ "finish_reason": "FinishReason.STOP",
+ "model": "gemini-3.8-flash",
+ "model_version": "gemini-3.8-flash",
+ "sha256": "ca59f693f4e7002466b3fdeaf1bb6763618770963dd811b60003772d07b4b03b",
+ "usage": {
+  "cached_tokens": 0,
+  "cost_usd": 0.0083895,
+  "input_tokens": 1206,
+  "output_tokens": 1996,
+  "thought_tokens": 0
+ }
+}

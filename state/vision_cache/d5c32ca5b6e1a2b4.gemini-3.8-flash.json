@@ -1,0 +1,175 @@
+{
+ "extract": {
+  "other_text": [
+   "Northstar Shop",
+   "Customer Operations",
+   "Search customers, orders, tickets...",
+   "Production",
+   "Help",
+   "CO",
+   "Customers",
+   "Orders",
+   "Support",
+   "Catalog",
+   "Promotions",
+   "Analytics",
+   "Customer Operations",
+   "Production workspace",
+   "build 2026.10.4",
+   "Haruka Sato",
+   "Silver",
+   "user_11 · account_5762",
+   "Filter",
+   "Export",
+   "Actions",
+   "Overview",
+   "Orders",
+   "Addresses",
+   "Support history",
+   "Updated moments ago · 2 records"
+  ],
+  "panels": [
+   {
+    "rows": [
+     {
+      "label": "Email",
+      "value": "haruka.s1838@zoho.com"
+     },
+     {
+      "label": "Phone",
+      "value": "+81 90 7610 2507"
+     },
+     {
+      "label": "Signup channel",
+      "value": "mobile_app"
+     },
+     {
+      "label": "Market",
+      "value": "JP"
+     },
+     {
+      "label": "Preferred language",
+      "value": "Japanese"
+     },
+     {
+      "label": "Last contact",
+      "value": "24 Sep 2026 09:14 JST"
+     }
+    ],
+    "title": "Top Metrics"
+   },
+   {
+    "rows": [
+     {
+      "label": "row 1: Order ID",
+      "value": "1 ORD-20265762"
+     },
+     {
+      "label": "row 1: Date",
+      "value": "12 Sep 2026"
+     },
+     {
+      "label": "row 1: Item",
+      "value": "Ceramic coffee set"
+     },
+     {
+      "label": "row 1: Qty",
+      "value": "1"
+     },
+     {
+      "label": "row 1: Total",
+      "value": "JPY 8,900"
+     },
+     {
+      "label": "row 1: Status",
+      "value": "Delivered · 18 Sep"
+     },
+     {
+      "label": "row 2: Order ID",
+      "value": "2 ORD-20265518"
+     },
+     {
+      "label": "row 2: Date",
+      "value": "28 Aug 2026"
+     },
+     {
+      "label": "row 2: Item",
+      "value": "Travel backpack"
+     },
+     {
+      "label": "row 2: Qty",
+      "value": "1"
+     },
+     {
+      "label": "row 2: Total",
+      "value": "JPY 12,400"
+     },
+     {
+      "label": "row 2: Status",
+      "value": "Returned · 03 Sep"
+     }
+    ],
+    "title": "Overview"
+   },
+   {
+    "rows": [
+     {
+      "label": "Default address",
+      "value": "2-18-4 Kichijoji, Musashino, Tokyo 180-0004"
+     },
+     {
+      "label": "Loyalty tier",
+      "value": "Silver"
+     },
+     {
+      "label": "Support",
+      "value": "CS-8538 · support_9538"
+     },
+     {
+      "label": "Member since",
+      "value": "12 Jan 2024"
+     }
+    ],
+    "title": "Customer details"
+   },
+   {
+    "rows": [
+     {
+      "label": "24 Sep",
+      "value": "Customer replied to CS-8538"
+     },
+     {
+      "label": "22 Sep",
+      "value": "Support agent responded"
+     },
+     {
+      "label": "18 Sep",
+      "value": "Order ORD-20265762 delivered"
+     },
+     {
+      "label": "03 Sep",
+      "value": "Order ORD-20265518 returned"
+     },
+     {
+      "label": "28 Aug",
+      "value": "support_9538 created"
+     }
+    ],
+    "title": "Activity"
+   }
+  ],
+  "screen_title": "Northstar Shop / Customer Operations / Customers"
+ },
+ "file": "evidence/images/account_admin_console_20260926.png",
+ "finish_reason": "FinishReason.STOP",
+ "model": "gemini-3.8-flash",
+ "model_version": "gemini-3.8-flash",
+ "sha256": "d5c32ca5b6e1a2b4bbe9f5d41835ef1fd5d4f7061dab9067a4f9f88cea3c1861",
+ "usage": {
+  "cached_tokens": 0,
+  "cost_usd": 0.00321675,
+  "input_tokens": 1194,
+  "output_tokens": 619,
+  "thought_tokens": 0
+ }
+}

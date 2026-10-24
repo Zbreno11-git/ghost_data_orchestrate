@@ -1,0 +1,31 @@
+{
+  "exported_at": "2026-06-12T15:00:00Z",
+  "source": "security_audit_service_retention_review",
+  "snapshots": [
+    {
+      "captured_at": "2026-06-12T14:55:00Z",
+      "data_store": "security_service",
+      "collection": "security_audit_events",
+      "records": [
+        {
+          "resource_id": "audit_record_9021",
+          "user_id": "user_9021",
+          "record_type": "SECURITY_AUDIT_LOG",
+          "event": "PASSWORD_RESET",
+          "occurred_at": "2026-03-18T21:04:00Z",
+          "retention_period_days": 400,
+          "retention_until": "2027-04-22T21:04:00Z"
+        },
+        {
+          "resource_id": "audit_record_9022",
+          "user_id": "user_9022",
+          "record_type": "SECURITY_AUDIT_LOG",
+          "event": "LOGIN_FAILED",
+          "occurred_at": "2026-05-30T06:12:00Z",
+          "retention_period_days": 400,
+          "retention_until": "2027-07-04T06:12:00Z"
+        }
+      ]
+    }
+  ]
+}

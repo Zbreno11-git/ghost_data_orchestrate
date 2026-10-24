@@ -1,0 +1,2 @@
+2026-06-28T04:00:00Z INFO service=downstream_delivery_service event=record_lookup seq=1 system="search_service" resource_id="search_9021" record_type="SEARCH_INDEX_ENTRY" result="FOUND" subject_reference="ingrid.solvhaug@fjordnote.example"
+2026-06-28T04:00:02Z INFO service=downstream_delivery_service event=record_lookup seq=2 system="account_service" resource_id="account_9022" record_type="USER_PROFILE" result="FOUND" subject_reference="ingrid.solhaug@fjordnote.example"

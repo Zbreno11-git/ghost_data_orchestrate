@@ -17,3 +17,14 @@ output_per_m = 3.75
 [models."gemini-2.5-flash-lite"]
 input_per_m = 0.10
 output_per_m = 0.40
+
+# PNG evidence extraction (C2.5, A17): one transcription per image by the primary model, cross-checked by a
+# second cheap read. Results are cached by content hash in state/vision_cache/ (committed) so reruns are free.
+[vision]
+primary_model = "gemini-3.8-flash"
+check_model = "gemini-3.1-flash-lite"
+max_output_tokens = 4096
+est_input_tokens = 3000
+# 3.8-flash rejects MINIMAL with 400 INVALID_ARGUMENT (measured 2026-10-24); LOW is its cheapest level.
+thinking_level = { "gemini-3.8-flash" = "LOW", "gemini-3.1-flash-lite" = "MINIMAL" }
+cache_dir = "state/vision_cache"

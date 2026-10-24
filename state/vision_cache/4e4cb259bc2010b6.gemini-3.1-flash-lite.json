@@ -1,0 +1,224 @@
+{
+ "extract": {
+  "panels": [
+   {
+    "rows": [
+     {
+      "label": "Name",
+      "value": "Omar Darwish"
+     },
+     {
+      "label": "User ID",
+      "value": "user_20"
+     },
+     {
+      "label": "Analytics ID",
+      "value": "analytics_7438"
+     },
+     {
+      "label": "Email",
+      "value": "darwish.omar@icloud.com"
+     },
+     {
+      "label": "Timeframe",
+      "value": "Last 90 days"
+     }
+    ],
+    "title": "User Header"
+   },
+   {
+    "rows": [
+     {
+      "label": "Sessions",
+      "value": "12"
+     },
+     {
+      "label": "Products viewed",
+      "value": "19"
+     },
+     {
+      "label": "Completed orders",
+      "value": "2"
+     },
+     {
+      "label": "Revenue",
+      "value": "USD 167.42"
+     },
+     {
+      "label": "Mobile / Desktop",
+      "value": "67% / 33%"
+     },
+     {
+      "label": "Acquisition",
+      "value": "Organic search"
+     }
+    ],
+    "title": "Metrics"
+   },
+   {
+    "rows": [
+     {
+      "label": "row 1: Time",
+      "value": "14:22"
+     },
+     {
+      "label": "row 1: Event",
+      "value": "Order completed"
+     },
+     {
+      "label": "row 1: Product / detail",
+      "value": "Ceramic coffee set"
+     },
+     {
+      "label": "row 1: Value",
+      "value": "USD 84.21"
+     },
+     {
+      "label": "row 1: Device",
+      "value": "Mobile"
+     },
+     {
+      "label": "row 2: Time",
+      "value": "14:20"
+     },
+     {
+      "label": "row 2: Event",
+      "value": "Checkout started"
+     },
+     {
+      "label": "row 2: Product / detail",
+      "value": "2 items"
+     },
+     {
+      "label": "row 2: Value",
+      "value": "USD 84.21"
+     },
+     {
+      "label": "row 2: Device",
+      "value": "Mobile"
+     },
+     {
+      "label": "row 3: Time",
+      "value": "14:17"
+     },
+     {
+      "label": "row 3: Event",
+      "value": "Product viewed"
+     },
+     {
+      "label": "row 3: Product / detail",
+      "value": "Ceramic coffee set"
+     },
+     {
+      "label": "row 3: Value",
+      "value": "—"
+     },
+     {
+      "label": "row 3: Device",
+      "value": "Mobile"
+     },
+     {
+      "label": "row 4: Time",
+      "value": "14:16"
+     },
+     {
+      "label": "row 4: Event",
+      "value": "Added to cart"
+     },
+     {
+      "label": "row 4: Product / detail",
+      "value": "Ceramic coffee set"
+     },
+     {
+      "label": "row 4: Value",
+      "value": "USD 42.00"
+     },
+     {
+      "label": "row 4: Device",
+      "value": "Mobile"
+     },
+     {
+      "label": "row 5: Time",
+      "value": "14:12"
+     },
+     {
+      "label": "row 5: Event",
+      "value": "Product viewed"
+     },
+     {
+      "label": "row 5: Product / detail",
+      "value": "Stoneware mug"
+     },
+     {
+      "label": "row 5: Value",
+      "value": "USD 18.00"
+     },
+     {
+      "label": "row 5: Device",
+      "value": "Desktop"
+     }
+    ],
+    "title": "Event timeline"
+   },
+   {
+    "rows": [
+     {
+      "label": "Market",
+      "value": "AE"
+     },
+     {
+      "label": "Audience",
+      "value": "Returning shopper"
+     },
+     {
+      "label": "Interest",
+      "value": "Coffee & dining"
+     },
+     {
+      "label": "Last activity",
+      "value": "13 Jul 2026 14:22 UTC"
+     },
+     {
+      "label": "First seen",
+      "value": "21 Apr 2026 09:14 UTC"
+     }
+    ],
+    "title": "Profile attributes"
+   },
+   {
+    "rows": [
+     {
+      "label": "13 Jul",
+      "value": "6 events in active session"
+     },
+     {
+      "label": "08 Jul",
+      "value": "Order completed · USD 83.21"
+     },
+     {
+      "label": "30 Jun",
+      "value": "Product search · coffee set"
+     },
+     {
+      "label": "22 Jun",
+      "value": "Campaign opened"
+     }
+    ],
+    "title": "Activity"
+   }
+  ],
+  "screen_title": "Pulse Analytics"
+ },
+ "file": "evidence/images/analytics_profile_view_20260713.png",
+ "finish_reason": "FinishReason.STOP",
+ "model": "gemini-3.1-flash-lite",
+ "model_version": "gemini-3.1-flash-lite",
+ "sha256": "4e4cb259bc2010b622b0c53fe5872258f994fefc23452a83bb27473758693484",
+ "usage": {
+  "cached_tokens": 0,
+  "cost_usd": 0.00241,
+  "input_tokens": 1180,
+  "output_tokens": 1410,
+  "thought_tokens": 0
+ }
+}

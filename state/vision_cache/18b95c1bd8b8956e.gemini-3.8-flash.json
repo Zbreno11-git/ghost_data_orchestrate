@@ -1,0 +1,213 @@
+{
+ "extract": {
+  "other_text": [
+   "Northstar Shop",
+   "Home",
+   "Orders",
+   "Customers",
+   "Data exports",
+   "Products",
+   "Marketing",
+   "Analytics",
+   "Settings",
+   "Customer Download Center",
+   "Production workspace",
+   "build 2026.10.4",
+   "Customer Download Center",
+   "Search exports...",
+   "Production",
+   "Help",
+   "CD",
+   "Northstar Shop / Customer Download Center / Data exports",
+   "4 jobs",
+   "Filter",
+   "Export",
+   "Actions",
+   "Create and manage customer download packages",
+   "All exports",
+   "Ready",
+   "Processing",
+   "Expired",
+   "Updated moments ago · 4 records",
+   "1",
+   "2",
+   "3",
+   "4"
+  ],
+  "panels": [
+   {
+    "rows": [
+     {
+      "label": "Ready",
+      "value": "2"
+     },
+     {
+      "label": "Processing",
+      "value": "2"
+     },
+     {
+      "label": "Created today",
+      "value": "1"
+     },
+     {
+      "label": "Downloads today",
+      "value": "0"
+     }
+    ],
+    "title": "Metrics"
+   },
+   {
+    "rows": [
+     {
+      "label": "row 1: Export ID",
+      "value": "export_1261"
+     },
+     {
+      "label": "row 1: Filename",
+      "value": "customer_export_1261.zip"
+     },
+     {
+      "label": "row 1: Owner",
+      "value": "marcus.lee@northstar.shop"
+     },
+     {
+      "label": "row 1: Status",
+      "value": "Collecting"
+     },
+     {
+      "label": "row 1: Created",
+      "value": "20 Jun 14:18 UTC"
+     },
+     {
+      "label": "row 2: Export ID",
+      "value": "export_1260"
+     },
+     {
+      "label": "row 2: Filename",
+      "value": "customer_export_1260.zip"
+     },
+     {
+      "label": "row 2: Owner",
+      "value": "ingrid.dahl@outlook.com"
+     },
+     {
+      "label": "row 2: Status",
+      "value": "Ready"
+     },
+     {
+      "label": "row 2: Created",
+      "value": "18 Jun 06:42 UTC"
+     },
+     {
+      "label": "row 3: Export ID",
+      "value": "export_1259"
+     },
+     {
+      "label": "row 3: Filename",
+      "value": "customer_export_1259.zip"
+     },
+     {
+      "label": "row 3: Owner",
+      "value": "sara.kim@northstar.shop"
+     },
+     {
+      "label": "row 3: Status",
+      "value": "Packaging"
+     },
+     {
+      "label": "row 3: Created",
+      "value": "17 Jun 11:03 UTC"
+     },
+     {
+      "label": "row 4: Export ID",
+      "value": "export_1258"
+     },
+     {
+      "label": "row 4: Filename",
+      "value": "customer_export_1258.zip"
+     },
+     {
+      "label": "row 4: Owner",
+      "value": "daniel.park@northstar.shop"
+     },
+     {
+      "label": "row 4: Status",
+      "value": "Ready"
+     },
+     {
+      "label": "row 4: Created",
+      "value": "16 Jun 09:27 UTC"
+     }
+    ],
+    "title": "All exports"
+   },
+   {
+    "rows": [
+     {
+      "label": "Owner",
+      "value": "ingrid.dahl@outlook.com"
+     },
+     {
+      "label": "Created",
+      "value": "18 Jun 2026 06:42 UTC"
+     },
+     {
+      "label": "Expires",
+      "value": "25 Jun 2026 06:42 UTC"
+     },
+     {
+      "label": "Size",
+      "value": "18.4 MB"
+     },
+     {
+      "label": "Checksum",
+      "value": "SHA-256 · 41ca09..."
+     },
+     {
+      "label": "Download count",
+      "value": "0"
+     },
+     {
+      "label": "Included",
+      "value": "Profile · Orders · Saved addresses"
+     }
+    ],
+    "title": "export_1260"
+   },
+   {
+    "rows": [
+     {
+      "label": "06:46",
+      "value": "Ready for download"
+     },
+     {
+      "label": "06:45",
+      "value": "Package created"
+     },
+     {
+      "label": "06:43",
+      "value": "Collecting customer records"
+     },
+     {
+      "label": "06:42",
+      "value": "Export requested"
+     }
+    ],
+    "title": "Activity"
+   }
+  ],
+  "screen_title": "Data exports"
+ },
+ "file": "evidence/images/customer_export_console_20260618.png",
+ "finish_reason": "FinishReason.STOP",
+ "model": "gemini-3.8-flash",
+ "model_version": "gemini-3.8-flash",
+ "sha256": "18b95c1bd8b8956e40216df935498a9f3c181ea2a69b5cd6d3c0841a816d5557",
+ "usage": {
+  "cached_tokens": 0,
+  "cost_usd": 0.00613575,
+  "input_tokens": 1206,
+  "output_tokens": 1395,
+  "thought_tokens": 0
+ }
+}

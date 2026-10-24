@@ -1,0 +1,299 @@
+{
+ "extract": {
+  "other_text": [
+   "Northstar Shop",
+   "Buckets",
+   "Access policies",
+   "Monitoring",
+   "Settings",
+   "northstar-assets",
+   "northstar-customer-data",
+   "northstar-logs",
+   "Nimbus Object Storage",
+   "Production workspace",
+   "build 2026.10.4",
+   "Nimbus Object Storage",
+   "Search objects by name or prefix...",
+   "Production",
+   "Help",
+   "NO",
+   "Northstar Shop / Nimbus Object Storage / northstar-customer-data",
+   "northstar-customer-data",
+   "8 objects",
+   "eu-west-1 / support-attachments / 2026 / 02",
+   "Objects",
+   "Versions",
+   "Access",
+   "Filter",
+   "Export",
+   "Actions",
+   "Updated moments ago · 8 records"
+  ],
+  "panels": [
+   {
+    "rows": [
+     {
+      "label": "Account",
+      "value": "Northstar Production"
+     }
+    ],
+    "title": "Account"
+   },
+   {
+    "rows": [
+     {
+      "label": "Region",
+      "value": "eu-west-1"
+     }
+    ],
+    "title": "Region"
+   },
+   {
+    "rows": [
+     {
+      "label": "Captured",
+      "value": "13 Feb 2026 08:00 UTC"
+     }
+    ],
+    "title": "Captured"
+   },
+   {
+    "rows": [
+     {
+      "label": "Storage class",
+      "value": "All"
+     }
+    ],
+    "title": "Storage class"
+   },
+   {
+    "rows": [
+     {
+      "label": "row 1: Name",
+      "value": "delivery_confirmation_19.pdf"
+     },
+     {
+      "label": "row 1: Size",
+      "value": "684 KB"
+     },
+     {
+      "label": "row 1: Modified (UTC)",
+      "value": "12 Feb 18:42"
+     },
+     {
+      "label": "row 1: Storage class",
+      "value": "Standard"
+     },
+     {
+      "label": "row 1: Version",
+      "value": "v3"
+     },
+     {
+      "label": "row 2: Name",
+      "value": "delivery_confirmation_20.pdf"
+     },
+     {
+      "label": "row 2: Size",
+      "value": "712 KB"
+     },
+     {
+      "label": "row 2: Modified (UTC)",
+      "value": "11 Feb 14:17"
+     },
+     {
+      "label": "row 2: Storage class",
+      "value": "Standard"
+     },
+     {
+      "label": "row 2: Version",
+      "value": "v1"
+     },
+     {
+      "label": "row 3: Name",
+      "value": "return_label_4821.pdf"
+     },
+     {
+      "label": "row 3: Size",
+      "value": "203 KB"
+     },
+     {
+      "label": "row 3: Modified (UTC)",
+      "value": "10 Feb 09:33"
+     },
+     {
+      "label": "row 3: Storage class",
+      "value": "Standard"
+     },
+     {
+      "label": "row 3: Version",
+      "value": "v1"
+     },
+     {
+      "label": "row 4: Name",
+      "value": "return_label_4876.pdf"
+     },
+     {
+      "label": "row 4: Size",
+      "value": "198 KB"
+     },
+     {
+      "label": "row 4: Modified (UTC)",
+      "value": "11 Feb 16:05"
+     },
+     {
+      "label": "row 4: Storage class",
+      "value": "Standard"
+     },
+     {
+      "label": "row 4: Version",
+      "value": "v2"
+     },
+     {
+      "label": "row 5: Name",
+      "value": "invoice_NS-10493.pdf"
+     },
+     {
+      "label": "row 5: Size",
+      "value": "318 KB"
+     },
+     {
+      "label": "row 5: Modified (UTC)",
+      "value": "10 Feb 11:21"
+     },
+     {
+      "label": "row 5: Storage class",
+      "value": "Standard"
+     },
+     {
+      "label": "row 5: Version",
+      "value": "v1"
+     },
+     {
+      "label": "row 6: Name",
+      "value": "parcel_damage_7713.jpg"
+     },
+     {
+      "label": "row 6: Size",
+      "value": "2.4 MB"
+     },
+     {
+      "label": "row 6: Modified (UTC)",
+      "value": "12 Feb 10:08"
+     },
+     {
+      "label": "row 6: Storage class",
+      "value": "Standard"
+     },
+     {
+      "label": "row 6: Version",
+      "value": "v1"
+     },
+     {
+      "label": "row 7: Name",
+      "value": "customer_export_2026-02-10.zip"
+     },
+     {
+      "label": "row 7: Size",
+      "value": "128 MB"
+     },
+     {
+      "label": "row 7: Modified (UTC)",
+      "value": "10 Feb 23:14"
+     },
+     {
+      "label": "row 7: Storage class",
+      "value": "Standard"
+     },
+     {
+      "label": "row 7: Version",
+      "value": "v1"
+     },
+     {
+      "label": "row 8: Name",
+      "value": "customer_export_2026-02-12.zip"
+     },
+     {
+      "label": "row 8: Size",
+      "value": "131 MB"
+     },
+     {
+      "label": "row 8: Modified (UTC)",
+      "value": "12 Feb 21:56"
+     },
+     {
+      "label": "row 8: Storage class",
+      "value": "Standard"
+     },
+     {
+      "label": "row 8: Version",
+      "value": "v1"
+     }
+    ],
+    "title": "Objects"
+   },
+   {
+    "rows": [
+     {
+      "label": "Size",
+      "value": "684 KB"
+     },
+     {
+      "label": "Version",
+      "value": "v3"
+     },
+     {
+      "label": "Content type",
+      "value": "application/pdf"
+     },
+     {
+      "label": "Encryption",
+      "value": "AES-256"
+     },
+     {
+      "label": "Checksum",
+      "value": "e71b6d..."
+     },
+     {
+      "label": "Uploader",
+      "value": "support-service"
+     },
+     {
+      "label": "Modified",
+      "value": "12 Feb 2026 18:42 UTC"
+     }
+    ],
+    "title": "delivery_confirmation_19.pdf"
+   },
+   {
+    "rows": [
+     {
+      "label": "v3",
+      "value": "12 Feb 18:42 · metadata update"
+     },
+     {
+      "label": "v2",
+      "value": "12 Feb 18:39 · upload complete"
+     },
+     {
+      "label": "v1",
+      "value": "12 Feb 18:38 · object created"
+     }
+    ],
+    "title": "Activity"
+   }
+  ],
+  "screen_title": "Nimbus Object Storage - northstar-customer-data"
+ },
+ "file": "evidence/images/object_storage_browser_20260213.png",
+ "finish_reason": "FinishReason.STOP",
+ "model": "gemini-3.8-flash",
+ "model_version": "gemini-3.8-flash",
+ "sha256": "96e9a191380c29b9e0ab997007268c4cd6353cb6721ebd1ed4a32599d8d37e04",
+ "usage": {
+  "cached_tokens": 0,
+  "cost_usd": 0.00862125,
+  "input_tokens": 1180,
+  "output_tokens": 2063,
+  "thought_tokens": 0
+ }
+}

@@ -1,0 +1,222 @@
+{
+ "extract": {
+  "other_text": [
+   "Northstar Shop",
+   "BridgeOps",
+   "Search connectors...",
+   "Production",
+   "Help",
+   "B",
+   "Connections",
+   "Topology",
+   "Monitoring",
+   "Events",
+   "Destinations",
+   "Settings",
+   "BridgeOps",
+   "Production workspace",
+   "build 2026.10.4",
+   "Northstar Shop / BridgeOps / Connections",
+   "12 connectors",
+   "PRODUCTION · eu-west · 07 Aug 2026 08:00 UTC",
+   "Filter",
+   "Export",
+   "Actions",
+   "Topology",
+   "Throughput",
+   "Recent deliveries",
+   "Updated moments ago · 4 records"
+  ],
+  "panels": [
+   {
+    "rows": [
+     {
+      "label": "Healthy",
+      "value": "12"
+     },
+     {
+      "label": "Events / hour",
+      "value": "4,113"
+     },
+     {
+      "label": "Delivery p95",
+      "value": "1.8 s"
+     },
+     {
+      "label": "Backlog",
+      "value": "18"
+     },
+     {
+      "label": "Destination health",
+      "value": "Healthy"
+     }
+    ],
+    "title": "Metrics Cards"
+   },
+   {
+    "rows": [
+     {
+      "label": "row 1: Connector",
+      "value": "1 data_flow_1121"
+     },
+     {
+      "label": "row 1: Destination",
+      "value": "customer_analytics_warehouse"
+     },
+     {
+      "label": "row 1: Selector",
+      "value": "jain.aditi@gmail.com"
+     },
+     {
+      "label": "row 1: Mode",
+      "value": "Continuous"
+     },
+     {
+      "label": "row 1: Events/hour",
+      "value": "1,284"
+     },
+     {
+      "label": "row 1: Last contact",
+      "value": "07:59:42"
+     },
+     {
+      "label": "row 2: Connector",
+      "value": "2 data_flow_9846"
+     },
+     {
+      "label": "row 2: Destination",
+      "value": "customer_analytics_warehouse"
+     },
+     {
+      "label": "row 2: Selector",
+      "value": "lucia-torres@gmail.com"
+     },
+     {
+      "label": "row 2: Mode",
+      "value": "Continuous"
+     },
+     {
+      "label": "row 2: Events/hour",
+      "value": "842"
+     },
+     {
+      "label": "row 2: Last contact",
+      "value": "07:59:36"
+     },
+     {
+      "label": "row 3: Connector",
+      "value": "3 Order notifications"
+     },
+     {
+      "label": "row 3: Destination",
+      "value": "notification_service"
+     },
+     {
+      "label": "row 3: Selector",
+      "value": "order events"
+     },
+     {
+      "label": "row 3: Mode",
+      "value": "Continuous"
+     },
+     {
+      "label": "row 3: Events/hour",
+      "value": "650"
+     },
+     {
+      "label": "row 3: Last contact",
+      "value": "07:59:28"
+     },
+     {
+      "label": "row 4: Connector",
+      "value": "4 Delivery tracking"
+     },
+     {
+      "label": "row 4: Destination",
+      "value": "logistics_warehouse"
+     },
+     {
+      "label": "row 4: Selector",
+      "value": "shipment events"
+     },
+     {
+      "label": "row 4: Mode",
+      "value": "Continuous"
+     },
+     {
+      "label": "row 4: Events/hour",
+      "value": "420"
+     },
+     {
+      "label": "row 4: Last contact",
+      "value": "07:59:13"
+     }
+    ],
+    "title": "Topology"
+   },
+   {
+    "rows": [
+     {
+      "label": "Status",
+      "value": "Healthy"
+     },
+     {
+      "label": "Owner",
+      "value": "Data Platform"
+     },
+     {
+      "label": "Destination",
+      "value": "customer_analytics_warehouse"
+     },
+     {
+      "label": "Selector",
+      "value": "jain.aditi@gmail.com"
+     },
+     {
+      "label": "Sync mode",
+      "value": "Continuous sync"
+     },
+     {
+      "label": "Last response",
+      "value": "200 OK · 1.8 s"
+     }
+    ],
+    "title": "data_flow_1121"
+   },
+   {
+    "rows": [
+     {
+      "label": "07:59:42",
+      "value": "124 events delivered"
+     },
+     {
+      "label": "07:58:10",
+      "value": "checkpoint committed"
+     },
+     {
+      "label": "07:56:44",
+      "value": "18 events retried"
+     },
+     {
+      "label": "07:55:02",
+      "value": "destination acknowledged batch"
+     }
+    ],
+    "title": "Activity"
+   }
+  ],
+  "screen_title": "Connections"
+ },
+ "file": "evidence/images/connector_management_console_20260807.png",
+ "finish_reason": "FinishReason.STOP",
+ "model": "gemini-3.8-flash",
+ "model_version": "gemini-3.8-flash",
+ "sha256": "e81fabc93ea1b5f4c918d934cdb2bea05d61737adfcc29f281494f5d8ec46355",
+ "usage": {
+  "cached_tokens": 0,
+  "cost_usd": 0.00369375,
+  "input_tokens": 1180,
+  "output_tokens": 749,
+  "thought_tokens": 0
+ }
+}
