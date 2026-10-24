@@ -4,7 +4,7 @@ Each session is a 1–2.5 h package that ends in something verifiable, plus a di
 (command → expected number, 🐞 predicted defect) lives in `docs/plans/MASTER_PLAN.md`. This file holds the
 **state**, and any change to a checkpoint is noted here with a date and reason.
 
-**Progress: 1 of 8 sessions fully closed** (✅). Partial (🔄) counts as partial.
+**Progress: 3 of 8 sessions fully closed** (✅: S0, S1, S2; measured 2026-10-24 20:15 UTC). Partial (🔄) counts as partial.
 
 > **Order notes.** The order follows data dependency, not showcase value. The contract/evaluator (S1) comes before
 > ingestion because every later step is measured with it. The deterministic baseline (S3) comes before the agent (S4)
@@ -16,8 +16,8 @@ Each session is a 1–2.5 h package that ends in something verifiable, plus a di
 
 ## ▶️ Start the next session here
 
-- Session: S1+S2 (merged) — first step: write `docs/plans/session-01-02.md`, then `code/ghostaudit/contract.py` + `code/tests/test_contract.py`
-- Read first: `docs/PRIMER.md`, `PROGRESS.md`
+- Session: **S3** — first step: write `docs/plans/session-03.md`, then `code/ghostaudit/identity.py` + `code/tests/test_identity.py` (C3.1: case_10/case_12 historical aliases resolve, case_28 decoy excluded)
+- Read first: `docs/PRIMER.md` (new boundaries: wrapper vs fields, absence proof, D10), `PROGRESS.md`, `code/ghostaudit/evidence.py`
 - Depends on Breno: before leaving, keep the session running with unattended permissions (Bash/Edit)
 
 Timeline as approved (UTC; CDT = UTC−5): S0 16:50–18:00 · S1 18:00–19:00 · S2 19:00–21:00 · S3 21:00–23:00 ·
@@ -28,6 +28,10 @@ S8 optional · upload ≈10:00 · deadline 12:00.
 S3 22:50–00:50 · S4 00:50–03:20 · S5 03:20–05:30 **safety package (00:30 CDT)** · S6 05:30–07:30 (shrunk) ·
 S7 07:30–09:00 **freeze unchanged** · upload ≈10:00 · deadline 12:00.
 Cut order if late: S6 scope → +2 custom cases → S8. S5 and S7 are never cut.
+
+**2026-10-24 20:15 UTC: S1+S2 closed at ~20:15**, ≈2h35 ahead of the re-timed plan and ≈45 min ahead of the original
+(S2 was due 21:00). Proposal: run S3 now and keep the original 04:00 UTC safety-package target as the goal, with the
+re-timed 05:30 UTC as the fallback. Breno still has to confirm.
 
 ---
 
@@ -42,20 +46,20 @@ Cut order if late: S6 scope → +2 custom cases → S8. S5 and S7 are never cut.
 - [x] C0.6 public remote created and pushed; no secrets tracked — https://github.com/Zbreno11-git/ghost_data_orchestrate @ 54a7673
 - [x] C0.7 project memory saved
 
-### ⬜ S1 — Contract core + evaluator · $0 (merged with S2, see order notes)
-- [ ] C1.1 contract tables (193/193 sample steps legal)
-- [ ] C1.2 canonical sort reproduces 32/32 sample arrays
-- [ ] C1.3 validator rejects ≥9 malformed fixtures for the named reason
-- [ ] C1.4 evaluator metrics with defined denominators (self = 1.0, empty = 0)
+### ✅ S1 — Contract core + evaluator · $0 (merged with S2) · `ac17988`, `600715a`
+- [x] C1.1 contract tables (193/193 sample steps legal)
+- [x] C1.2 canonical sort reproduces 32/32 sample arrays — *changed 2026-10-24: byte-identical serialization is impossible (D11); 32/32 semantic + 24/24 byte*
+- [x] C1.3 validator: 23 codes, each with a fixture rejected for exactly that code (incl. DUPLICATE_STEP added in review); sample_output 0 violations
+- [x] C1.4 evaluator: self = 1.0 on every metric (32/193/75), empty = 0, join by case_id
 
-### ⬜ S2 — Ingestion + evidence store · ≈$0.10
-- [ ] C2.1 manifest + CSVs, 94/94 paths
-- [ ] C2.2 SQL 24/24, ATTACH denied
-- [ ] C2.3 JSON 28/28, wrapper fields tagged
-- [ ] C2.4 logs 26/26, trace_id join, unparsed count
-- [ ] C2.5 PDF 4/4, TXT 1/1, PNG 11/11 (cached, rerun = 0 paid calls)
-- [ ] C2.6 coverage report 94/94
-- [ ] side: subagent authors 3 custom cases (independent)
+### ✅ S2 — Ingestion + evidence store · spent $0.1069 · `c729b3f`
+- [x] C2.1 manifest + CSVs, 94/94 paths (traversal guard), tables 518/32/850/306/4011/15
+- [x] C2.2 SQL 24/24, ATTACH and non-foreign_keys PRAGMAs denied
+- [x] C2.3 JSON 28/28 (4 shapes), wrapper fields tagged
+- [x] C2.4 logs 26/26, 7 grammars, trace join, 0 unparsed lines
+- [x] C2.5 PDF 4/4 (pypdf = pdftotext identifiers), TXT 1/1, PNG 11/11 dual-read agree; rerun = 0 paid calls
+- [x] C2.6 coverage 94/94 processed; 75/75 citations grounded (71 mention + 4 scope) — *changed 2026-10-24: 111/111 resources is unreachable; 108 indexed + account_004 absence-by-scope + 2 unobservable (D10)*
+- [x] side: 3 custom cases (independent subagent), each validates 0 and ingests cleanly
 
 ## Block B — First end-to-end
 
@@ -67,6 +71,9 @@ Cut order if late: S6 scope → +2 custom cases → S8. S5 and S7 are never cut.
 - [ ] C3.5 deterministic run validates 32/32; baseline metrics in DIARY
 
 ### ⬜ S4 — Agent loop + gateway/ledger/cache/resume/replay · ≈$0.30
+> **First step, carried from S2:** decide how a provider 4xx is settled. Today `gemini.py` settles any exception at the full
+> reservation (one 400 on 2026-10-24 cost $0.0176 in the ledger, almost certainly unbilled). Keep it conservative unless the
+> gateway can tell a request-rejected error from a maybe-billed one.
 - [ ] C4.1 gateway budget refusal + concurrent reservation test
 - [ ] C4.2 tools with cutoff + pagination
 - [ ] C4.3 one live case: tool choice → submit → canonical output

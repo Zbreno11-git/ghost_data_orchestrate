@@ -3,6 +3,39 @@
 > One entry per session, newest on top. Narrative: what was done, what was decided and **why**, and what was
 > learned. State does not live here (see PROGRESS.md).
 
+## 2026-10-24 — S1+S2 (merged): contract and evaluator proven, every evidence file readable, $0.107
+
+**Done.**
+- **Contract core:** `contract.py` is the one home of ops, states and ranks. Measured: 193/193 sample steps legal, and the
+  canonical sort reproduces 32/32 arrays (D6 holds).
+- **Validator:** 23 violation codes, each with a fixture that fails for exactly that reason. sample_output: 0 violations.
+- **Evaluator:** explicit denominators, joined by case_id. Self = 1.0, empty = 0.
+- **Ingestion:** all 94 files → 7,604 Observations, 0 unparsed lines:
+  - SQL runs in an authorizer sandbox;
+  - JSON is dispatched by shape;
+  - logs go through one tokenizer for 7 grammars plus a trace join;
+  - PDFs via pypdf, at parity with pdftotext;
+  - PNGs get a dual-model read.
+- **Custom cases:** 3, from an independent subagent (sees only problem statement, contract and rules).
+
+**Decided.**
+- A16 (Breno): the ChatGPT transcript stays.
+- A17 (agent): vision cache committed, with a cross-check read.
+- D10: two sample resources are unobservable.
+- D11: samples mix JSON key orders.
+- A case-3 naming fix.
+
+**Learned.**
+- Absence in the samples is proven by *scope* (a snapshot covering the system without the row), not by mention. 4 of 75
+  citations work that way, and S3's planner must cite like that.
+- Recall against samples has a hard ceiling of 109/111 resources (D10). Chasing the last two would mean fabricating.
+- The first cross-check counted only emails/ids, so two "agreeing" screens had 0–1 tokens. Widening it to references
+  and file names gave 5 and 9 tokens, still in agreement. A check that compares empty sets is not a check.
+- gemini-3.8-flash rejects MINIMAL thinking. The failed call was ledgered at its reservation.
+- Error class 3: I overwrote an (empty) upstream stub without reading it.
+
+**Next.** S3: the deterministic baseline on the samples.
+
 ## 2026-10-24 — S0: repo public on upstream, docs in place, Gemini proven for $0.0005
 
 **Done.**

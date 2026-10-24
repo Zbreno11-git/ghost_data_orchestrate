@@ -16,7 +16,7 @@ from .timeutil import parse_ts
 
 CODES = (
     # row level
-    "BAD_STATUS", "BAD_JSON", "NOT_ARRAY", "KEYSET", "EMPTY_FIELD", "BAD_PAIR", "STEP_NO", "NOT_CANONICAL",
+    "BAD_STATUS", "BAD_JSON", "NOT_ARRAY", "KEYSET", "EMPTY_FIELD", "BAD_PAIR", "STEP_NO", "NOT_CANONICAL", "DUPLICATE_STEP",
     "NA_WITH_STEPS", "DECIDED_EMPTY", "COMPLETE_NON_VERIFY", "INCOMPLETE_NO_FINDING",
     "FINDING_UNCITED", "COMPLETE_VERIFY_UNCITED", "FUTURE_STEP_CITED", "UNKNOWN_EVIDENCE", "EVIDENCE_AFTER_AUDIT",
     # file level
@@ -80,6 +80,9 @@ def validate_row(case_id: str, status: str, steps_json: str, audit_at: datetime 
         add("STEP_NO", str([s["step_no"] for s in steps]))
     elif canonical_sort(steps) != steps:
         add("NOT_CANONICAL", "steps are not in phase → operation → system_id → resource_id order")
+    keys = [(s["phase"], s["operation"], s["system_id"], s["resource_id"]) for s in steps]
+    if len(keys) != len(set(keys)):
+        add("DUPLICATE_STEP", str(sorted({k for k in keys if keys.count(k) > 1})))
     phases = {s["phase"] for s in steps}
     if status == "COMPLETE" and phases != {"VERIFICATION"}:
         add("COMPLETE_NON_VERIFY", str(sorted(phases - {"VERIFICATION"})))

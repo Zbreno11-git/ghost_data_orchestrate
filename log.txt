@@ -354,3 +354,51 @@ branch=main
 repo_root=/root/hackthon_1
 worktree=main
 parent_agent=none
+
+## [2026-10-24T19:59:41Z] Subagent: authored 3 custom evaluation cases
+
+User Prompt (verbatim, secrets redacted):
+Independently author 3 self-contained custom evaluation cases (historical_email_replica, success_claim_contradicted, post_cutoff_evidence_ignored) with fictional mini-datasets, expected_output.csv and RATIONALE.md under code/evaluation/custom_cases/, validated with main.py validate.
+
+Agent Response Summary:
+Wrote three fictional mini-datasets, each with one request, a look-alike decoy user, a copy of deletion_rules.csv, and JSON/SQL/log evidence. Expected outputs: custom_01 INCOMPLETE (stale failover-replica profile found through a historical email), custom_02 INCOMPLETE (DELETE SUCCESS claim contradicted by a later ledger), custom_03 COMPLETE (cites pre-cutoff proof including a retained SECURITY_AUDIT_LOG and ignores a post-audit_at file and activity). All three pass the validator with 0 violations. A negative control confirmed the validator rejects a citation of the post-cutoff file. Only the problem statement, AGENTS.md section 6 and deletion_rules.csv were read.
+
+Actions:
+* Wrote code/evaluation/custom_cases/{historical_email_replica,success_claim_contradicted,post_cutoff_evidence_ignored}/{dataset/*,expected_output.csv,RATIONALE.md}
+* Ran code/main.py validate --split targets --dataset <case>/dataset for each case (0 violations each) plus one negative control in scratchpad
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=main
+repo_root=/root/hackthon_1
+worktree=main
+parent_agent=claude-code-main-session
+
+## [2026-10-24T20:16:00Z] S1+S2 executed and closed; model question answered
+
+User Prompt (verbatim, secrets redacted):
+What model did we choose after all?
+
+Agent Response Summary:
+Answered mid-turn: the agent model is not final; 3.1-flash-lite is the default, and the S4 benchmark against 3.8-flash decides. PNG extraction uses 3.8-flash, cross-checked by 3.1-flash-lite (A17). Executed the whole S1+S2 plan:
+- contract/serializer/validator/evaluator proven on samples (193/193 legal, 32/32 canonical, 0 violations, self-score 1.0);
+- all 94 evidence files ingested (7,604 observations, 0 unparsed);
+- 11 PNGs extracted with two agreeing models for $0.1069; 3 custom cases from an independent subagent;
+- 78 tests and 4 mutation proofs.
+Measured that two sample resources exist in no participant file (D10) and that absence is cited by snapshot scope. Closed with docs updates, CI, and a commit and push.
+
+Actions:
+* Wrote code/ghostaudit/{contract,serialize,validate,timeutil,evidence}.py, ingest/{manifest,csv_tables,sql_snapshot,json_records,logs,pdf_text,images,coverage,pipeline}.py, code/main.py, code/evaluation/{main,metrics}.py, code/tests/*
+* Paid vision calls via ghostaudit/llm/gemini.py (ledger $0.0005345 → $0.1074); state/vision_cache committed
+* Spawned a background subagent for the custom cases; renamed case 3 to dataset conventions
+* Updated DECISIONS (A16, A17, D10, D11), ERRORS (class 3), PRIMER, SESSIONS, PROGRESS, DIARY, STATUS; added .github/workflows/ci.yml
+* Commits ac17988, 600715a, c729b3f + close commit; pushed to origin
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=main
+repo_root=/root/hackthon_1
+worktree=main
+parent_agent=none

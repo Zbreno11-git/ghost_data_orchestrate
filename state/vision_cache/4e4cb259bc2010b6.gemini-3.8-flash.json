@@ -243,6 +243,7 @@
  "finish_reason": "FinishReason.STOP",
  "model": "gemini-3.8-flash",
  "model_version": "gemini-3.8-flash",
+ "prompt_sha256": "3fdfe2961e8bf6d131a506f221bd4e7eb101257a39e635f1dee1d14e36eb4403",
  "sha256": "4e4cb259bc2010b622b0c53fe5872258f994fefc23452a83bb27473758693484",
  "usage": {
   "cached_tokens": 0,

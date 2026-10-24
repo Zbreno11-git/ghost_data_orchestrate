@@ -205,3 +205,17 @@ git status --short; git rev-parse HEAD origin/main                         # cle
   reviewed before staging.
 - **Scope:** the coverage recall tests read `sample_output.csv` and stay evaluation-side, under `code/tests/` only.
   No prediction module imports that file, and a test asserts this with a grep over `code/ghostaudit/`.
+
+## Outcome (2026-10-24 20:15 UTC)
+
+Every checkpoint closed. Literal gate lines are in `PROGRESS.md` under "Proofs from S1+S2". Two checkpoints changed
+from the plan, for measured reasons recorded in `docs/SESSIONS.md` and `docs/DECISIONS.md`:
+- **C1.2:** byte-identical re-serialization is impossible, because the sample rows mix two key orders (D11). The
+  checkpoint now proves 32/32 semantic equality and 24/24 byte equality.
+- **C2.6:** 111/111 sample resources can't all be indexed:
+  - `account_004` is proven absent by snapshot scope;
+  - `audit_record_5569/6645` exist in no participant file (D10).
+  The citation gate holds at 75/75 (71 by mention, 4 by scope).
+
+Added during review: the `DUPLICATE_STEP` validator code, and a vision cache key that includes the prompt and schema
+hash. Spend: $0.1069 (envelope $0.10; over by the $0.0176 reservation of one rejected 400 call).

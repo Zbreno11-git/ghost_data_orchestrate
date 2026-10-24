@@ -36,6 +36,7 @@ ROW_FIXTURES = {
     "BAD_PAIR": ("COMPLETE", lambda s: ("COMPLETE", json.dumps([dict(s[0], state="PRESENT" if s[0]["state"] != "PRESENT" else "ABSENT")] + s[1:]))),
     "STEP_NO": ("COMPLETE", lambda s: ("COMPLETE", json.dumps([dict(x, step_no=x["step_no"] + 1) for x in s]))),
     "NOT_CANONICAL": ("INCOMPLETE", lambda s: ("INCOMPLETE", json.dumps(_renumber(list(reversed(s)))))),
+    "DUPLICATE_STEP": ("INCOMPLETE", lambda s: ("INCOMPLETE", dumps(_renumber(s[:1] + s)))),
     "NA_WITH_STEPS": ("COMPLETE", lambda s: ("NOT_APPLICABLE", dumps(s))),
     "DECIDED_EMPTY": ("COMPLETE", lambda s: ("COMPLETE", "[]")),
     "COMPLETE_NON_VERIFY": ("INCOMPLETE", lambda s: ("COMPLETE", dumps([x for x in s if x["phase"] != "FINDING"] and

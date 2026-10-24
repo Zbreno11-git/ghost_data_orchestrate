@@ -211,6 +211,7 @@
  "finish_reason": "FinishReason.STOP",
  "model": "gemini-3.8-flash",
  "model_version": "gemini-3.8-flash",
+ "prompt_sha256": "3fdfe2961e8bf6d131a506f221bd4e7eb101257a39e635f1dee1d14e36eb4403",
  "sha256": "e81fabc93ea1b5f4c918d934cdb2bea05d61737adfcc29f281494f5d8ec46355",
  "usage": {
   "cached_tokens": 0,

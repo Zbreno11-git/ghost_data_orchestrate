@@ -56,6 +56,10 @@ def identifier_tokens(extract: dict) -> set[str]:
     return toks
 
 
+# A cached extraction is reused only for the same image bytes, model, prompt and schema.
+PROMPT_SHA256 = hashlib.sha256((PROMPT + json.dumps(SCHEMA, sort_keys=True)).encode()).hexdigest()
+
+
 def _cache_path(cfg: dict, sha: str, model: str) -> Path:
     return REPO_ROOT / cfg["vision"]["cache_dir"] / f"{sha[:16]}.{model}.json"
 
@@ -66,7 +70,7 @@ def read_image(entry: ManifestEntry, model: str, cfg: dict, allow_paid: bool, ru
     path = _cache_path(cfg, sha, model)
     if path.exists():
         cached = json.loads(path.read_text())
-        if cached["sha256"] == sha:
+        if cached["sha256"] == sha and cached.get("prompt_sha256") == PROMPT_SHA256:
             return cached
     if not allow_paid:
         return None
@@ -84,7 +88,7 @@ def read_image(entry: ManifestEntry, model: str, cfg: dict, allow_paid: bool, ru
             max_output_tokens=v["max_output_tokens"],
             thinking_config=types.ThinkingConfig(thinking_level=v["thinking_level"][model])))
     finish = str(resp.candidates[0].finish_reason) if resp.candidates else "NO_CANDIDATE"
-    record = {"sha256": sha, "file": entry.rel_path, "model": model,
+    record = {"sha256": sha, "prompt_sha256": PROMPT_SHA256, "file": entry.rel_path, "model": model,
               "model_version": getattr(resp, "model_version", None), "finish_reason": finish,
               "usage": measured, "extract": json.loads(resp.text)}
     path.parent.mkdir(parents=True, exist_ok=True)

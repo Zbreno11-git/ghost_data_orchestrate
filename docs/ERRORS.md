@@ -16,6 +16,7 @@
 |---|---|---|---|
 | 1 | Assumed a git command populated the working tree | 1 | After `reset --mixed`, check `git status` before anything else |
 | 2 | Staged with `git add -A` without listing new untracked files | 1 | `git status --short` and review every `??` before staging; stage explicit paths |
+| 3 | Wrote over a tracked file without reading it first | 1 | `git ls-files <path>` / Read before any `cat >` to a path in the repo |
 
 ---
 
@@ -46,3 +47,18 @@ is Breno's call.
 
 **The antidote, concrete:** run `git status --short` right before staging; any `??` line I did not create is read and
 asked about first. Stage explicit paths (`git add <paths>`), never `-A`, on this repo.
+
+---
+
+### 3. Wrote over a tracked file without reading it first
+
+**2026-10-24 19:55 UTC — S1 C1.3.** Created `code/main.py` with `cat > code/main.py`, assuming it did not exist. It was
+upstream's tracked stub (commit `5d42798`, 0 bytes); `git status` showed ` M code/main.py` and `git show HEAD:code/main.py`
+confirmed nothing was lost. Same for `code/evaluation/main.py` (also an empty upstream stub). Harmless this time only
+because the stub was empty.
+
+> **A heredoc to a repo path is an overwrite. Check `git ls-files <path>` (or Read it) first.**
+
+**The antidote, concrete:** before writing a new file under `code/`, run `git ls-files <path>`; if it is tracked, Read
+it and use Edit.
+

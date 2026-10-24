@@ -39,10 +39,11 @@ participant evidence available at `audit_at`. Owner: Breno. State on 2026-10-24:
 
 ## Current session
 
-⚠️ **S1+S2 merged (2026-10-24, A15): contract core + evaluator, then ingestion of all 94 evidence files.** Plan: `docs/plans/session-01-02.md`.
+⚠️ **S3 (2026-10-24): identity, time, ownership, policy, planner → deterministic baseline on the 32 samples.**
 
-Previous (S0, 2026-10-24): repo on upstream `0eddbbd`, public origin, venv pinned. Gemini smoke on
-`gemini-3.1-flash-lite` passed JSON schema, function calling (keep `thought_signature`: append the model `Content` unchanged) and PNG extraction for $0.0005345.
+Previous (S1+S2 merged, 2026-10-24, A15): contract/serializer/validator/evaluator proven on samples (193/193 legal,
+32/32 canonical, 0 violations); all 94 evidence files → 7,604 Observations (94/94 processed, 0 unparsed); 3 custom
+cases. Project spend $0.1074. Earlier (S0): repo, venv, Gemini smoke (keep `thought_signature`).
 
 ## Boundaries and triggers in force
 
@@ -54,6 +55,9 @@ Previous (S0, 2026-10-24): repo on upstream `0eddbbd`, public origin, venv pinne
 | Ownership | `--ownership strict|scored`; the choice is made in S6 by measured sample metrics, with tuning exposure disclosed. |
 | Agent | The model can only cite observation IDs returned by tools. Policy and serialization are deterministic code. |
 | Model fallback | Never silent. A model change is a config change, recorded in DECISIONS. |
+| Wrapper vs fields | Lookup keys and ledger `subject_reference` live in `Observation.wrapper`; only `fields` is record content (FR-11). An identifier only in the wrapper never makes a record "exposed". |
+| Absence proof | An ABSENT verification may cite a snapshot that covers the system (table or bundle scope) and lacks the row: 4/75 sample citations do exactly that (C2.6). |
+| Unobservable | `audit_record_5569/6645` exist only in sample answers (D10): never invent resources to chase recall. |
 
 ## Where things are
 
@@ -73,9 +77,10 @@ Previous (S0, 2026-10-24): repo on upstream `0eddbbd`, public origin, venv pinne
 
 ```bash
 .venv/bin/python -m pytest code/tests -q          # gates
-.venv/bin/python code/main.py status              # ledger total, runs, first open checkpoint
+.venv/bin/python code/main.py status              # ledger total and run dirs
+.venv/bin/python code/main.py ingest --report     # 94-file coverage → runs/ingest/coverage.md (PNGs from cache)
 .venv/bin/python code/main.py validate output.csv # output invariants
-.venv/bin/python code/evaluation/main.py          # sample + custom metrics → reports
+.venv/bin/python code/evaluation/main.py --pred <output.csv>   # metrics vs sample_output (join by case_id)
 ```
 
 ## Protocol
