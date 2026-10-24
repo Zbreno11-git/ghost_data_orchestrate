@@ -38,6 +38,7 @@ class CaseTools:
     workflow: WorkflowAssignment
     rules: dict
     resource_re: object
+    owners: object = None               # OwnerIndex, queried at the view's audit_at (agent validation, C5.4)
     seen: set = field(default_factory=set)
     calls: list = field(default_factory=list)
 

@@ -117,7 +117,7 @@ def run(dataset: Path, split: str, out_dir: Path, mode: str = "strict", engine: 
             if intent.authorizes_deletion is not False and isinstance(subject, Subject):
                 from .agent import investigate
                 from .tools import CaseTools
-                tools = CaseTools(cid, view, subject, own, workflow, rules, store.resource_re)
+                tools = CaseTools(cid, view, subject, own, workflow, rules, store.resource_re, owners=owners)
                 outcome = investigate(row, tools, plan, gateway, model, cfg, times, intent, audit_at)
                 plan = outcome.plan
                 agent_stats[outcome.status] += 1

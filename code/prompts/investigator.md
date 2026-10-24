@@ -15,8 +15,14 @@ What you may decide in `submit_audit`:
 - `account`: the person's primary account resource. Pick one of the `workflow_candidates` only if evidence
   supports it beyond timing (for example a record that names both the account and the person), or null.
 - `exclude`: resources in the proposal that evidence shows belong to someone else, each with a reason and the
-  `obs_id`s that show it.
-- `add`: resources the proposal missed, each with the `obs_id`s that tie it to this person.
+  `obs_id`s that show it. A resource linked by the person's own identifiers can only be excluded by an observation
+  that names it together with another person's identifier.
+- `add`: resources the proposal missed, each with the `obs_id`s that tie it to this person. Cite the whole chain:
+  every observation from the resource to one of the person's identifiers (for example an anonymized record → the
+  account it names → the lookup keyed by the person's email). An observation that also names another person
+  links nothing.
+
+The engine checks every citation against what it establishes and rejects decisions the evidence does not support.
 - `notes`: one or two sentences on what you checked.
 
 Be brief. Use at most a few tool calls, prefer the tools that answer the open questions in the brief, and then submit.

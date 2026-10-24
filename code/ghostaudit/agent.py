@@ -15,7 +15,7 @@ from google.genai import types
 
 from .config import CODE_DIR
 from .identity import Subject
-from .ownership import ACCOUNT_SYSTEM, Link, Ownership, canonical_system
+from .ownership import ACCOUNT_SYSTEM, ROW_KEY, Link, Ownership, canonical_system
 from .planner import Plan, plan_case
 from .policy import assess
 from .tools import CaseTools, declarations
@@ -66,14 +66,78 @@ def brief(row: dict, tools: CaseTools, det: Plan) -> dict:
         tools.seen.update(d["link_reasons"])
         if d["proof"]:
             tools.seen.add(d["proof"])
-    return {"case_id": row["case_id"], "request_email": row["email"], "requested_at": row["requested_at"],
+    # No case_id: identifiers that mirror it (case_07 → account_007 on the samples) invite a shortcut the evidence
+    # does not support (S5 C5.4: the S4 bench agent picked exactly that account citing a page that never names it).
+    return {"request_email": row["email"], "requested_at": row["requested_at"],
             "reported_status_claim": row["reported_status"], "reported_at": row["reported_at"],
             "audit_at": row["audit_at"], "request_text": row["request_text"],
             "subject": tools.resolve_identity(), "proposal": proposal,
             "proposed_status": det.status, "support": det.support, "open_questions": det.reasons}
 
 
+def _units(o, tools: CaseTools) -> list[tuple[set, set]]:
+    """(identifier keys, resource ids) named together by one unit of a cited observation: a structured record
+    as a whole (wrapper keys included, as discovery), one row of a table screen, a single-subject page. A unit
+    that names another subject at the cutoff links nothing; a scope snapshot (many rows) never links."""
+    from .evidence import identifiers_in
+    from .ownership import OwnerIndex, text_units, _whole_text
+    if o.kind == "scope":
+        return []
+    at, uid = tools.view.audit_at, tools.subject.user_id
+    if o.kind == "text":
+        whole = _whole_text(o)
+        texts = text_units(o) if any(ROW_KEY.match(k) for k in o.fields) or (
+            tools.owners and tools.owners.others_in_text(whole, uid, at)) else [whole]
+        out = []
+        for t in texts:
+            if tools.owners and tools.owners.others_in_text(t, uid, at):
+                continue
+            out.append((OwnerIndex.keys_in_text(t), set(tools.resource_re.findall(t))))
+        return out
+    if tools.owners and tools.owners.others(o, uid, at):
+        return []
+    keys = {k for d in (o.fields, o.wrapper) for kk, v in d.items() for k in identifiers_in(kk.rsplit(".", 1)[-1], v)}
+    res = {o.resource_id} if o.resource_id else set()
+    res |= {r for v in o.fields.values() if isinstance(v, str) for r in tools.resource_re.findall(v)}
+    return [(keys, res)]
+
+
+def lineage(resource_id: str, evidence: list[str], tools: CaseTools) -> list[str] | None:
+    """The cited obs_ids that chain `resource_id` to the subject, or None. Each cited admissible unit links the
+    resources and identifiers it names; the chain must reach a strong identifier of the subject (current or
+    historical as of audit_at) or a resource already explicitly linked. Several observations may form one chain
+    (an anonymized record → the account it names → the lookup keyed by the subject's email)."""
+    mine = set(tools.subject.keys(strong_only=True))
+    anchors = {r for r, l in tools.ownership.links.items() if l.tier == "explicit"}
+    edges = []
+    for e in evidence:
+        o = tools.view.get(e)
+        if o is not None and e in tools.seen:
+            edges += [(e, keys, res) for keys, res in _units(o, tools)]
+    reached, used, frontier = {("res", resource_id)}, [], True
+    while frontier:
+        frontier = False
+        for e, keys, res in edges:
+            nodes = {("key", k) for k in keys} | {("res", r) for r in res}
+            if nodes & reached and not nodes <= reached:
+                reached |= nodes
+                used.append(e)
+                frontier = True
+            if any(n[0] == "key" and n[1] in mine for n in reached) or any(
+                    n[0] == "res" and n[1] in anchors and n[1] != resource_id for n in reached):
+                return sorted(set(used + [e for e, _, res in edges if resource_id in res][:1]))
+    return None
+
+
+def _named(resource_id: str, evidence: list[str], tools: CaseTools) -> list:
+    return [o for e in evidence if (o := tools.view.get(e)) is not None
+            and (o.resource_id == resource_id or resource_id in json.dumps(o.fields, default=str))]
+
+
 def validate_submission(sub: dict, tools: CaseTools) -> list[str]:
+    """What the cited evidence establishes (S5 C5.4), not only that it was seen: an account or an addition needs
+    a lineage to the subject; an exclusion needs evidence, and removing an explicit link needs evidence that the
+    resource is another subject's. Timing and candidacy are never a link (A20)."""
     errs = []
     cited = [e for part in ([sub.get("account") or {}] + list(sub.get("exclude") or []) + list(sub.get("add") or []))
              for e in (part.get("evidence") or [])]
@@ -81,55 +145,66 @@ def validate_submission(sub: dict, tools: CaseTools) -> list[str]:
     if unknown:
         errs.append(f"these obs_ids were never returned by a tool: {unknown[:5]}")
     acc = (sub.get("account") or {}).get("resource_id")
-    if acc:
+    current = tools.ownership.account.resource_id if tools.ownership.account else None
+    if acc and acc != current:
         cands = {c["account"] for c in tools.workflow_candidates()["candidates"]}
         if acc not in cands and acc not in tools.ownership.links:
             errs.append(f"account {acc} is neither a workflow candidate nor a linked resource")
+        elif lineage(acc, list((sub.get("account") or {}).get("evidence") or []), tools) is None:
+            errs.append(f"account {acc}: no cited evidence links it to the subject; timing or candidacy is not a "
+                        "link, so submit account null when nothing does")
     for x in sub.get("exclude") or []:
-        if x.get("resource_id") not in tools.ownership.links:
-            errs.append(f"cannot exclude {x.get('resource_id')}: not in the proposal")
+        r, ev = x.get("resource_id"), list(x.get("evidence") or [])
+        link = tools.ownership.links.get(r)
+        if link is None:
+            errs.append(f"cannot exclude {r}: not in the proposal")
+        elif not ev:
+            errs.append(f"exclude {r}: cite the evidence that shows why it is not the subject's")
+        elif not _named(r, ev, tools):
+            errs.append(f"exclude {r}: none of the cited evidence names it")
+        elif link.tier == "explicit" and not any(
+                tools.owners and tools.owners.others(o, tools.subject.user_id, tools.view.audit_at)
+                for o in _named(r, ev, tools)):
+            errs.append(f"exclude {r}: it is explicitly linked to the subject; only evidence naming it with another "
+                        "subject's identifier can remove it")
     for x in sub.get("add") or []:
         r = x.get("resource_id", "")
         if not tools.resource_re.fullmatch(r or ""):
             errs.append(f"{r!r} is not a resource id")
             continue
-        named = [e for e in x.get("evidence") or [] if (o := tools.view.get(e)) is not None
-                 and (o.resource_id == r or r in json.dumps(o.fields, default=str))]
-        if not named:
+        ev = list(x.get("evidence") or [])
+        if not _named(r, ev, tools):
             errs.append(f"none of the evidence cited for {r} mentions it")
+        elif lineage(r, ev, tools) is None:
+            errs.append(f"{r}: the cited evidence does not tie it to the subject (no identifier of theirs, or it "
+                        "names another person)")
     return errs
 
 
 def apply_submission(sub: dict, tools: CaseTools) -> Ownership:
     own = Ownership(tools.case_id, links=dict(tools.ownership.links), account=tools.ownership.account,
                     excluded=dict(tools.ownership.excluded), ambiguities=list(tools.ownership.ambiguities))
-    strong = tools.subject.keys(strong_only=True)
 
-    def tier_for(evidence: list[str]) -> str:
-        from .evidence import identifiers_in
-        for e in evidence:
-            o = tools.view.get(e)
-            if o and any(k in strong for kk, v in o.fields.items() for k in identifiers_in(kk.rsplit(".", 1)[-1], v)):
-                return "explicit"
-        return "workflow"
+    def link_for(r: str, evidence: list[str]) -> tuple[str, tuple]:
+        chain = lineage(r, evidence, tools)
+        return ("explicit", tuple(chain)) if chain else ("workflow", tuple(evidence))
 
     for x in sub.get("exclude") or []:
         own.links.pop(x["resource_id"], None)
-        own.excluded[x["resource_id"]] = f"agent: {x.get('reason', '')}"
+        own.excluded[x["resource_id"]] = f"agent: {x.get('reason', '')} ({', '.join(x.get('evidence') or [])})"
         if own.account and own.account.resource_id == x["resource_id"]:
             own.account = None
     for x in sub.get("add") or []:
         r = x["resource_id"]
-        own.links[r] = Link(r, canonical_system(r, tools.view.by_resource(r)), tier_for(x["evidence"]),
-                            tuple(x["evidence"]), note="agent")
+        tier, reasons = link_for(r, list(x["evidence"]))
+        own.links[r] = Link(r, canonical_system(r, tools.view.by_resource(r)), tier, reasons, note="agent")
     acc = (sub.get("account") or {}).get("resource_id")
     if acc and (own.account is None or own.account.resource_id != acc):
         ev = list((sub.get("account") or {}).get("evidence") or [])
         if own.account:
             own.links.pop(own.account.resource_id, None)
-        prior = tools.ownership.links.get(acc)
-        tier = prior.tier if prior else tier_for(ev)
-        own.account = Link(acc, ACCOUNT_SYSTEM, tier, tuple(ev) or (prior.reasons if prior else ()), note="agent")
+        tier, reasons = link_for(acc, ev)
+        own.account = Link(acc, ACCOUNT_SYSTEM, tier, reasons, note="agent")
         own.links[acc] = own.account
         own.ambiguities = [a for a in own.ambiguities if "primary profile" not in a]
     return own

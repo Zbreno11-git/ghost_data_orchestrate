@@ -279,3 +279,17 @@ Integrated into C5.3, C5.5, C5.11 and C5.12 above, without new modules:
       - case_135 and case_383: the FOUND is observed two days after audit_at.
   - No derived cache was involved: the engine re-ingests each run, the vision cache holds extraction only, and
     LLM responses are keyed by request content.
+- **C5.4 ✅ 22:09Z.** Lineage-checked agent decisions (A27).
+  - **Negative tests:** an exclusion without evidence; an exclusion of the subject's own record; another
+    person's resource; a seen-but-irrelevant citation; an account by timing alone; a unit naming the subject
+    and another person.
+  - **Positive tests:** a historical email; a multi-observation chain to an anonymized record (half a chain
+    is rejected); a wrapper key used for discovery; an exclusion backed by another owner.
+  - Plus: the brief has no case_id. `212 passed`, then 213 with the brief test.
+  - **Mutations:** 5 of 6 red. The 6th is defense in depth: an empty-evidence exclusion is also rejected by
+    "none of the cited evidence names it".
+  - **The 10 S4 bench submissions, re-validated offline:** 9 OK. case_07's account_007 is rejected: the cited
+    page never names it, and the id mirrors the case number. It matches gold, so it is classed "in gold but
+    unsupported", a shortcut, not evidence.
+  - The prompt now states the chain and exclusion rules, so cached agent responses miss by key; the next agent
+    run re-calls.
