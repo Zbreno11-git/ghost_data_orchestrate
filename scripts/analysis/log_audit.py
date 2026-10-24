@@ -19,6 +19,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SECTIONS = ("User Prompt (verbatim, secrets redacted):", "Agent Response Summary:", "Actions:", "Context:")
+CORRECTION = ("Recovered Original (verbatim, secrets redacted", "Correction Summary:", "Provenance:", "Context:")
 META = ("This session is being continued", "<local-command", "<command-name>", "<command-message>",
         "Base directory for this skill", "<system-reminder>", "[Request interrupted", "<task-notification>")
 
@@ -56,12 +57,13 @@ def entries(log: Path) -> list[dict]:
         body = lines[i:starts[k + 1] if k + 1 < len(starts) else len(lines)]
         text = "\n".join(body)
         prompt = ""
-        if SECTIONS[0] in text and SECTIONS[1] in text:
-            prompt = text.split(SECTIONS[0], 1)[1].split(SECTIONS[1], 1)[0]
+        need = CORRECTION if "] CORRECTION to " in lines[i] or "] DISCLOSURE" in lines[i] else SECTIONS
+        if need[0] in text and need[1] in text:
+            prompt = text.split(need[0], 1)[1].split(need[1], 1)[0]
         prompt_lines = {norm(l) for l in prompt.splitlines() if l.strip()}
         out.append({"line": i + 1, "header": lines[i][:90], "start": "SESSION START" in lines[i],
                     "prompt_lines": prompt_lines,
-                    "missing": [s for s in SECTIONS if s not in text] if "SESSION START" not in lines[i] else [],
+                    "missing": [s for s in need if s not in text] if "SESSION START" not in lines[i] else [],
                     "tool": [l for l in body if re.fullmatch(r"tool=\S.*", l)],
                     "model": [l for l in body if re.fullmatch(r"model=\S.*", l)], "prompt": norm(prompt)})
     return out

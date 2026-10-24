@@ -771,3 +771,106 @@ branch=main
 repo_root=/root/hackthon_1
 worktree=main
 parent_agent=none
+
+## [2026-10-24T22:22:47Z] CORRECTION to log.txt:337 (entry headed 2026-10-24T19:53:00Z): literal prompt recovered
+
+Recovered Original (verbatim, secrets redacted; event time 2026-10-24T19:49:41.976Z, session JSONL /root/.claude/projects/-root-hackthon-1/3f2c5c59-7e6c-45a8-af89-cb7eab0b322f.jsonl line 749, uuid 2d165007-66c8-42d3-8a4c-078495798569):
+<pasted_content id="0f11">
+Resuming after a compact. Don't start with the work — start with the reading.
+
+1. Read, in this order: AGENTS.md, docs/PRIMER.md, the "▶️ RESUME HERE" block at the top of PROGRESS.md,
+   docs/plans/MASTER_PLAN.md (§S1 and §S2 + "Measured at opening"), docs/DECISIONS.md (D2, D5, D6, D9, A8, A9, A15),
+   and the skills software-build and testes-que-provam.
+2. Before trusting the block, check:
+   - git status --short is empty and HEAD = origin/main = d2d5a3c;
+   - ledger totals: settled ≈ $0.0005345, outstanding $0 (command in the block);
+   - ls code/ghostaudit → __init__.py config.py llm (no engine modules yet).
+   If anything diverges from the block, the disk wins — tell me what diverged before going on.
+3. Next step: S1+S2 merged session. First write docs/plans/session-01-02.md (skill format, checkpoints
+   C1.1–C1.4 then C2.1–C2.6, Does/✅/🐞), then implement in order. First gate:
+   `.venv/bin/python -m pytest code/tests/test_contract.py -q` → 193/193 sample steps legal and 32/32 sample
+   arrays reproduced by the canonical sort. Launch the custom-case subagent (3 cases, sees only
+   problem_statement.md, AGENTS.md §6 and deletion_rules.csv) in the background once C1.3 exists.
+   Run all S1 and S2 checkpoints through C2.6 without asking me between them, closing with the
+   software-build ritual.
+4. Rules for this step: stage explicit paths only (never git add -A — public repo); sample_output.csv is
+   evaluator-only, never on the prediction path; every paid call (PNG extraction, C2.5) goes through
+   code/ghostaudit/llm/gemini.py and the ledger; append a log.txt entry every turn.
+5. Depends on me: confirm the re-timed schedule (safety package ~05:30 UTC), and decide on
+   CHAT_GPT_TRANSCRIPT_PRE_CLAUDE.md — keep it in the repo, or move it to ~/agent-trace/.
+
+When you finish the reading and checks, tell me in one line what you found and proceed with step 3.
+</pasted_content id="0f11">
+
+(don't worry about the chatgpt transcript, is just so we can organize the full chat transcript in the end delivery)
+
+Correction Summary:
+The entry at log.txt:337 labels its User Prompt field "verbatim" but replaced steps 1-5 of this pasted post-compact prompt with a bracketed summary that also claimed "pasted in full"; only its first sentence and trailing note are literal. The text above is the original message, copied byte for byte from the session record. The old entry is left unchanged (append-only); this record supersedes its User Prompt field. Its header time 19:53:00Z is the recording time; the message's event time is 2026-10-24T19:49:41.976Z.
+
+Provenance:
+* Found by a read-only audit of log.txt against the session JSONL (S5 C5.12; scripts/analysis/log_audit.py)
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=main
+repo_root=/root/hackthon_1
+worktree=main
+parent_agent=none
+
+## [2026-10-24T22:22:47Z] CORRECTION to log.txt:292 (entry headed 2026-10-24T16:57:07Z): no human message exists for it
+
+Recovered Original (verbatim, secrets redacted):
+None. The session record holds no human message between 16:47:01.801Z and the entry's recording at 16:57:06.554Z, so there is no text to recover and none is reconstructed.
+
+Correction Summary:
+The entry's User Prompt field holds an agent-written note, not a user's words. What it records is the continuation of the turn whose human message is "I've approve the repo layout setup" (queued mid-turn at 2026-10-24T16:47:01.801Z, session JSONL /root/.claude/projects/-root-hackthon-1/3f2c5c59-7e6c-45a8-af89-cb7eab0b322f.jsonl line 363, uuid 829566be-971f-4ffd-b18b-5debb8b3a8c6, logged literally at log.txt:273). Within that turn the agent requested plan approval with an ExitPlanMode tool call (line 371, 2026-10-24T16:49:20.792Z) and the approval arrived as that call's tool result (line 375, 2026-10-24T16:50:47.832Z, uuid b2b30b64-ef31-42dd-978e-9a3c2bbad609): a harness approval event, not a typed message. The entry was appended by the agent at 16:57:06.554Z (line 625) and headed 16:57:07Z (recording time). The old entry is left unchanged.
+
+Provenance:
+* Read-only audit of log.txt against the session JSONL (S5 C5.12)
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=main
+repo_root=/root/hackthon_1
+worktree=main
+parent_agent=none
+
+## [2026-10-24T22:22:47Z] LATE RECORD of an unlogged mid-turn message (event time 2026-10-24T20:14:38.217Z)
+
+User Prompt (verbatim, secrets redacted):
+wait
+
+Agent Response Summary:
+This one-word message was sent mid-turn (session JSONL /root/.claude/projects/-root-hackthon-1/3f2c5c59-7e6c-45a8-af89-cb7eab0b322f.jsonl line 1558, uuid a9e940d8-59e7-4d58-a5db-b563769726e8) and never got an entry of its own; it is mentioned only inside the summary of the entry at log.txt:426. Recorded now, late, with its event time; recording time is this header.
+
+Actions:
+* None at the time; recorded by the S5 C5.12 audit
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=main
+repo_root=/root/hackthon_1
+worktree=main
+parent_agent=none
+
+## [2026-10-24T22:22:47Z] DISCLOSURE: recording times, order and one in-place fix in earlier entries
+
+Recovered Original (verbatim, secrets redacted):
+Not applicable (no prompt is corrected by this record).
+
+Correction Summary:
+Header timestamps in this log are recording times (when the entry was appended), not the time of the message. Specifically: the five entries at log.txt:12, 216, 235, 254 and 273 were backfilled together and all carry 16:51:57Z although their messages arrived between about 16:36Z and 16:47Z (event times are in the session JSONL); the entry at log.txt:406 (20:21:00Z) precedes log.txt:426 (20:20:00Z), so header order is not chronological there; the entry at log.txt:492 was first appended with a [TS_PLACEHOLDER] header that the same command replaced in place with sed -i before the commit (session JSONL line 2107), an edit of an appended line; the entry at log.txt:358 was written by a subagent from its delegation brief (a paraphrase of the parent's instruction, not a human message) and its parent_agent=claude-code-main-session is a label chosen by the parent, not a runtime identifier. Explore subagents used in S5 (model claude-haiku-5-5, read-only) wrote no entries. The S5 entries quote messages copied programmatically from the session JSONL with their event times.
+
+Provenance:
+* Read-only audit against the session JSONL and git history (S5 C5.12)
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=main
+repo_root=/root/hackthon_1
+worktree=main
+parent_agent=none

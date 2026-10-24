@@ -357,3 +357,16 @@ Integrated into C5.3, C5.5, C5.11 and C5.12 above, without new modules:
   - **case_46 note:** it validates through account_6523, a profile lookup keyed by the subject's email that
     returns NOT_FOUND. That pairs the account with the subject (the same evidence type as every sample
     account), but it is listed here because absence is not ownership.
+- **C5.12 ✅ 22:23Z.** `python3 -I scripts/analysis/log_audit.py` → `human messages 18, logged literally 18,
+  not 0`; 22 entries, malformed 0; `tool=Claude Code` and `model=claude-opus-5-5` throughout; exit 0.
+  Before the corrections it reported exactly JSONL :749 (19:53 summary) and :1558 ("wait").
+  - Appended, nothing rewritten:
+    - CORRECTION to log.txt:337, quoting the original verbatim with event time, line and uuid;
+    - CORRECTION to log.txt:292, which records that no human message exists and documents the approval tool
+      event (:371 ExitPlanMode at 16:49:20Z; tool result :375 at 16:50:47Z) and the human message it continues
+      (:363);
+    - a LATE RECORD of "wait";
+    - a DISCLOSURE: header times are recording times (backfilled 16:51:57 entries, the 20:21/20:20 order, the
+      in-command `sed -i` at log.txt:492, the subagent paraphrase at log.txt:358 and its label).
+  - Matching rule: messages under 40 characters must be a whole line of a prompt field, so "wait" can't match
+    inside other text.
