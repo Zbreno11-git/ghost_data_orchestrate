@@ -14,7 +14,12 @@
 - ✅ C3.1: `identity.py`, with identities rolled back to audit_at. Matching is exact normalized only, a shared
   address is an Ambiguity, names are weak, and the derived sha256 holds 850/850. 550/550 request emails resolve
   to exactly one user (32 samples + 518 targets). Mutation (prefix match) → decoy test red.
-- ▶️ Next: C3.2 `temporal.CaseView` + `test_temporal.py`.
+- ✅ C3.2: `temporal.CaseView` with an inclusive cutoff, and its accessors derived by introspection (8). Both
+  mutations turn it red: no filter (2 fail) and an exclusive cutoff (1 fail). Suspected gaps re-checked by a
+  literal byte search over 102 dataset files plus 22 vision extracts, pinned by 2 tests: D10/D13 have 0 hits;
+  the D12 ids appear only in files captured after their audits.
+- ▶️ Next: C3.3 `ownership.py` + `test_ownership.py` (interleaved / repeated-person / tie fixtures, then the
+  sample report).
 
 ## ▶️ RESUME HERE — 2026-10-24 20:20 UTC (15:20 CDT) — before a compact; S3+S4 next
 

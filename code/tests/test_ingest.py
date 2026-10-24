@@ -256,3 +256,40 @@ def test_free_text_mentions_use_the_derived_prefixes(ingested):
                               fields={"text": f"see {rid} and user_1"}, locator=str(i)))
         assert [x.obs_id for x in store.by_resource[rid]] == [f"x#{i}"]
     assert "user_1" not in store.by_resource
+
+
+# --- A20 safeguard 4: suspected gaps re-checked against the raw participant files on every run ---
+
+def _raw_hits(resource_id):
+    from conftest import REPO
+    import csv as _csv
+    man = {r["file_path"]: r["captured_at"] for r in _csv.DictReader(open(DATASET / "evidence_files.csv"))}
+    files = [p for p in DATASET.rglob("*") if p.is_file() and p.name != "sample_output.csv"]
+    files += sorted((REPO / "state" / "vision_cache").glob("*.json"))
+    assert len(files) >= 100  # derived floor: 102 dataset files + 22 vision extracts measured 2026-10-24
+    out = []
+    for p in files:
+        if resource_id.encode() in p.read_bytes():
+            rel = str(p.relative_to(DATASET)) if p.is_relative_to(DATASET) else p.name
+            out.append((rel, man.get(rel)))
+    return out
+
+
+def test_suspected_unobservable_ids_are_still_absent_from_every_raw_source():
+    # D10 + D13: a literal byte search, not the index, so an extraction or linking gap cannot hide a real source.
+    for rid in UNOBSERVABLE_SAMPLE_RESOURCES + ["account_004"]:
+        assert _raw_hits(rid) == [], f"{rid} now appears in a participant source: revisit D10/D13"
+
+
+def test_post_audit_only_ids_are_only_in_sources_captured_after_their_audit(sample_requests):
+    from ghostaudit.timeutil import parse_ts
+    # D12 (measured 2026-10-24): the only sources naming these are captured after the case's audit_at;
+    # account_3960 is also in the activity stream, whose row is admissible.
+    for cid, rid in [("case_09", "account_3960"), ("case_09", "audit_record_4902"), ("case_23", "audit_record_4128"),
+                     ("case_24", "audit_record_7095"), ("case_29", "audit_record_3954"),
+                     ("case_30", "audit_record_1707")]:
+        audit = parse_ts(sample_requests[cid]["audit_at"])
+        hits = _raw_hits(rid)
+        assert hits, rid
+        for rel, captured in hits:
+            assert rel == "system_activity.csv" or (captured and parse_ts(captured) > audit), (cid, rid, rel)
