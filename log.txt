@@ -705,3 +705,69 @@ branch=main
 repo_root=/root/hackthon_1
 worktree=main
 parent_agent=none
+
+## [2026-10-24T22:05:07Z] S5 mid-turn: plan amendments 1-5; temporal correctness check (C5.0-C5.3b)
+
+User Prompt (verbatim, secrets redacted):
+[message 1, sent mid-turn, 2026-10-24T21:45:51.214Z, session JSONL 3f2c5c59…:4129]
+<pasted_content id="0f11">
+Please make these targeted corrections to the S5 plan, integrating them into existing checkpoints without expanding the architecture:
+
+1. **Avoid inferring current activity from ambiguous labels.**  
+“Healthy” describes health, “Continuous” describes configuration, and a completed restore proves a historical event. None alone proves that synchronization or restoration remains enabled at audit_at. Require explicit enablement/permission evidence or a documented, corroborated state transition. Add tests for a healthy-but-disabled connector and a completed restore followed by a restore block.
+
+2. **Invalidate stale case checkpoints after fixes.**  
+The runner currently resumes saved results by case_id. Add a fingerprint covering relevant dataset, code/prompt/schema versions, model and configuration. Reuse only compatible checkpoints. Test that a relevant change forces recomputation while unchanged cases remain reusable. Otherwise targeted reruns may silently retain pre-fix answers.
+
+3. **Allow justified metric changes.**  
+Replace “samples: no count lower” with “no unexplained regression.” Correcting temporal leakage or unsupported ownership can legitimately reduce agreement with questionable sample answers. Keep full denominators and report the trade-off. Also distinguish “not present in the gold answer” from “unsupported by evidence”; those are different findings.
+
+4. **Make clean-package execution explicit.**  
+C5.11 currently excludes caches while optionally shipping replay caches. Define exactly which derived replay artifacts are included, where the runtime reads them, and how their hashes are verified. Cover both vision extractions and final-run model responses. Test from a clean unpack using only declared dependencies, supplied dataset and documented artifacts. Do not claim self-contained offline replay if external caches are required.
+
+5. **Correct the log without inventing a human message.**  
+The 16:57 entry has no original human prompt: document its relationship to the actual approval/tool event. Recover literal text only where an original exists. Preserve append-only history and distinguish event timestamps from recording timestamps.
+
+Record the changes briefly, add the corresponding regression tests, and continue the authorized S5 work.
+</pasted_content id="0f11">
+
+[message 2, sent mid-turn, 2026-10-24T21:59:56.965Z, session JSONL 3f2c5c59…:4650]
+You 
+
+<pasted_content id="0f11">
+Please incorporate a focused temporal correctness check into S5 before the next benchmark. Verify the current implementation first and reuse any fixes already completed.
+
+We store both `captured_at` and `observed_at`, but the reviewed version uses `captured_at` for both evidence eligibility and state ordering. These represent different things: when an artifact was captured versus when the event or observation inside it occurred. Treating them as interchangeable can lose the actual sequence of changes.
+
+**1. Make temporal eligibility explicit.**
+
+Define and document the meaning of each timestamp for each evidence format, including record-level `recorded_at`. Apply the challenge’s audit cutoff consistently across the planner, ownership resolution, and agent tools.
+
+Reject observations describing events after `audit_at`, even if their enclosing artifact passes the capture-time check. Do not automatically admit an artifact captured after the audit just because it contains an older timestamp; resolve that behavior against the official contract. Preserve both timestamps and their provenance. Define explicit handling for missing or contradictory timestamps.
+
+**2. Reconstruct state using the observation’s meaningful timestamp.**
+
+Within the same physical copy, use the appropriate record-level observation time to reconstruct the sequence. Fall back to capture time only when justified by that source’s semantics. Do not globally replace one timestamp with another.
+
+For example, an export captured at 15:00 may contain PRESENT at 10:00 and ABSENT at 14:00. Giving both entries the export timestamp must not make their input order determine the answer. Conflicting observations with equal timestamps need an explicit resolution rule or must remain ambiguous. A clean primary must still not clear a stale replica.
+
+Add small synthetic regressions covering these scenarios, audit-cutoff boundaries, missing timestamps, and shuffled input order. Confirm the tests fail when the relevant safeguard is disabled.
+
+Recompute affected results with fresh or correctly invalidated derived caches. Report which cases changed and why, distinguishing improved correctness from changes in sample score. Keep this within S5; no architectural rewrite is needed.
+</pasted_content id="0f11">
+
+Agent Response Summary:
+Folded the five amendments into C5.3/C5.5/C5.11/C5.12 of docs/plans/session-05.md and the temporal check in as C5.3b. Closed C5.0-C5.3b with red-first tests and mutation proofs: as-of ownership/solver and one support rule (A24; 16 target accounts deduced from later information became ambiguous), explicit state reads and row-bound screens (A25; 2 cases resolved, 7 false links removed), two-clock admissibility and event-time ordering with a CONFLICT rule (A26; 4 investigated INCOMPLETE->COMPLETE flips). Sample metrics unchanged at every step (whole 11/32, P 161/162, R 161/193); 202 tests pass; no paid call yet ($0.339118 settled).
+
+Actions:
+* Edited code/ghostaudit/{ownership,planner,runner,policy,temporal,tools}.py and tests; scripts/analysis/classify_failures.py
+* Commits 5b5d464, 32c6363, 88b6803, b6d4cc5, 298eadf (pushed at checkpoint close)
+* DECISIONS A24-A26; session-05.md progress per checkpoint
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=main
+repo_root=/root/hackthon_1
+worktree=main
+parent_agent=none
