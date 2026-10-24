@@ -39,7 +39,10 @@ participant evidence available at `audit_at`. Owner: Breno. State on 2026-10-24:
 
 ## Current session
 
-⚠️ **S0 (2026-10-24): setup.** Repo initialized on upstream `0eddbbd`. Docs created. Next: venv, smoke test, public remote.
+⚠️ **S1 (2026-10-24): contract core + evaluator.** Nothing in the engine may be measured without it.
+
+Previous (S0, 2026-10-24): repo on upstream `0eddbbd`, public origin, venv pinned. Gemini smoke on
+`gemini-3.1-flash-lite` passed JSON schema, function calling (keep `thought_signature`: append the model `Content` unchanged) and PNG extraction for $0.0005345.
 
 ## Boundaries and triggers in force
 

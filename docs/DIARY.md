@@ -3,7 +3,7 @@
 > One entry per session, newest on top. Narrative: what was done, what was decided and **why**, and what was
 > learned. State does not live here (see PROGRESS.md).
 
-## 2026-10-24 — S0 (in progress): contract inspected, plan approved, repo on upstream
+## 2026-10-24 — S0: repo public on upstream, docs in place, Gemini proven for $0.0005
 
 **Done.**
 - Read the full upstream contract at `0eddbbd` and measured the dataset with scripts:
@@ -23,6 +23,15 @@
 **Found.** Some sample answers name resources (e.g. case_25 `account_3136`) whose owner is not stated next to any subject
 identifier in participant text. This is the main correctness risk, and it is why A5 exists.
 
-**Not verified.** HackerRank page (login wall). Gemini tool-calling behavior: pending C0.5.
+**Smoke (C0.5).** On `gemini-3.1-flash-lite` with `thinking_level=MINIMAL`:
+- JSON schema: Spanish request → `authorizes_deletion: true`;
+- function call `lookup_resource(account_3136)` with `thought_signature` present, then a final answer after the function response;
+- PNG extraction exact.
 
-**Next.** C0.4 venv → C0.5 smoke → C0.6 remote.
+Cost: 4 calls, 0 thought tokens, $0.0005345 (ledger: 8 rows).
+
+**Found (ours).** `git reset --mixed` doesn't touch the working tree → ERRORS.md class 1.
+
+**Not verified.** HackerRank page (login wall), so the upload form fields are unknown. Gemini rate limits are untested at concurrency > 1.
+
+**Next.** S1: contract.py + validator + evaluator.

@@ -21,8 +21,8 @@ See the "Measured at opening" table in `docs/plans/MASTER_PLAN.md` (deadline, da
 | C0.3 | docs created | C0.1 | ✅ 8 docs + plans/ + handoff/ |
 | C0.4 | venv + pins | — | ✅ code/requirements.txt (31 pins) |
 | C0.5 | smoke (schema, function call, PNG) | C0.4 | ✅ 4 calls, $0.0005345 |
-| C0.6 | public remote pushed | C0.3 | ⬜ |
-| C0.7 | memory saved | — | ⬜ |
+| C0.6 | public remote pushed | C0.3 | ✅ PUBLIC, main == origin/main 54a7673; 0 tracked secret files |
+| C0.7 | memory saved | — | ✅ 2 memory files + index |
 
 ## Risks / irreversible
 - Making the repo public is outward-facing; owner decided. Inspect `git ls-files` before the first push.

@@ -4,12 +4,12 @@
 > handoff moves to `docs/HANDOFFS.md`, after relocating what lives only here (open decision → SESSIONS,
 > lesson → ERRORS, constraint → PRIMER).
 
-## ▶️ RESUME HERE — 2026-10-24 ~17:15 UTC
+## ▶️ RESUME HERE — 2026-10-24 ~17:25 UTC (S0 closed; S1 next)
 
-**State:** tree clean after the C0.6 commit? see `git status` · last commit on top of `0eddbbd` · on GitHub: after C0.6 ·
+**State:** tree clean after the S0-close commit · `main` == `origin/main` · on GitHub: yes (public) ·
 background runs: none · locks: none
 
-**Exact next step:** S0 C0.7 (memory) → close S0 → open S1: write `code/ghostaudit/contract.py` + `code/tests/test_contract.py`;
+**Exact next step:** open S1 (write `docs/plans/session-01.md` first): write `code/ghostaudit/contract.py` + `code/tests/test_contract.py`;
 expect `pytest code/tests/test_contract.py` → 193/193 sample steps legal, 32/32 canonical arrays reproduced.
 
 **Plan checkpoints (S0):**
@@ -20,8 +20,8 @@ expect `pytest code/tests/test_contract.py` → 193/193 sample steps legal, 32/3
 | C0.3 | docs created | ✅ |
 | C0.4 | venv + pins | ✅ |
 | C0.5 | Gemini smoke | ✅ $0.0005345, 4 calls |
-| C0.6 | public remote pushed | 🔵 |
-| C0.7 | memory saved | ⬜ |
+| C0.6 | public remote pushed | ✅ 54a7673 |
+| C0.7 | memory saved | ✅ |
 
 **Don't forget (only here):**
 - The `thought_signature` comes back on function-call parts (gemini-3.1-flash-lite). The agent loop must append the model's
@@ -39,4 +39,5 @@ expect `pytest code/tests/test_contract.py` → 193/193 sample steps legal, 32/3
 | ignores | `git check-ignore .env runs/ .venv/` | `.env` `runs/` `.venv/` | 16:52Z |
 | log format | `grep -c '^## \[' log.txt`; tool=/model= counts; secret grep | 6 / 6 / 6 / 0 | 16:52Z |
 | deps | import check | genai 2.33.0, pypdf 6.21.2, pydantic 2.14.1, pytest 9.1.1 | 17:05Z |
+| remote | `gh repo view … --json visibility` ; `git rev-parse HEAD origin/main` | `PUBLIC` ; both `54a7673…` | 17:20Z |
 | smoke | `.venv/bin/python scripts/smoke_gemini.py` | a: `{"authorizes_deletion": true, "language": "es"}`; b: call `lookup_resource(account_3136)`, thought_signature true; c: `user_11`/`account_5762` exact; settled $0.0005345 | 17:10Z |
