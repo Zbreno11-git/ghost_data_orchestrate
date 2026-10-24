@@ -25,7 +25,7 @@ participant evidence available at `audit_at`. Owner: Breno. State on 2026-10-24:
 - **Deadline 2026-10-25 12:00 UTC (07:00 CDT).** The safety package is due at 04:00 UTC and the freeze is at 09:00 UTC. Breno uploads around 10:00 UTC.
   Never let the root `output.csv` be anything but the last fully validated output.
 - **Gemini spend ≤ $4.50 cumulative** across the whole project (the $0.50 margin is never spent). Every paid call goes
-  through `code/ghostaudit/llm/gateway.py` and `state/usage_ledger.jsonl`. No call bypasses the ledger.
+  through `code/ghostaudit/llm/gemini.py` (S4 wraps it in `llm/gateway.py`) and `state/usage_ledger.jsonl`. No call bypasses the ledger.
 - **Participant data only.** Never read organizer truth or generators. `dataset/sample_output.csv` is used only by
   the evaluator, never on the prediction path. No hardcoded labels, evidence IDs or case-family shortcuts.
 - **Never fabricate a status.** An API error, budget stop or missing evidence is never turned into
@@ -39,7 +39,7 @@ participant evidence available at `audit_at`. Owner: Breno. State on 2026-10-24:
 
 ## Current session
 
-⚠️ **S1 (2026-10-24): contract core + evaluator.** Nothing in the engine may be measured without it.
+⚠️ **S1+S2 merged (2026-10-24, A15): contract core + evaluator, then ingestion of all 94 evidence files.** Plan: `docs/plans/session-01-02.md`.
 
 Previous (S0, 2026-10-24): repo on upstream `0eddbbd`, public origin, venv pinned. Gemini smoke on
 `gemini-3.1-flash-lite` passed JSON schema, function calling (keep `thought_signature`: append the model `Content` unchanged) and PNG extraction for $0.0005345.
