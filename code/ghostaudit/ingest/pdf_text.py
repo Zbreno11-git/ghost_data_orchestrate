@@ -12,7 +12,7 @@ import subprocess
 
 from pypdf import PdfReader
 
-from ..evidence import EMAIL_RE, RESOURCE_RE, EvidenceStore, Observation
+from ..evidence import EMAIL_RE, EvidenceStore, Observation
 from ..timeutil import parse_ts
 from .coverage import FileCoverage
 from .manifest import ManifestEntry
@@ -27,16 +27,16 @@ def pdf_text(path) -> list[str]:
     return [SPLIT_TIME.sub(r"\1:\2", p.extract_text() or "") for p in PdfReader(str(path)).pages]
 
 
-def identifiers_from_text(text: str) -> dict:
+def identifiers_from_text(text: str, resource_re) -> dict:
     out = {}
-    for name, rx in (("email", EMAIL_RE), ("phone", PHONE_TEXT), ("user_id", USER_TEXT), ("resource", RESOURCE_RE)):
+    for name, rx in (("email", EMAIL_RE), ("phone", PHONE_TEXT), ("user_id", USER_TEXT), ("resource", resource_re)):
         for i, v in enumerate(dict.fromkeys(rx.findall(text))):
             out[f"ids.{name}.{i}" if name != "phone" else f"ids.phone.{i}"] = v
     return out
 
 
-def _identifier_set(text: str) -> set[str]:
-    return set(identifiers_from_text(text).values())
+def _identifier_set(text: str, resource_re) -> set[str]:
+    return set(identifiers_from_text(text, resource_re).values())
 
 
 def ingest_pdf(entry: ManifestEntry, store: EvidenceStore, cov: FileCoverage) -> None:
@@ -52,7 +52,7 @@ def ingest_pdf(entry: ManifestEntry, store: EvidenceStore, cov: FileCoverage) ->
         store.add(Observation(
             obs_id=f"{entry.file_id}#page:{pi}", source_id=entry.file_id, source_kind="pdf", kind="text",
             captured_at=entry.captured_at, observed_at=None, system_id=None, resource_id=None, container=title,
-            fields={"text": text, **identifiers_from_text(text)}, locator=f"page:{pi}"))
+            fields={"text": text, **identifiers_from_text(text, store.resource_re)}, locator=f"page:{pi}"))
         n += 1
         for li, line in enumerate(text.splitlines(), start=1):
             cells = [c.strip() for c in line.split("|")]
@@ -67,7 +67,7 @@ def ingest_pdf(entry: ManifestEntry, store: EvidenceStore, cov: FileCoverage) ->
     # A8 trigger: pypdf must find every identifier that poppler's pdftotext finds.
     if shutil.which("pdftotext"):
         ref = subprocess.run(["pdftotext", "-layout", str(entry.path), "-"], capture_output=True, text=True).stdout
-        missing = _identifier_set(ref) - _identifier_set("\n".join(pages))
+        missing = _identifier_set(ref, store.resource_re) - _identifier_set("\n".join(pages), store.resource_re)
         cov.notes.append(f"pdftotext parity: {len(missing)} identifiers missing from pypdf"
                          + (f" {sorted(missing)}" if missing else ""))
         if missing:

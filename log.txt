@@ -443,3 +443,48 @@ branch=main
 repo_root=/root/hackthon_1
 worktree=main
 parent_agent=none
+
+## [2026-10-24T20:26:38Z] Post-compact resume; S3+S4 plan approved, S3 started
+
+User Prompt (verbatim, secrets redacted):
+Resuming after a compact. Don't start with the work — start with the reading.
+
+1. Read, in this order: AGENTS.md, docs/PRIMER.md, the "▶️ RESUME HERE" block at the top of PROGRESS.md,
+   docs/plans/MASTER_PLAN.md (§S3 and §S4), docs/DECISIONS.md (A4, A5, A6, A7, A10, A17–A19, D6, D9, D10),
+   and the skills software-build and testes-que-provam (and integracoes before S4's gateway).
+2. Before trusting the block, check:
+   - git status --short is empty and HEAD = origin/main; git log -1 subject starts "Checkpoint before compact (S3+S4";
+   - .venv/bin/python code/main.py status → settled $0.107400, outstanding $0.000000;
+   - .venv/bin/python -m pytest code/tests -q → 78 passed;
+   - ls code/ghostaudit → no identity.py yet.
+   If anything diverges from the block, the disk wins — tell me what diverged before going on.
+3. Next step: S3+S4 merged session (A19), executed one at a time. First write docs/plans/session-03-04.md
+   (skill format: checkpoint map C3.1–C3.5 then C4.1–C4.6, Does/✅/🐞, folding in the "Sample patterns" from the
+   resume block). Then implement S3 in order, starting with code/ghostaudit/identity.py + code/tests/test_identity.py
+   (case_10 and case_12 resolve historical aliases; the case_28 look-alike is excluded). S3 closes when
+   `main.py run --engine deterministic --split samples` validates 32/32 and baseline metrics are recorded in DIARY.
+   Only then start S4 (first step: the 4xx settlement policy in the gateway). Run all checkpoints through C4.6
+   without asking me between them; close S3 and S4 each with the software-build ritual.
+4. Rules for this step: stage explicit paths only (never git add -A — public repo); sample_output.csv is
+   evaluator-only, never on the prediction path (the grep test enforces it); no hardcoded labels, evidence ids or
+   case-family shortcuts; never invent the D10 resources; every paid call goes through code/ghostaudit/llm/ and the
+   ledger; append a log.txt entry every turn.
+5. Depends on me: nothing new — keep the session running with unattended permissions.
+
+When you finish the reading and checks, tell me in one line what you found and proceed with step 3.
+
+Agent Response Summary:
+Read AGENTS, PRIMER, the resume block, MASTER_PLAN §S3/§S4 and DECISIONS. All four checks matched the disk (d900b87, $0.107400, 78 passed, no identity.py). Ran read-only probes on the samples: explicit identifier links reach 75/111 gold resources with 3 extras; workflow-window attribution is weak (44/111, 539 extras); account_004 appears only in sample_output; 6 gold resources have only post-audit evidence; RESOURCE_RE misses email_delivery_/tombstone_/object_. The S3+S4 plan was approved; S3 implementation follows, one checkpoint at a time.
+
+Actions:
+* Ran git status/log, main.py status, pytest (78 passed)
+* Read-only analysis scripts in the session scratchpad (no repo writes)
+* Wrote the plan (plan mode) and docs/plans/session-03-04.md
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=main
+repo_root=/root/hackthon_1
+worktree=main
+parent_agent=none

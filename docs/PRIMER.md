@@ -58,7 +58,8 @@ cases. Project spend $0.1074. Earlier (S0): repo, venv, Gemini smoke (keep `thou
 | Model fallback | Never silent. A model change is a config change, recorded in DECISIONS. |
 | Wrapper vs fields | Lookup keys and ledger `subject_reference` live in `Observation.wrapper`; only `fields` is record content (FR-11). An identifier only in the wrapper never makes a record "exposed". |
 | Absence proof | An ABSENT verification may cite a snapshot that covers the system (table or bundle scope) and lacks the row: 4/75 sample citations do exactly that (C2.6). |
-| Unobservable | `audit_record_5569/6645` exist only in sample answers (D10): never invent resources to chase recall. |
+| Unobservable | `audit_record_5569/6645` and `account_004` exist only in sample answers (D10, D13): never invent resources to chase recall. |
+| Post-audit naming | A resource is never named, linked or cited from evidence captured after `audit_at` (D12), even when the sample answer names it. All engine and tool reads go through `temporal.CaseView`. |
 
 ## Where things are
 

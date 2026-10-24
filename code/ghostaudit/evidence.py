@@ -16,8 +16,20 @@ EMAIL_RE = re.compile(r"[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}")
 HASH_RE = re.compile(r"^[0-9a-fA-F]{64}$")
 USER_RE = re.compile(r"^user_\d+$")
 PHONE_RE = re.compile(r"^\+?[\d\s().\-]{7,}$")
-RESOURCE_RE = re.compile(r"\b(?:account|search|analytics|support|export|data_flow|backup|audit_record|legal_hold|"
-                         r"marketing|cache|telemetry|notification|archive)_\d+\b")
+RESOURCE_ID_RE = re.compile(r"^([a-z]+(?:_[a-z]+)*)_\d+$")
+
+
+def resource_prefixes(resource_ids) -> list[str]:
+    """Resource-id prefixes (`account`, `email_delivery`, ...) derived from the data, never hand-listed."""
+    return sorted({m.group(1) for r in resource_ids if r and (m := RESOURCE_ID_RE.match(r))})
+
+
+def resource_regex(prefixes) -> re.Pattern:
+    """Matches `<prefix>_<digits>` mentions in free text. No prefixes → matches nothing (loud in the coverage gates)."""
+    if not prefixes:
+        return re.compile(r"(?!x)x")
+    alt = "|".join(re.escape(p) for p in sorted(prefixes, key=len, reverse=True))
+    return re.compile(rf"\b(?:{alt})_\d+\b")
 NAME_KEYS = {"name", "full_name", "display_name", "requester_name", "customer_name"}
 
 KINDS = ("record", "lookup", "scope", "activity", "audit", "text")
@@ -94,7 +106,9 @@ def flatten(obj, prefix: str = "") -> dict:
 
 
 class EvidenceStore:
-    def __init__(self):
+    def __init__(self, resource_prefixes=()):
+        self.resource_prefixes = list(resource_prefixes)
+        self.resource_re = resource_regex(self.resource_prefixes)
         self.observations: list[Observation] = []
         self._ids: set[str] = set()
         self.by_resource: dict[str, list[Observation]] = defaultdict(list)
@@ -118,7 +132,7 @@ class EvidenceStore:
                 for ident in identifiers_in(k.rsplit(".", 1)[-1], v):
                     self.by_identifier[ident].append((obs, role, k))
                 if isinstance(v, str) and role == "field":
-                    for res in RESOURCE_RE.findall(v):
+                    for res in self.resource_re.findall(v):
                         if res != obs.resource_id:
                             self.by_resource[res].append(obs)
         if obs.locator.startswith("trace:"):

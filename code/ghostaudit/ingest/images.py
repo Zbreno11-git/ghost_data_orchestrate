@@ -12,7 +12,7 @@ import re
 from pathlib import Path
 
 from ..config import REPO_ROOT
-from ..evidence import EMAIL_RE, HASH_RE, RESOURCE_RE, EvidenceStore, Observation
+from ..evidence import EMAIL_RE, HASH_RE, EvidenceStore, Observation
 from .coverage import FileCoverage
 from .manifest import ManifestEntry
 
@@ -46,10 +46,10 @@ REFERENCE_TOKEN = re.compile(r"\b[A-Z]{2,4}-\d{3,}(?:-\d+)*\b")  # ORD-20263245,
 FILE_TOKEN = re.compile(r"\b[\w\-]+\.(?:pdf|jpg|jpeg|png|zip|csv|json|tar\.zst)\b")
 
 
-def identifier_tokens(extract: dict) -> set[str]:
+def identifier_tokens(extract: dict, resource_re) -> set[str]:
     text = json.dumps(extract, ensure_ascii=False)
     toks = {e.lower() for e in EMAIL_RE.findall(text)}
-    toks |= set(USER_TOKEN.findall(text)) | set(RESOURCE_RE.findall(text))
+    toks |= set(USER_TOKEN.findall(text)) | set(resource_re.findall(text))
     toks |= {re.sub(r"\D", "", p) for p in PHONE_TOKEN.findall(text)}
     toks |= set(REFERENCE_TOKEN.findall(text)) | set(FILE_TOKEN.findall(text))
     toks |= {w.lower() for w in re.findall(r"\b[0-9a-fA-F]{64}\b", text) if HASH_RE.match(w)}
@@ -133,7 +133,7 @@ def ingest_png(entry: ManifestEntry, store: EvidenceStore, cov: FileCoverage, cf
     if check is None:
         cov.notes.append("cross-check read missing")
     else:
-        a, b = identifier_tokens(ex), identifier_tokens(check["extract"])
+        a, b = identifier_tokens(ex, store.resource_re), identifier_tokens(check["extract"], store.resource_re)
         diff = sorted(a ^ b)
         cov.notes.append(f"cross-check: {len(a)} identifiers, {len(diff)} disagree" + (f" {diff}" if diff else ""))
         if diff:

@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 
 from ..config import load_config
-from ..evidence import EvidenceStore
+from ..evidence import EvidenceStore, resource_prefixes
 from .coverage import Coverage, FileCoverage
 from .csv_tables import add_activity_and_audit, load_tables
 from .images import ingest_png
@@ -19,8 +19,9 @@ from .sql_snapshot import ingest_sql
 def ingest_all(dataset: Path, allow_paid: bool = False, cfg: dict | None = None) -> tuple[EvidenceStore, Coverage]:
     cfg = cfg or load_config()
     dataset = Path(dataset)
-    store, coverage = EvidenceStore(), Coverage()
     tables = load_tables(dataset)
+    # Free-text resource mentions are indexed by the prefixes the global activity stream actually uses.
+    store, coverage = EvidenceStore(resource_prefixes(r["resource_id"] for r in tables.get("activity", []))), Coverage()
     coverage.tables = {k: len(v) for k, v in tables.items()}
     add_activity_and_audit(store, tables)
     entries = load_manifest(dataset)

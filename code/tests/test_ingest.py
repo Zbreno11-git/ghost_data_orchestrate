@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 from conftest import CODE, DATASET
-from ghostaudit.evidence import EvidenceStore, flatten, normalize_identifier
+from ghostaudit.evidence import EvidenceStore, Observation, flatten, normalize_identifier
 from ghostaudit.ingest.logs import parse_line
 from ghostaudit.ingest.manifest import load_manifest
 from ghostaudit.ingest.pipeline import ingest_all
@@ -225,3 +225,34 @@ def test_every_sample_citation_is_grounded_in_the_cited_file(ingested, sample_go
 def test_prediction_code_never_reads_sample_output():
     hits = [p for p in (CODE / "ghostaudit").rglob("*.py") if "sample_output" in p.read_text()]
     assert hits == []
+
+
+# --- C3.0: resource-id prefixes are derived from the data, never hand-listed ---
+
+def test_resource_prefixes_cover_every_record_and_activity_id(ingested):
+    import csv
+    import re as _re
+    from conftest import DATASET
+    store = ingested[0]
+    activity = {_re.sub(r"_\d+$", "", r["resource_id"]) for r in csv.DictReader(open(DATASET / "system_activity.csv"))
+                if r["resource_id"]}
+    records = {_re.sub(r"_\d+$", "", o.resource_id) for o in store.observations if o.resource_id}
+    # Derived floor: the measured stream has 14 prefixes; a shrinking set must fail, not go quiet.
+    assert len(activity) >= 14
+    assert set(store.resource_prefixes) == activity
+    assert records <= activity, f"record prefixes missing from the derived set: {records - activity}"
+    for prefix in activity:
+        assert store.resource_re.fullmatch(f"{prefix}_123"), prefix
+
+
+def test_free_text_mentions_use_the_derived_prefixes(ingested):
+    # Measured 2026-10-24: email_delivery_/tombstone_/object_ ids occur only as a record's own resource_id, so the
+    # S2 hand-written gap changed no index. This pins the mechanism with a synthetic mention instead.
+    o = ingested[0].observations[0]
+    store = EvidenceStore(resource_prefixes=ingested[0].resource_prefixes)
+    for i, rid in enumerate(("tombstone_9", "email_delivery_7", "object_3")):
+        store.add(Observation(obs_id=f"x#{i}", source_id="x", source_kind="txt", kind="text",
+                              captured_at=o.captured_at, observed_at=None, system_id=None, resource_id=None,
+                              fields={"text": f"see {rid} and user_1"}, locator=str(i)))
+        assert [x.obs_id for x in store.by_resource[rid]] == [f"x#{i}"]
+    assert "user_1" not in store.by_resource
