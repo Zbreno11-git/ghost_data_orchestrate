@@ -550,3 +550,158 @@ branch=main
 repo_root=/root/hackthon_1
 worktree=main
 parent_agent=none
+
+## [2026-10-24T21:44:52Z] Post-compact resume; S5 planned with Breno's six additions
+
+User Prompt (verbatim, secrets redacted):
+[message 1, 2026-10-24T21:34:29.211Z, session JSONL 3f2c5c59…:3666]
+<pasted_content id="0f11">
+Resuming after a compact. Don't start with the work — start with the reading.
+
+1. Read, in this order: AGENTS.md, docs/PRIMER.md, the "▶️ RESUME HERE" block at the top of PROGRESS.md,
+   docs/plans/MASTER_PLAN.md §S5, docs/plans/session-03-04.md (the two "Outcome" sections at the end),
+   docs/DECISIONS.md (A10, A17, A20–A23, D2, D10, D12, D13), and the skills software-build and falha-ruidosa
+   (testes-que-provam for the packaging/replay checks).
+2. Before trusting the block, check:
+   - git status --short is empty and HEAD = origin/main; git log -1 subject starts "Checkpoint before compact (S5";
+   - CI on that SHA is green, checked through gh api repos/Zbreno11-git/ghost_data_orchestrate/actions/runs?head_sha=<sha>
+     (plain `gh run list` prints nothing in this shell);
+   - .venv/bin/python code/main.py status → settled $0.339118, outstanding $0.004447;
+   - .venv/bin/python -m pytest code/tests -q → 177 passed;
+   - docs/plans/session-05.md does not exist yet.
+   If anything diverges from the block, the disk wins — tell me what diverged before going on.
+3. Next step: S5. First write docs/plans/session-05.md (skill format: checkpoint map C5.1–C5.6 from MASTER_PLAN §S5,
+   Does/✅/🐞, adapted with reasons). Fold in the open items from the resume block:
+   - the agent scope for the full run (all 508 authorized ≈ $1.83, or only non-resolved ≈ $1.22);
+   - the 5 rows with no grounded proposal;
+   - unresolved investigation before publication (A20);
+   - whether code.zip ships runs/cache/llm/ so a clean unpack can replay.
+   Then C5.1: a pilot on 30 stratified targets with `main.py run --engine agent --mode live --split targets
+   --cases <30>`, writing the measured $/case and the projection. Run C5.1–C5.6 without asking me between them,
+   except for the owner decisions listed in the block. The root output.csv is only ever the last fully
+   validated full run, written atomically. Close S5 with the software-build ritual.
+4. Rules for this step:
+   - stage explicit paths only (never git add -A — public repo);
+   - sample_output.csv is evaluator-only;
+   - no hardcoded labels, evidence ids or case-family shortcuts;
+   - every paid call goes through llm/gateway.py and the ledger;
+   - kill processes by PID, never `pkill -f <pattern>`;
+   - read the clock (date -u / git log) before writing any time;
+   - append a log.txt entry every turn.
+5. Depends on me:
+   - how to handle the 5 rows with no grounded proposal (case_39, 46, 53, 55, 61);
+   - the agent scope for the full run, unless the pilot makes it obvious — then recommend and wait;
+   - keep the session running with unattended permissions.
+
+When you finish the reading and checks, tell me in one line what you found and proceed with step 3.
+</pasted_content id="0f11">
+
+[message 2, sent mid-turn, 2026-10-24T21:34:41.085Z, session JSONL 3f2c5c59…:3699]
+<pasted_content id="0f11">
+Add the following to S5’s existing plan and checkpoints. Read the current code and progress first: some items may already be implemented. Verify them before making changes, preserve the frozen master plan, and record material decisions in the existing living documents.
+
+The objective is to improve evidence-grounded accuracy and prepare a complete submission. Final trace collection can happen at session closure; organize its requirements now so they survive compaction.
+
+**1. Strengthen semantic validation of agent decisions**
+
+Review `agent.py`, especially `validate_submission` and `apply_submission`.
+
+Checking that an observation was seen or mentions a resource is insufficient. Validate what the evidence actually establishes:
+
+- Account selection must have a supported link to the subject, beyond timing or candidate membership.
+- Resource additions must connect the resource to the subject through eligible evidence.
+- Exclusions must include evidence supporting why the resource should be excluded. An unsupported exclusion must not remove a real violation.
+- Assigning an explicit ownership tier must depend on a grounded relationship, not merely finding the subject’s identifier somewhere among the cited observations.
+
+Allow multi-observation identity/resource lineage. Successfully anonymized records may lack PII, and wrapper identifiers can support discovery without counting as exposed business data.
+
+Add negative tests for missing exclusion evidence, another person’s resource, and a genuine but irrelevant citation. Confirm that valid historical and anonymized-resource links still pass.
+
+**2. Fix extraction and interpretation gaps before increasing model spending**
+
+Inspect the five previously invalid target rows and a representative subset of weak/unresolved cases, using current results rather than assuming those counts remain unchanged.
+
+Classify each failure: extraction, identity, ownership, temporal eligibility, category, state, citation or planning.
+
+Prioritize the earliest causal failure. For example, if a screenshot shows restore permission but ingestion produces only “backup present,” improve the structured extraction/parser and policy interpretation. The investigator currently changes ownership decisions; a larger investigator model cannot automatically repair facts that its tools do not expose.
+
+Preserve source locators and panel/table associations. Add a failing regression test before the fix, then invalidate only affected caches and cases.
+
+**3. Measure improvements without hiding regressions**
+
+Compare baseline and agent results case by case on public samples and independent custom cases.
+
+Report:
+- Whole-case exact matches.
+- Step precision and recall.
+- Citation correctness.
+- Correct steps removed and unsupported steps added.
+- Weak/unresolved counts and cost per improvement.
+
+Keep full official denominators. Explain suspected dataset inconsistencies separately; do not remove difficult cases or hardcode expected IDs.
+
+Do not adopt an agent change solely because it adds steps. Investigate any regression, particularly an exclusion that turns INCOMPLETE into COMPLETE.
+
+**4. Check temporal isolation and confidence labels**
+
+Verify that global ownership helpers, including indexes built from future identity history or cross-request assignments, cannot change an earlier case using information unavailable at its cutoff.
+
+Add a regression test for a later identifier change influencing an earlier ownership decision.
+
+Ensure unresolved ownership/state ambiguities cannot accidentally receive `support="resolved"`. A structurally valid CSV is not proof of a supported verdict. Keep provisional outputs separate from the final published output, and explicitly account for remaining unresolved cases.
+
+**5. Audit `log.txt` against original session records**
+
+The reviewed log had:
+- A summarized post-compaction prompt in the entry dated 19:53 UTC, despite its field being labelled verbatim.
+- An editorial continuation note in the 16:57 UTC `User Prompt` field.
+
+Verify these against original session JSONLs or exports. Preserve append-only history: append clearly linked correction records with recovered original text and provenance. Do not silently rewrite old entries, reconstruct missing prompts from memory, or invent timestamps. If recovery is impossible, disclose the gap.
+
+Check every required turn for the prescribed sections, authoritative harness/model identifiers, and correct subagent attribution. Compare coverage against original records; section counts alone do not prove completeness.
+
+Agent response summaries are allowed by the repository format. User prompts must remain literal, with necessary secret redactions.
+
+**6. Organize final trace delivery now; collect it at closure**
+
+Record a release checklist and exact staging location in existing progress/release documents:
+
+- `log.txt` for the prescribed chat-transcript slot.
+- `agent-trace.zip` with relevant original Claude Code sessions, subagent structure and readable exports.
+- Available hosted ChatGPT planning/review transcripts, including reviews after the initial pre-Claude transcript. Label text transcriptions honestly rather than presenting them as native traces.
+- `code.zip`, final `output.csv`, and the required evaluation/usage reports.
+
+Keep trace staging outside the repository and outside `code.zip`. Preserve originals; redact only staged copies, retain valid structured formats, and exclude credentials and unrelated sessions.
+
+At final closure, follow current repository trace instructions: export the relevant conversations, finish/close sessions before the final copy where practical, inspect the archive, and verify available submission fields. Never place `agent-trace.zip` inside `code.zip`.
+
+Turn these into small S5 checkpoints with concrete commands/results and resume instructions. Continue the already-authorized work without expanding scope unnecessarily. Report what was fixed, measured accuracy changes, remaining limitations, cumulative spending, and which final trace steps still require session closure or my action.
+</pasted_content id="0f11">
+
+[message 3, answer to the agent's question on the no-proposal rows, 2026-10-24T21:41:52.292Z, session JSONL 3f2c5c59…:3972]
+Continue the remaining work without blocking the full run on these cases.
+
+After the extraction and ownership fixes, re-count the no-proposal cases and investigate each remaining one directly: original source excerpts, current/historical identifiers, resource lineage, and candidate account states. Use a bounded stronger-model review where useful, within the existing budget.
+
+Keep ownership evidence separate from state evidence: proving that an account exists or is absent does not prove that it belongs to this person. Timing proximity alone must not silently become a proven link.
+
+If cases remain ambiguous, show me one compact table before final publication: case ID, candidate resources, supporting evidence, missing link, and your recommended prediction with its limitations. Continue all other processing and packaging meanwhile.
+
+Preserve provisional results separately. Do not invent identifiers, citations or verification steps to satisfy the validator. Reports must clearly distinguish structural validity, evidence support and heuristic predictions.
+
+Agent Response Summary:
+Read the resume chain and ran its checks: tree clean, HEAD = origin/main = 96ffa03, CI success, ledger $0.339118 settled / $0.004447 open, 177 tests passed, no session-05.md, so the disk agrees with the block. Two read-only Explore subagents reviewed temporal isolation/support labels and log.txt against the session JSONL; I probed the target run (screen tables lose row/owner association; resource-titled panels are never read as state). Planned S5 as C5.0–C5.14 (accuracy fixes before spend, case-by-case comparison, no-proposal investigation per Breno's answer, pilot then wait for the scope decision, reports, package, log corrections, release kit); plan approved via plan mode.
+
+Actions:
+* Read AGENTS.md, PRIMER, PROGRESS resume block, MASTER_PLAN §S5, session-03-04 outcomes, DECISIONS, skills falha-ruidosa/software-build
+* git status/log, gh api runs by head_sha, main.py status, pytest
+* Explore subagents (read-only, model claude-haiku-5-5, wrote no log entries): temporal isolation; log audit
+* AskUserQuestion on the no-proposal rows; plan file approved
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=main
+repo_root=/root/hackthon_1
+worktree=main
+parent_agent=none
