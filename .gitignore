@@ -1,0 +1,16 @@
+# secrets
+.env
+.env.*
+!.env.example
+# environments and caches
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+# runtime artifacts (caches, checkpoints, traces of runs)
+runs/
+# archives and trace staging (never committed)
+*.zip
+agent-trace/
+.DS_Store
