@@ -54,7 +54,13 @@
     fail, with the env key set); a miss is `ReplayMiss` with the ledger unchanged.
   - `gemini.py` is now a lazy provider (90 s timeout, SDK retries off); `generate_content` appears only there.
   - Mutations M5 (5xx at $0) and M8 (replay fall-through) both go red. 156 tests passing.
-- ▶️ Next: C4.2 `tools.py` + `test_tools.py`.
+- ✅ C4.2: `tools.py`, 9 read-only tools over the CaseView.
+  - Declarations are derived from the registry; each result carries obs_ids, and the session's `seen` set is
+    what the agent may cite. Activity rows are labelled as claims.
+  - Search is exact-value, paginated with an omitted count.
+  - 16 tests: cutoff in every tool (derived from the registry), pagination, look-alikes, bad arguments.
+    Mutation (bypass the view) goes red. 172 tests passing.
+- ▶️ Next: C4.3 `agent.py` + `code/prompts/investigator.md`, then one live sample case.
 
 ## ▶️ RESUME HERE — 2026-10-24 20:57 UTC (15:57 CDT) — S3 closed; S4 next (second half of S3+S4, A19)
 
