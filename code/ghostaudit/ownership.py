@@ -109,6 +109,14 @@ class OwnerIndex:
             found |= self.holders(key, at) - {user_id}
         return found
 
+    def others_for(self, obs: Observation, resource_id: str, user_id: str, at: datetime) -> set[str]:
+        """Other subjects named *with* `resource_id`: in a table screen only the rows that name it count (a row
+        belongs to one entity); any other observation counts whole."""
+        if obs.kind == "text" and any(ROW_KEY.match(k) for k in obs.fields):
+            return set().union(set(), *(self.others_in_text(u, user_id, at) for u in text_units(obs)
+                                         if resource_id in u))
+        return self.others(obs, user_id, at)
+
     def others(self, obs: Observation, user_id: str, at: datetime) -> set[str]:
         from .evidence import identifiers_in
         found = set()
@@ -350,7 +358,7 @@ def link_case(q: _Req, view: CaseView, wf: WorkflowAssignment, owners: OwnerInde
                     continue
                 inside = [c for c, win in windows.items() if win and win[0] <= w.captured_at <= win[1]]
                 obs = view.by_resource(r)
-                foreign = set().union(*(owners.others(o, q.subject.user_id, q.audit_at) for o in obs)) if obs else set()
+                foreign = set().union(set(), *(owners.others_for(o, r, q.subject.user_id, q.audit_at) for o in obs))
                 if foreign:
                     own.excluded[r] = f"carries identifiers of {sorted(foreign)}"
                 elif inside == [q.case_id]:
@@ -367,7 +375,7 @@ def link_case(q: _Req, view: CaseView, wf: WorkflowAssignment, owners: OwnerInde
         for oid in l.reasons:
             o = view.get(oid)
             if o is not None:
-                foreign |= owners.others(o, q.subject.user_id, q.audit_at)
+                foreign |= owners.others_for(o, r, q.subject.user_id, q.audit_at)
         if foreign:
             own.ambiguities.append(f"{r}: supporting record also carries identifiers of {sorted(foreign)}")
     return own

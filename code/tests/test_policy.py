@@ -282,3 +282,29 @@ def test_a_clean_primary_still_never_clears_a_dirty_replica_under_observation_ti
     a = _assess([primary, replica], "search_1", "search_service")
     assert a.verdict == "violation" and {c.copy[1]: c.state for c in a.copies} == {"primary": "ABSENT",
                                                                                    "read_replica": "PRESENT"}
+
+
+def test_a_single_customer_screen_associates_its_panels():
+    # case_53's shape: a ticket console; the ticket id is in one panel, the customer's email in another.
+    head = _rec("ev_c#other", 3, None, None, {"text.0": "Helpline Console", "text.1": "Ticket support_1"},
+                kind="text", source="ev_c")
+    mail = _rec("ev_c#panel:2", 3, None, None, {"panel": "Email", "rows.0.Email": "ana@x.com"}, kind="text",
+                source="ev_c")
+    from dataclasses import replace
+    head, mail = replace(head, source_kind="png"), replace(mail, source_kind="png")
+    a = _assess_s([head, mail], "support_1", "support_platform")
+    assert a.verdict == "violation" and a.copies[0].copy[1] == "document" and a.proof.source_id == "ev_c"
+
+
+def test_panels_of_a_table_screen_are_not_merged_across_rows():
+    from dataclasses import replace
+    # The ticket is named in a loose panel; the subject only appears in another panel's table row (a list of
+    # other tickets): merging the screen must not pull table rows in.
+    rows = _rec("ev_s#panel:1", 3, None, None, {"panel": "Ticket", "text.0": "Ticket support_1"}, kind="text",
+                source="ev_s")
+    other = _screen("ev_s", 3, [("1", "Ticket", "support_9"), ("1", "Customer", "ana@x.com")], "support_9",
+                    "Recent tickets")
+    other = replace(other, obs_id="ev_s#panel:9")
+    rows, other = replace(rows, source_kind="png"), replace(other, source_kind="png")
+    a = _assess_s([rows, other], "support_1", "support_platform")
+    assert not [c for c in a.copies if c.copy[1] == "document"]

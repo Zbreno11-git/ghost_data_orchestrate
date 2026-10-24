@@ -325,3 +325,19 @@ Integrated into C5.3, C5.5, C5.11 and C5.12 above, without new modules:
       case_id in the brief) and case_12's citation of an audit row. Both were repaired to grounded answers.
     - Reading: the agent no longer adds unsupported steps, and on these samples it also adds nothing
       supported. S4's +1 was the case_07 shortcut.
+- **C5.6a ✅ 22:19Z.** No-proposal investigation, generic fixes found on the way.
+  - **(a) The decoy check is row-bound too** (`OwnerIndex.others_for`): case_39's flow row named the
+    subject, but another customer's row in the same Topology panel had marked it ambiguous.
+  - **(b) A single-customer screenshot associates its non-table panels:** case_53's ticket id sits in one
+    panel and the customer's email in another. Table rows of other panels are never merged in.
+  - **Not adopted: (c) catalog aliases** (`object_19 (delivery_confirmation_19.pdf)`, 2 of the 12 catalog
+    rows). The same person's sample case_07 does not list object_19. Applied generally, a February screenshot
+    would make it PRESENT in September and add findings to case_07. That consequence is speculative, so it
+    goes to Breno's table instead.
+  - Tests: 4 new (2 red first), `218 passed`. 3 mutations red: one survived at first, because its fixture
+    took the row path, and was fixed.
+  - **vs C5.5:**
+    - samples: steps unchanged, whole 11/32; case_15 weak → resolved (its decoy came from another row);
+    - targets: case_53 COMPLETE (invalid) → INCOMPLETE with `REPORT_EXPOSED_PII support_1034` citing
+      evidence_28, the 05-24 console showing the customer's email.
+  - Invalid rows now: case_39, case_55, case_61.

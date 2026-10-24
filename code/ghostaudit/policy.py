@@ -191,22 +191,32 @@ def _record_state(o: Observation, treat: str, subject) -> tuple[str, str]:
     return ("ANONYMIZED" if treat == "ANONYMIZE" else "REDACTED"), "identifying fields empty"
 
 
-def _unit_naming(o: Observation, resource_id: str) -> str:
-    """The text that must also carry the subject for `o` to be a copy of `resource_id`: the table row that names
-    the resource when the screen is a table (a row belongs to one customer), else the whole document (a PDF page
-    names the resource in a header and the customer in the body)."""
-    rows: dict[str, list[str]] = defaultdict(list)
-    loose: list[str] = []
-    for k, v in o.fields.items():
-        if not isinstance(v, str) or k.startswith("ids."):
-            continue
-        m = ROW_KEY.match(k)
-        (rows[m.group(1)] if m else loose).append(v)
+def _unit_naming(o: Observation, resource_id: str, view: CaseView) -> str:
+    """The text that must also carry the subject for `o` to be a copy of `resource_id`:
+    - the table row that names the resource, when the screen is a table (a row belongs to one customer);
+    - else the whole screen's non-table panels: a single-ticket console names the ticket in one panel and the
+      customer in another (S5 C5.6);
+    - else, for a PDF, the page (it names the resource in a header and the customer in the body)."""
+    def split(obs):
+        rows: dict[str, list[str]] = defaultdict(list)
+        loose: list[str] = []
+        for k, v in obs.fields.items():
+            if not isinstance(v, str) or k.startswith("ids."):
+                continue
+            m = ROW_KEY.match(k)
+            (rows[m.group(1)] if m else loose).append(v)
+        return rows, loose
+
+    rows, loose = split(o)
     hit = [" | ".join(vs) for vs in rows.values() if resource_id in " | ".join(vs)]
     if hit:
         return " || ".join(hit)
     whole = " | ".join(loose + [v for vs in rows.values() for v in vs])
-    return whole if resource_id in whole else ""
+    if resource_id not in whole:
+        return ""
+    if o.source_kind == "png":
+        return " | ".join(v for p in view.by_source(o.source_id) if p.kind == "text" for v in split(p)[1])
+    return whole
 
 
 def scope_covers(scope: Observation, system: str, view: CaseView) -> bool:
@@ -237,7 +247,7 @@ def copy_states(resource_id: str, system: str | None, treat: str, view: CaseView
         for o in view.by_resource(resource_id):
             if o.kind != "text":
                 continue
-            if any(x and x in _unit_naming(o, resource_id).lower() for x in mine):
+            if any(x and x in _unit_naming(o, resource_id, view).lower() for x in mine):
                 state = "PRESENT" if treat in ("DELETE", "RETAIN") else "PRESENT_EXPOSED"
                 events[(system or o.system_id, "document")].append((event_time(o), state, o, "named in a document"))
     # Absence by scope only for deletion targets: a capture that covers the system and lacks the row proves the

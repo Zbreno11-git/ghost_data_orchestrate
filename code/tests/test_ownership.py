@@ -192,3 +192,26 @@ def test_a_table_screen_links_only_the_rows_that_name_the_subject():
                                   "rows.3.row 2: Email": "g.silva.jr@x.com"}, locator="panel:1"))
     subject = idx.resolve("g.silva@x.com", T)
     assert explicit_links(subject, CaseView(store, T), store.resource_re, OwnerIndex(idx)) == {"search_1": ["ev_s#panel:1"]}
+
+
+def test_the_decoy_check_reads_only_the_table_row_that_names_the_resource():
+    # case_39's shape: the subject's connector row and another customer's row in one Topology panel.
+    from ghostaudit.evidence import EvidenceStore
+    ids = [{"user_id": "user_1", "name": "A", "email": "a@x.com", "phone": "", "email_hash": "", "updated_at": ""},
+           {"user_id": "user_2", "name": "B", "email": "b@x.com", "phone": "", "email_hash": "", "updated_at": ""}]
+    idx = IdentityIndex(ids, [])
+    store = EvidenceStore(resource_prefixes=["data_flow"])
+    t = T - timedelta(days=1)
+    store.add(Observation(obs_id="ev_t#panel:1", source_id="ev_t", source_kind="png", kind="text", captured_at=t,
+                          observed_at=None, system_id=None, resource_id="data_flow_1", container="Topology",
+                          fields={"rows.0.row 1: Connector": "data_flow_1", "rows.1.row 1: Selector": "a@x.com",
+                                  "rows.2.row 2: Connector": "data_flow_2", "rows.3.row 2: Selector": "b@x.com"},
+                          locator="panel:1"))
+    owners = OwnerIndex(idx)
+    subject = idx.resolve("a@x.com", T)
+    reqs, _ = build_requests([{"case_id": "case_A", "email": "a@x.com", "requested_at": (T - timedelta(days=3)).isoformat(),
+                               "reported_at": (T - timedelta(days=2)).isoformat(), "audit_at": T.isoformat()}],
+                             idx, store, store.resource_re, owners)
+    own = link_case(reqs[0], CaseView(store, T), WorkflowAssignment([], reqs), owners)
+    assert "data_flow_1" in own.links and "data_flow_2" not in own.links
+    assert not [a for a in own.ambiguities if "data_flow_1" in a]     # row 2's customer is not this row's
