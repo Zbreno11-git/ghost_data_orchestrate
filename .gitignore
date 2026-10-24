@@ -14,3 +14,5 @@ runs/
 *.zip
 agent-trace/
 .DS_Store
+# ledger lock file
+state/*.lock

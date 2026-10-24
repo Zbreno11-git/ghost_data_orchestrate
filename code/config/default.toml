@@ -1,0 +1,19 @@
+# Runtime configuration. Prices are USD per 1M tokens, standard paid tier,
+# from https://ai.google.dev/gemini-api/docs/pricing (page last updated 2026-10-22, checked 2026-10-24).
+# Output price applies to candidate + thinking tokens.
+
+[budget]
+ceiling_usd = 4.50          # cumulative across the whole project; $0.50 of the $5 stays as margin
+ledger_path = "state/usage_ledger.jsonl"
+
+[models."gemini-3.1-flash-lite"]
+input_per_m = 0.25
+output_per_m = 1.50
+
+[models."gemini-3.8-flash"]
+input_per_m = 0.75
+output_per_m = 3.75
+
+[models."gemini-2.5-flash-lite"]
+input_per_m = 0.10
+output_per_m = 0.40
