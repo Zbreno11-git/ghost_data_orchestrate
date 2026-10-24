@@ -5,13 +5,14 @@ publishing a validated output is a separate, explicit step (S5/S7). Never reads 
 """
 from __future__ import annotations
 
+import hashlib
 import json
 from collections import Counter
 from dataclasses import asdict
 from pathlib import Path
 
 from .identity import IdentityIndex, Subject
-from .ingest.csv_tables import load_tables
+from .ingest.csv_tables import TABLES, load_tables
 from .ingest.manifest import evidence_times
 from .ingest.pipeline import ingest_all
 from .intent import classify
@@ -28,19 +29,48 @@ def run_deterministic(dataset: Path, split: str, out_dir: Path, mode: str = "str
     return run(dataset, split, out_dir, mode)
 
 
-def _save_case(out_dir: Path, plan: Plan, extra: dict) -> None:
+def run_fingerprint(dataset: Path, cfg: dict, model: str | None, code_dir: Path | None = None) -> str:
+    """What a checkpointed answer depends on besides its own request row (S5 C5.5): the engine code, prompts and
+    config files, the effective config and model, and every dataset file the prediction path reads (the tables
+    `load_tables` loads, the evidence manifest and the evidence tree; an allowlist, so evaluator files never
+    enter it)."""
+    from .config import CODE_DIR
+    code_dir = code_dir or CODE_DIR
+    h = hashlib.sha256()
+    files = sorted(p for sub in ("ghostaudit", "prompts", "config") for p in (code_dir / sub).rglob("*")
+                   if p.is_file() and p.suffix in (".py", ".md", ".toml", ".json") and "__pycache__" not in p.parts)
+    dataset = Path(dataset)
+    files += sorted(p for p in [dataset / n for n in (*TABLES.values(), "evidence_files.csv")] if p.is_file())
+    files += sorted(p for p in (dataset / "evidence").rglob("*") if p.is_file())
+    for p in files:
+        h.update(str(p.relative_to(code_dir if p.is_relative_to(code_dir) else dataset)).encode() + b"\0")
+        h.update(hashlib.sha256(p.read_bytes()).digest())
+    h.update(json.dumps({"cfg": cfg, "model": model}, sort_keys=True, default=str).encode())
+    return h.hexdigest()
+
+
+def case_fingerprint(run_fp: str, row: dict) -> str:
+    return hashlib.sha256((run_fp + json.dumps(row, sort_keys=True)).encode()).hexdigest()
+
+
+def _save_case(out_dir: Path, plan: Plan, extra: dict, fingerprint: str = "") -> None:
     d = out_dir / "cases"
     d.mkdir(parents=True, exist_ok=True)
     tmp = d / f".{plan.case_id}.tmp"
-    tmp.write_text(json.dumps({"plan": asdict(plan), **extra}, ensure_ascii=False, default=str))
+    tmp.write_text(json.dumps({"plan": asdict(plan), "fingerprint": fingerprint, **extra}, ensure_ascii=False,
+                              default=str))
     tmp.replace(d / f"{plan.case_id}.json")
 
 
-def _load_case(out_dir: Path, case_id: str) -> tuple[Plan, dict] | None:
+def _load_case(out_dir: Path, case_id: str, fingerprint: str) -> tuple[Plan, dict] | None:
+    """A checkpoint is reused only if it was computed from the same inputs; otherwise the case is recomputed
+    (a targeted rerun after a fix must never silently keep a pre-fix answer)."""
     f = out_dir / "cases" / f"{case_id}.json"
     if not f.exists():
         return None
     d = json.loads(f.read_text())
+    if d.pop("fingerprint", None) != fingerprint:
+        return None
     return Plan(**d.pop("plan")), d
 
 
@@ -79,16 +109,20 @@ def run(dataset: Path, split: str, out_dir: Path, mode: str = "strict", engine: 
         selected = [r for r in tables[SPLITS[split]] if not cases or r["case_id"] in cases]
         llm_intents = classify_all(selected, gateway, cfg)
 
+    run_fp = run_fingerprint(dataset, cfg, model)
     plans: list[Plan] = []
     how: dict[str, str] = {}                    # case → how its as-of assignment was decided
     for row in tables[SPLITS[split]]:
         cid = row["case_id"]
         if cases and cid not in cases:
             continue
-        if engine == "agent" and (saved := _load_case(out_dir, cid)):
-            plans.append(saved[0])                  # resume: a finished case is never re-investigated
+        fp = case_fingerprint(run_fp, row)
+        if engine == "agent" and (saved := _load_case(out_dir, cid, fp)):
+            plans.append(saved[0])                  # resume: a finished case with equal inputs is not re-run
             agent_stats["resumed"] += 1
             continue
+        if engine == "agent" and (out_dir / "cases" / f"{cid}.json").exists():
+            agent_stats["stale_checkpoints"] += 1   # recomputed below, then overwritten
         intent = llm_intents.get(cid) or classify(row["request_text"])
         subject = resolved.get(cid)
         audit_at = by_case[cid].audit_at if cid in by_case else None
@@ -128,7 +162,7 @@ def run(dataset: Path, split: str, out_dir: Path, mode: str = "strict", engine: 
                 extra["agent"] = {"status": outcome.status, "model": model, "model_calls": outcome.model_calls,
                                   "cost_usd": outcome.cost_usd, "tool_calls": outcome.tool_calls,
                                   "errors": outcome.errors, "submission": outcome.submission}
-            _save_case(out_dir, plan, extra)
+            _save_case(out_dir, plan, extra, fp)
         plans.append(plan)
 
     out_dir.mkdir(parents=True, exist_ok=True)

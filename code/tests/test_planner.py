@@ -141,11 +141,66 @@ def test_agent_resume_never_reinvestigates_a_checkpointed_case(tmp_path):
     plan = Plan("case_01", "COMPLETE", [{"step_no": 1, "phase": "VERIFICATION", "system_id": "account_service",
                                          "resource_id": "account_001", "operation": "VERIFY_RECORD_ABSENT",
                                          "state": "ABSENT", "evidence_id": "evidence_54"}], "weak", ["checkpointed"])
-    _save_case(tmp_path, plan, {"agent": {"status": "submitted"}})
+    from ghostaudit.config import load_config
+    from ghostaudit.runner import case_fingerprint, run_fingerprint
+    cfg = load_config()
+    row = [r for r in read_csv(DATASET / "sample_deletion_requests.csv") if r["case_id"] == "case_01"][0]
+    fp = case_fingerprint(run_fingerprint(DATASET, cfg, cfg["agent"]["model"]), row)
+    _save_case(tmp_path, plan, {"agent": {"status": "submitted"}}, fp)
     summary = run(DATASET, "samples", tmp_path, engine="agent", gateway_mode="replay", cases={"case_01"},
                   run_id="resume-test")
     assert summary["agent"]["resumed"] == 1 and summary["agent"].get("model_calls", 0) == 0
     assert read_csv(tmp_path / "output.csv")[0]["steps_json"].count("account_001") == 1
+
+
+def test_a_checkpoint_from_other_inputs_is_recomputed_not_reused(tmp_path):
+    # S5 C5.5 (amendment 2): a pre-fix checkpoint must never survive a targeted rerun.
+    from ghostaudit.planner import Plan
+    from ghostaudit.runner import _save_case, run
+    stale = Plan("case_01", "COMPLETE", [{"step_no": 1, "phase": "VERIFICATION", "system_id": "account_service",
+                                          "resource_id": "account_stale", "operation": "VERIFY_RECORD_ABSENT",
+                                          "state": "ABSENT", "evidence_id": "evidence_54"}], "resolved", ["old"])
+    _save_case(tmp_path, stale, {"agent": {"status": "submitted"}}, "fingerprint-of-older-code")
+    summary = run(DATASET, "samples", tmp_path, engine="agent", gateway_mode="replay", cases={"case_01"},
+                  run_id="stale-test")
+    assert summary["agent"].get("resumed", 0) == 0 and summary["agent"]["stale_checkpoints"] == 1
+    assert "account_stale" not in (tmp_path / "output.csv").read_text()
+
+
+def test_the_fingerprint_moves_with_every_input_and_only_with_them(tmp_path):
+    import shutil
+    from ghostaudit.config import load_config
+    from ghostaudit.runner import case_fingerprint, run_fingerprint
+    code = tmp_path / "code"
+    for sub in ("ghostaudit", "prompts", "config"):
+        shutil.copytree(CODE / sub, code / sub, ignore=shutil.ignore_patterns("__pycache__"))
+    data = tmp_path / "dataset"
+    data.mkdir()
+    (data / "deletion_requests.csv").write_text("case_id,email\ncase_a,a@x.com\n")
+    cfg = load_config()
+    base = run_fingerprint(data, cfg, "m1", code)
+    assert run_fingerprint(data, cfg, "m1", code) == base                       # stable
+    for name in ("sample_" + "output.csv", "notes.txt"):                        # not read by predictions: ignored
+        (data / name).write_text("anything")
+    assert run_fingerprint(data, cfg, "m1", code) == base
+    assert run_fingerprint(data, cfg, "m2", code) != base                       # model
+    assert run_fingerprint(data, {**cfg, "agent": {**cfg["agent"], "max_tool_rounds": 9}}, "m1", code) != base
+    (code / "prompts" / "investigator.md").write_text("changed")                 # prompt
+    after_prompt = run_fingerprint(data, cfg, "m1", code)
+    assert after_prompt != base
+    (code / "ghostaudit" / "policy.py").write_text("# changed")                  # code
+    after_code = run_fingerprint(data, cfg, "m1", code)
+    assert after_code != after_prompt
+    (data / "user_identities.csv").write_text("user_id\n")                     # dataset table
+    fp = run_fingerprint(data, cfg, "m1", code)
+    assert fp != after_code
+    (data / "evidence").mkdir()
+    (data / "evidence" / "x.log").write_text("line")                            # evidence file
+    assert run_fingerprint(data, cfg, "m1", code) != fp
+    a, b = {"case_id": "case_a", "x": "1"}, {"case_id": "case_b", "x": "1"}
+    assert case_fingerprint(fp, a) == case_fingerprint(fp, dict(a))              # an unchanged case is reusable
+    assert case_fingerprint(fp, {**a, "x": "2"}) != case_fingerprint(fp, a)      # only the edited row moves
+    assert case_fingerprint(fp, b) == case_fingerprint(fp, dict(b))
 
 
 # --- support caps (S5 C5.2): an ambiguity or an unknown never leaves a case resolved ---

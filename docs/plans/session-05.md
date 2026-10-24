@@ -293,3 +293,16 @@ Integrated into C5.3, C5.5, C5.11 and C5.12 above, without new modules:
     unsupported", a shortcut, not evidence.
   - The prompt now states the chain and exclusion rules, so cached agent responses miss by key; the next agent
     run re-calls.
+- **C5.5a ✅ (amendment 2).** Agent checkpoints carry `case_fingerprint`, combining:
+  - the request row;
+  - `run_fingerprint`: code, prompts and config files; effective config and model; an allowlist of the
+    dataset files the prediction path reads (so evaluator files never enter it, and the sample_output grep gate
+    stays green).
+
+  `_load_case` reuses a checkpoint only with an equal fingerprint. A stale one is counted
+  (`stale_checkpoints`) and recomputed.
+
+  Tests: resume with an equal fingerprint is reused; a foreign fingerprint is recomputed; the fingerprint moves
+  with model, config, prompt, code, a dataset table and an evidence file; an unchanged row keeps its fingerprint
+  and only an edited row moves. 4 mutations red: one survived first, because the test did not assert the
+  dataset move, and was fixed. `215 passed`. The ledger is unchanged ($0.339118) after the replay-mode tests.
