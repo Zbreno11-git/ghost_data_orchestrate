@@ -18,8 +18,21 @@
   mutations turn it red: no filter (2 fail) and an exclusive cutoff (1 fail). Suspected gaps re-checked by a
   literal byte search over 102 dataset files plus 22 vision extracts, pinned by 2 tests: D10/D13 have 0 hits;
   the D12 ids appear only in files captured after their audits.
-- ▶️ Next: C3.3 `ownership.py` + `test_ownership.py` (interleaved / repeated-person / tie fixtures, then the
-  sample report).
+- ✅ C3.3: `ownership.py`.
+  - **One-to-one is measured, not assumed:** 539 worker primary-profile rows (all distinct accounts) + 10
+    intake CLASSIFY_REQUEST rows = 549 anchors for 550 requests. The missing one is case_04 (D13).
+  - **Assignment is deduction only:** explicit account (176), only feasible row (27), forced in every maximum
+    matching (6), only feasible request (2), corroborated run (1). That makes 212/550 assigned; 338 stay
+    ambiguous, because the windows span 1–3 days with ~10 concurrent runs.
+  - **Text co-occurrence links only inside a unit that names this subject alone.** A multi-customer screen
+    splits into rows; it had tied user_14's data_flow_1121 to case_15.
+  - **Samples (full 111):**
+    - strict: 78 found, 2 extras (object_19, tombstone_17, both the subject's own), accounts 13/32;
+    - scored: 86 found, 16 extras, accounts 21/32. The weak ranked account is right 8 of 18 times, so it is
+      never counted as resolved.
+  - Tests: interleaved, repeated person, a tie in both modes, tiers and reasons preserved. The forcing
+    mutation turns 3 tests red.
+- ▶️ Next: C3.4 `policy.py` + `test_policy.py` (copy-level state, primary/replica regression).
 
 ## ▶️ RESUME HERE — 2026-10-24 20:20 UTC (15:20 CDT) — before a compact; S3+S4 next
 

@@ -31,3 +31,9 @@ def sample_gold():
 @pytest.fixture(scope="session")
 def sample_requests():
     return {r["case_id"]: r for r in read_csv(DATASET / "sample_deletion_requests.csv")}
+
+
+@pytest.fixture(scope="session")
+def store():
+    from ghostaudit.ingest.pipeline import ingest_all
+    return ingest_all(DATASET, allow_paid=False)[0]  # PNGs from the committed cache; no network
