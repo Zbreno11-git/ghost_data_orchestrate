@@ -33,7 +33,7 @@ participant evidence available at `audit_at`. Owner: Breno. State on 2026-10-24:
 - **log.txt** is appended for every user turn in AGENTS.md §5 format, with `tool=Claude Code` and
   `model=claude-opus-5-5`. Never rewrite past entries. Never log secrets.
 - **Secrets**: `GEMINI_API_KEY` is read from the environment or `.env`, which is gitignored. Never print or log the key.
-- **The repo is PUBLIC** (Breno's decision). Check the staged list before every push. Traces and `runs/` never get committed.
+- **The repo is PUBLIC** (Breno's decision). Stage **explicit paths only**: never `git add -A`, and review every new `??` file before staging (ERRORS #2). Traces and `runs/` never get committed.
 - **Fix first.** Don't build on a known defect without the owner's say-so, asked at the time.
 - **Nothing is submitted on Breno's behalf.**
 

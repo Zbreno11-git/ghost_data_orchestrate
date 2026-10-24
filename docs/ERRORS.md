@@ -15,6 +15,7 @@
 | No. | Class | Occurrences | Antidote in one line |
 |---|---|---|---|
 | 1 | Assumed a git command populated the working tree | 1 | After `reset --mixed`, check `git status` before anything else |
+| 2 | Staged with `git add -A` without listing new untracked files | 1 | `git status --short` and review every `??` before staging; stage explicit paths |
 
 ---
 
@@ -29,3 +30,19 @@ unaffected).
 
 **The antidote, concrete:** for "adopt upstream into an existing folder", use `reset --mixed` + `checkout -- .`, then
 confirm that `git status --short` lists only our untracked files.
+
+---
+
+### 2. Staged with `git add -A` without listing new untracked files
+
+**2026-10-24 19:50 UTC — pre-compact checkpoint.** Breno had added `CHAT_GPT_TRANSCRIPT_PRE_CLAUDE.md` (his pre-Claude
+ChatGPT planning transcript, 502 lines) to the repo root a few minutes earlier. `git add -A` staged it, and it was
+committed and pushed to the **public** repo in `1ac9510`. I noticed it only in the commit's file list. A scan found
+0 key or token patterns, 0 emails and 0 phone numbers. The file was not removed: deleting it or rewriting public history
+is Breno's call.
+
+> **In a public repo, `git add -A` publishes whatever appeared since the last look. New files are reviewed by name
+> before staging.**
+
+**The antidote, concrete:** run `git status --short` right before staging; any `??` line I did not create is read and
+asked about first. Stage explicit paths (`git add <paths>`), never `-A`, on this repo.

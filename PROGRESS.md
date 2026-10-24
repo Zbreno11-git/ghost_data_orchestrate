@@ -83,6 +83,10 @@ and a 94/94 coverage report. Also start the background subagent that authors 3 c
   Samples: 22 INCOMPLETE / 10 COMPLETE / 0 NA; 75 citations are file_ids (41 findings + 34 COMPLETE verifications), 118 `""`.
 
 **Depends on Breno:**
+- `CHAT_GPT_TRANSCRIPT_PRE_CLAUDE.md` (his ChatGPT planning transcript) was pushed to the public repo in `1ac9510` by my
+  `git add -A` (ERRORS.md class 2; scan: 0 secrets/emails/phones). Options: keep it in the repo, or `git rm` it from the tip
+  and stage it under `~/agent-trace/chatgpt/` (it stays in public history unless history is rewritten, which needs his
+  explicit OK). Until he answers, leave it untouched.
 - Confirm the re-timed schedule (safety package moves from 04:00 to ~05:30 UTC = 00:30 CDT; the freeze stays at 09:00 UTC
   by shrinking S6). If he refuses, cut S3 scope instead.
 - Keep the session running with unattended permissions overnight.
