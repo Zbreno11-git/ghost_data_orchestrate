@@ -8,6 +8,7 @@ instruction, a request for access, a copy, a correction or a marketing opt-out i
 """
 from __future__ import annotations
 
+import json
 import re
 import unicodedata
 from dataclasses import dataclass
@@ -75,3 +76,70 @@ def classify(text: str) -> Intent:
     if other:
         return Intent(False, "high" if len(other) > 1 else "low", f"non-deletion request: {', '.join(other[:4])}")
     return Intent(None, "low", "no deletion instruction and no recognized non-deletion request")
+
+
+# --- LLM half (C4.4): batched classification, cross-checked against the rule above --------------------------
+
+LLM_PROMPT = """You classify privacy requests. For each request decide whether the text authorizes deleting the
+person's account or personal data. Mixed requests that also ask for an export, a copy or a correction still
+authorize deletion if they explicitly ask for deletion. Requests only for access, a copy, an export, a correction
+or a marketing opt-out do not. A request to confirm or verify that a deletion happened authorizes it. Texts may be
+in any language. Answer for every case_id given, using only the text."""
+
+LLM_SCHEMA = {"type": "object", "properties": {"results": {"type": "array", "items": {
+    "type": "object", "properties": {"case_id": {"type": "string"}, "authorizes_deletion": {"type": "boolean"},
+                                     "language": {"type": "string"}, "reason": {"type": "string"}},
+    "required": ["case_id", "authorizes_deletion", "language", "reason"]}}}, "required": ["results"]}
+
+
+def _ask(rows: list[dict], gateway, model: str, cfg: dict, purpose: str) -> dict[str, dict]:
+    from google.genai import types
+    i = cfg["intent"]
+    items = [{"case_id": r["case_id"], "text": r["request_text"]} for r in rows]
+    resp, _ = gateway.generate(
+        model=model, purpose=purpose, est_input_tokens=200 + 80 * len(rows),
+        contents=LLM_PROMPT + "\n\nREQUESTS (JSON):\n" + json.dumps(items, ensure_ascii=False),
+        config=types.GenerateContentConfig(
+            response_mime_type="application/json", response_json_schema=LLM_SCHEMA, temperature=0,
+            max_output_tokens=i["max_output_tokens_per_case"] * len(rows) + 200,
+            thinking_config=types.ThinkingConfig(thinking_level=i["thinking_level"][model])))
+    got = {x["case_id"]: x for x in json.loads(resp.text)["results"]}
+    return {r["case_id"]: got[r["case_id"]] for r in rows if r["case_id"] in got}
+
+
+def classify_all(rows: list[dict], gateway, cfg: dict) -> dict[str, Intent]:
+    """Rule + LLM for every request. Agreement → high; disagreement → one recheck on the check model; a remaining
+    disagreement keeps the recheck's reading at low confidence (reported weak). A failed call keeps the rule."""
+    i = cfg["intent"]
+    rule = {r["case_id"]: classify(r["request_text"]) for r in rows}
+    ordered = sorted(rows, key=lambda r: r["case_id"])
+    llm: dict[str, dict] = {}
+    for k in range(0, len(ordered), i["batch_size"]):
+        batch = ordered[k:k + i["batch_size"]]
+        try:
+            llm.update(_ask(batch, gateway, i["model"], cfg, "intent-batch"))
+        except Exception as exc:  # recorded per case below; never a status by itself
+            for r in batch:
+                llm.setdefault(r["case_id"], {"error": f"{type(exc).__name__}"})
+    out = {}
+    for r in ordered:
+        cid, rl, l = r["case_id"], rule[r["case_id"]], llm.get(r["case_id"], {})
+        if "authorizes_deletion" not in l:
+            out[cid] = Intent(rl.authorizes_deletion, "low", f"rule only (LLM {l.get('error', 'missing')}): {rl.reason}")
+            continue
+        if rl.authorizes_deletion is l["authorizes_deletion"]:
+            out[cid] = Intent(rl.authorizes_deletion, "high", f"rule and LLM agree ({l.get('language', '?')})")
+            continue
+        try:
+            chk = _ask([r], gateway, i["check_model"], cfg, "intent-recheck").get(cid, {})
+        except Exception as exc:
+            chk = {"error": type(exc).__name__}
+        if chk.get("authorizes_deletion") is l["authorizes_deletion"]:
+            out[cid] = Intent(l["authorizes_deletion"], "low",
+                              f"LLM and recheck overrule the rule ({rl.reason}); LLM: {l.get('reason', '')[:80]}")
+        elif "authorizes_deletion" in chk and rl.authorizes_deletion is not None:
+            out[cid] = Intent(rl.authorizes_deletion, "low", f"recheck sides with the rule; LLM said {l['reason'][:80]}")
+        else:
+            out[cid] = Intent(None, "low", f"rule {rl.authorizes_deletion}, LLM {l['authorizes_deletion']}, "
+                                           f"recheck {chk.get('authorizes_deletion', chk.get('error'))}")
+    return out

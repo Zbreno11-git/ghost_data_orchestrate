@@ -68,7 +68,12 @@
     settled. The agent left the account null ("none of the candidate accounts could be definitively linked"):
     honest, unresolved.
   - Replay without a key: byte-identical, 5 cache hits, ledger unchanged.
-- ▶️ Next: C4.4, the LLM half of intent (batched) + cross-check.
+- ✅ C4.4: `intent.classify_all`: batches of 20 on flash-lite, cross-checked with the rule; a disagreement
+  gets a 3.8-flash recheck, and a remaining disagreement is low confidence (weak).
+  - **Live:** 32/32 samples are deletion; 14/14 hand-written fixtures (7 mixed-intent, 7 non-deletion, 5
+    languages) correct; $0.0045.
+  - **Targets:** 518/518 rule = LLM (508 deletion, 10 NA, all high), $0.0497, cached for the full run.
+- ▶️ Next: C4.5 resume (kill mid-run → 0 duplicate paid calls) + full-split replay byte-identical.
 
 ## ▶️ RESUME HERE — 2026-10-24 20:57 UTC (15:57 CDT) — S3 closed; S4 next (second half of S3+S4, A19)
 

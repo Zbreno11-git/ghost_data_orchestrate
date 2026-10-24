@@ -45,3 +45,11 @@ max_repairs = 2
 max_output_tokens = 2048
 est_input_tokens = 4000
 thinking_level = { "gemini-3.8-flash" = "LOW", "gemini-3.1-flash-lite" = "MINIMAL" }
+
+# Intent (C4.4): batched LLM classification cross-checked against the deterministic rule.
+[intent]
+model = "gemini-3.1-flash-lite"
+check_model = "gemini-3.8-flash"
+batch_size = 20
+max_output_tokens_per_case = 120
+thinking_level = { "gemini-3.8-flash" = "LOW", "gemini-3.1-flash-lite" = "MINIMAL" }

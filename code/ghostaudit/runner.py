@@ -72,6 +72,12 @@ def run(dataset: Path, split: str, out_dir: Path, mode: str = "strict", engine: 
     agent_stats = Counter()
     tool_use = Counter()
 
+    llm_intents = {}
+    if engine == "agent":
+        from .intent import classify_all
+        selected = [r for r in tables[SPLITS[split]] if not cases or r["case_id"] in cases]
+        llm_intents = classify_all(selected, gateway, cfg)
+
     plans: list[Plan] = []
     for row in tables[SPLITS[split]]:
         cid = row["case_id"]
@@ -81,7 +87,7 @@ def run(dataset: Path, split: str, out_dir: Path, mode: str = "strict", engine: 
             plans.append(saved[0])                  # resume: a finished case is never re-investigated
             agent_stats["resumed"] += 1
             continue
-        intent = classify(row["request_text"])
+        intent = llm_intents.get(cid) or classify(row["request_text"])
         subject = resolved.get(cid)
         audit_at = by_case[cid].audit_at if cid in by_case else None
         own, assessments = None, {}
