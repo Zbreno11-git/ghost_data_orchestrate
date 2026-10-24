@@ -9,16 +9,24 @@ Each session is a 1–2.5 h package that ends in something verifiable, plus a di
 > **Order notes.** The order follows data dependency, not showcase value. The contract/evaluator (S1) comes before
 > ingestion because every later step is measured with it. The deterministic baseline (S3) comes before the agent (S4)
 > so that the agent is measured against something. Viewer last (owner).
+>
+> **2026-10-24 19:46 UTC: S1 + S2 merged (Breno).** One session plan, `docs/plans/session-01-02.md`, still has
+> checkpoints C1.1–C1.4 then C2.1–C2.6 in that order. The reason is speed: S0 closed at ~17:25 UTC, but S1 had not
+> started by 19:46 UTC, so the schedule had slipped ~1h45.
 
 ## ▶️ Start the next session here
 
-- Session: S1 — contract core + evaluator; first step: `code/ghostaudit/contract.py` + `code/tests/test_contract.py`
+- Session: S1+S2 (merged) — first step: write `docs/plans/session-01-02.md`, then `code/ghostaudit/contract.py` + `code/tests/test_contract.py`
 - Read first: `docs/PRIMER.md`, `PROGRESS.md`
 - Depends on Breno: before leaving, keep the session running with unattended permissions (Bash/Edit)
 
-Timeline (UTC; CDT = UTC−5): S0 16:50–18:00 · S1 18:00–19:00 · S2 19:00–21:00 · S3 21:00–23:00 ·
+Timeline as approved (UTC; CDT = UTC−5): S0 16:50–18:00 · S1 18:00–19:00 · S2 19:00–21:00 · S3 21:00–23:00 ·
 S4 23:00–01:30 · S5 01:30–04:00 **safety package** · S6 04:00–07:30 · S7 07:30–09:00 **freeze** ·
 S8 optional · upload ≈10:00 · deadline 12:00.
+
+**Re-timed 2026-10-24 19:46 UTC (proposed by the agent, awaiting Breno's confirmation):** S1+S2 19:50–22:50 ·
+S3 22:50–00:50 · S4 00:50–03:20 · S5 03:20–05:30 **safety package (00:30 CDT)** · S6 05:30–07:30 (shrunk) ·
+S7 07:30–09:00 **freeze unchanged** · upload ≈10:00 · deadline 12:00.
 Cut order if late: S6 scope → +2 custom cases → S8. S5 and S7 are never cut.
 
 ---
@@ -34,7 +42,7 @@ Cut order if late: S6 scope → +2 custom cases → S8. S5 and S7 are never cut.
 - [x] C0.6 public remote created and pushed; no secrets tracked — https://github.com/Zbreno11-git/ghost_data_orchestrate @ 54a7673
 - [x] C0.7 project memory saved
 
-### ⬜ S1 — Contract core + evaluator · $0
+### ⬜ S1 — Contract core + evaluator · $0 (merged with S2, see order notes)
 - [ ] C1.1 contract tables (193/193 sample steps legal)
 - [ ] C1.2 canonical sort reproduces 32/32 sample arrays
 - [ ] C1.3 validator rejects ≥9 malformed fixtures for the named reason

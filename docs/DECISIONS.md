@@ -38,6 +38,7 @@ Upstream inspected at `0eddbbd` (2026-10-24 15:20Z, "Update AGENTS.md"); the han
 | A12 | Docs in English, using software-build structure | Judge and interviewer read English | **Breno** | Portuguese | — |
 | A13 | 3 custom cases as a gate, +2 if few sample fixes remain; authored by a subagent that doesn't see engine code | Independent expectations | **Breno** | 8 cases up front | — |
 | A14 | Viewer kept as the last optional session (S8) | — | **Breno** | Cut | — |
+| A15 | S1 and S2 run as one merged session (one plan file, checkpoints unchanged) | ~1h45 behind schedule at 19:46 UTC | **Breno**, 2026-10-24 19:46 UTC | Separate sessions | — |
 
 ## A good trigger
 
