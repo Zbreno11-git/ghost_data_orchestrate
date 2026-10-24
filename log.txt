@@ -488,3 +488,45 @@ branch=main
 repo_root=/root/hackthon_1
 worktree=main
 parent_agent=none
+
+## [2026-10-24T20:30:46Z] Safeguards integrated into the S3+S4 plan (A20)
+
+User Prompt (verbatim, secrets redacted):
+Please update the S3+S4 plan with the following safeguards before continuing. The architecture and execution order remain appropriate; these changes strengthen the acceptance criteria where structurally valid output could still contain unsupported conclusions.
+
+1. **Workflow attribution must remain evidence-based.**  
+Time proximity and consistency with `reported_status` can identify candidates, but do not independently prove ownership. Justify any one-to-one assignment assumption rather than forcing a match. Add tests for interleaved workflows, repeated requests for the same person, and ambiguous candidates. Preserve link strength and supporting observations through planning and agent review.
+
+2. **Reconstruct state separately for each relevant physical copy.**  
+“Latest observation of the resource” must not collapse primary and replica states. A newer clean primary does not resolve an older dirty replica without evidence that the replica was corrected. Add a regression test for this exact scenario, then aggregate copy-level compliance into the resource assessment.
+
+3. **Separate valid serialization from a supported verdict.**  
+The deterministic fallback is usable only when its conclusion is sufficiently grounded. An unresolved identity, ownership link, or state must not become a confident status merely to produce 518 valid rows. Report resolved cases, weak attributions, and unresolved cases separately. Define how unresolved cases are investigated before final publication; the output validator cannot establish semantic correctness.
+
+4. **Keep the proposed sample-score ceiling provisional.**  
+Failure to locate a resource may indicate missing source data, incomplete extraction, or incomplete linking. Verify suspected gaps against original participant sources and document the searches performed. Keep full official-sample denominators in evaluation; explain suspected inconsistencies separately instead of relaxing correctness gates to accommodate them.
+
+5. **Test mixed request intent.**  
+“Export my data and then delete my account” authorizes deletion. Export, correction, or marketing keywords must not automatically override an explicit deletion instruction. Add positive mixed-intent and negative non-deletion cases, including multilingual examples.
+
+6. **Prove replay is offline.**  
+Clearing `GEMINI_API_KEY` is insufficient because the adapter can read `.env`. Make replay reject provider access explicitly and test that any attempted network/provider call fails. A cache miss must produce a clear replay error without making a paid request.
+
+Integrate these into the existing design, checkpoint map, and targeted tests. Preserve the frozen master plan and record material changes in the living decision/progress documents. Avoid adding unnecessary modules or documentation.
+
+Briefly summarize the updated checkpoints and any remaining ambiguity, then continue the already-authorized work.
+
+Agent Response Summary:
+Integrated the six safeguards into docs/plans/session-03-04.md (a new safeguards section, design text and checkpoint rows C3.1, C3.3, C3.4, C3.5, C4.4, C4.5, plus mutation proofs 6–8), with MASTER_PLAN left frozen. Recorded A20 in DECISIONS (the 4xx policy becomes A21), marked the D10/D12/D13 ceiling provisional with full official denominators kept, and added four PRIMER boundary rows. No new modules: copy-level state lives in policy.py, support levels in planner/runner, offline replay in the gateway. Remaining ambiguity: the contract requires a status for each of the 518 rows, so a case still unresolved at publication carries the grounded proposal's status, flagged and never counted as resolved.
+
+Actions:
+* Edited docs/plans/session-03-04.md, docs/DECISIONS.md (A20, D10 wording), docs/PRIMER.md
+* Continued C3.1 (identity) afterwards
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=main
+repo_root=/root/hackthon_1
+worktree=main
+parent_agent=none

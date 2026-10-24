@@ -4,6 +4,18 @@
 > handoff moves to `docs/HANDOFFS.md`, after relocating what lives only here (open decision → SESSIONS,
 > lesson → ERRORS, constraint → PRIMER).
 
+## ⏱ Live — S3+S4 in progress (updated at each checkpoint)
+
+- Plan: `docs/plans/session-03-04.md`, with Breno's six safeguards integrated after approval (A20: weak workflow
+  links, copy-level state, resolved/weak/unresolved, provisional ceiling, mixed intent, offline replay). The 4xx
+  policy is A21.
+- ✅ C3.0 `cc3c490`: resource-id prefixes derived from the activity stream (14, equal to the record prefixes).
+  The old hand-written gap changed no index.
+- ✅ C3.1: `identity.py`, with identities rolled back to audit_at. Matching is exact normalized only, a shared
+  address is an Ambiguity, names are weak, and the derived sha256 holds 850/850. 550/550 request emails resolve
+  to exactly one user (32 samples + 518 targets). Mutation (prefix match) → decoy test red.
+- ▶️ Next: C3.2 `temporal.CaseView` + `test_temporal.py`.
+
 ## ▶️ RESUME HERE — 2026-10-24 20:20 UTC (15:20 CDT) — before a compact; S3+S4 next
 
 **Repository state:** tree clean after the "Checkpoint before compact (S3+S4 next)" commit · HEAD = origin/main (check
