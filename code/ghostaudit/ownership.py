@@ -54,13 +54,18 @@ class Ownership:
 
 
 def canonical_system(resource_id: str, observations: list[Observation]) -> str | None:
-    """The activity target_system names the logical system (85/85 sample pairs); a replica container never does."""
-    act = Counter(o.system_id for o in observations if o.kind == "activity" and o.resource_id == resource_id
-                  and o.system_id)
-    if act:
-        return act.most_common(1)[0][0]
-    rec = Counter(o.system_id for o in observations if o.resource_id == resource_id and o.system_id)
-    return rec.most_common(1)[0][0] if rec else None
+    """The owning system: the deletion worker's target, else the record's own system, else any activity target.
+
+    Plain activity targets are not enough (support tickets are indexed *into* search_service, audit records are
+    archived *into* archive_service); a replica container (support_replica) is never the logical system."""
+    mine = [o for o in observations if o.resource_id == resource_id and o.system_id]
+    for pick in (lambda o: o.kind == "activity" and o.fields.get("source_system") == WORKER,
+                 lambda o: o.kind != "activity",
+                 lambda o: o.kind == "activity"):
+        c = Counter(o.system_id for o in mine if pick(o))
+        if c:
+            return c.most_common(1)[0][0]
+    return None
 
 
 class OwnerIndex:

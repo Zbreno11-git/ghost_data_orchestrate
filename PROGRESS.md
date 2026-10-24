@@ -32,7 +32,18 @@
       never counted as resolved.
   - Tests: interleaved, repeated person, a tie in both modes, tiers and reasons preserved. The forcing
     mutation turns 3 tests red.
-- ▶️ Next: C3.4 `policy.py` + `test_policy.py` (copy-level state, primary/replica regression).
+- ✅ C3.4: `policy.py`.
+  - **Category:** taken from content and rules first; the worker's *action type* is a tie-break only (it
+    matches the sample treatment family for 85/85 resources). A disagreement is unknown, and
+    SECONDARY_IDENTIFIER is declared unmapped (no source).
+  - **State per physical copy** (system × topology), plus business documents as copies. Scope absence applies
+    to DELETE targets only, and never overrides a direct observation (a later bundle can be partial).
+  - **Citation:** direct evidence over scope inference, the primary copy over other copies, then the latest.
+  - **Samples, isolated from ownership:** 41/41 findings and 34/34 COMPLETE verifications, verdict + op +
+    citation. The 7 unknowns are exactly the D10/D12 ids.
+  - **Mutations:** per-copy (M6), wrapper (M3) and claims (M4) all go red, the last two after strengthening
+    the fixtures (ERRORS #4).
+- ▶️ Next: C3.5 `intent.py` (deterministic, mixed-intent tests) + `planner.py` + `runner.py` + `main.py run`.
 
 ## ▶️ RESUME HERE — 2026-10-24 20:20 UTC (15:20 CDT) — before a compact; S3+S4 next
 

@@ -17,6 +17,8 @@
 | 1 | Assumed a git command populated the working tree | 1 | After `reset --mixed`, check `git status` before anything else |
 | 2 | Staged with `git add -A` without listing new untracked files | 1 | `git status --short` and review every `??` before staging; stage explicit paths |
 | 3 | Wrote over a tracked file without reading it first | 1 | `git ls-files <path>` / Read before any `cat >` to a path in the repo |
+| 4 | A test fixture admitted a second explanation (mutation stayed green) | 2 | Build the fixture from the real shape that carries the risk, and order events so only the rule under test can explain the result |
+| 5 | Wrote a data literal into a test before measuring it | 1 | Measure the fact first (one query), then pin it |
 
 ---
 
@@ -61,4 +63,37 @@ because the stub was empty.
 
 **The antidote, concrete:** before writing a new file under `code/`, run `git ls-files <path>`; if it is tracked, Read
 it and use Edit.
+
+---
+
+### 4. A test fixture admitted a second explanation (mutation stayed green)
+
+**2026-10-24 ~21:30 UTC — S3 C3.4, two occurrences in one checkpoint.**
+- The FR-11 test put `lookup_key` in the wrapper. The exposure check never looks at that key name, so the
+  mutation "count wrapper fields as exposure" stayed green. The real risk is the ledger's `subject_reference`.
+- The "claims never set state" test placed the SUCCESS claim *before* the present record. "Latest wins" alone
+  already kept it present, so the mutation "let SUCCESS mark the row absent" was caught only by the sample gate.
+
+Both fixtures were fixed: the wrapper now carries `subject_reference` and `customer_email`, and the claim now
+comes *after* the record. Both mutations are now red.
+
+> **A green test is only proof if no other rule could make it green. Run the mutation before trusting the fixture.**
+
+**The antidote, concrete:** take the fixture's keys from the real record that carries the risk, not from a
+convenient name. Order the events so that the rule under test is the *only* thing deciding the outcome.
+
+---
+
+### 5. Wrote a data literal into a test before measuring it
+
+**2026-10-24 ~20:45 UTC — S3 C3.0.** I asserted that free-text mentions of `email_delivery_*`, `tombstone_*` and
+`object_*` would be indexed once the prefixes were derived, carrying the claim over from the resume block's
+"gap" note. A measurement then showed 0 such mentions in the data: those ids occur only as a record's own
+`resource_id`. The test was replaced with a synthetic check of the mechanism, and the fact (0 mentions) went
+into the commit message.
+
+> **A note in our own docs is a past hypothesis, not a measurement. Measure before pinning a literal.**
+
+**The antidote, concrete:** for every literal in a test, write the one-line query that produced it, and run it
+before writing the assert.
 
