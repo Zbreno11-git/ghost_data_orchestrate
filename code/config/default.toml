@@ -36,3 +36,12 @@ timeout_s = 90
 max_attempts = 3            # total attempts for retryable errors (429, 5xx, transport)
 backoff_s = 2.0             # doubled after each failed attempt
 cache_dir = "runs/cache/llm"
+
+# Investigator agent (C4.3). The model reviews the deterministic proposal; the engine recompiles its decisions.
+[agent]
+model = "gemini-3.1-flash-lite"   # A7 default; C4.6 benchmarks it against 3.8-flash
+max_tool_rounds = 4
+max_repairs = 2
+max_output_tokens = 2048
+est_input_tokens = 4000
+thinking_level = { "gemini-3.8-flash" = "LOW", "gemini-3.1-flash-lite" = "MINIMAL" }

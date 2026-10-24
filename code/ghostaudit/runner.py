@@ -27,6 +27,30 @@ SPLITS = {"targets": "requests", "samples": "sample_requests"}
 
 
 def run_deterministic(dataset: Path, split: str, out_dir: Path, mode: str = "strict") -> dict:
+    return run(dataset, split, out_dir, mode)
+
+
+def _save_case(out_dir: Path, plan: Plan, extra: dict) -> None:
+    d = out_dir / "cases"
+    d.mkdir(parents=True, exist_ok=True)
+    tmp = d / f".{plan.case_id}.tmp"
+    tmp.write_text(json.dumps({"plan": asdict(plan), **extra}, ensure_ascii=False, default=str))
+    tmp.replace(d / f"{plan.case_id}.json")
+
+
+def _load_case(out_dir: Path, case_id: str) -> tuple[Plan, dict] | None:
+    f = out_dir / "cases" / f"{case_id}.json"
+    if not f.exists():
+        return None
+    d = json.loads(f.read_text())
+    return Plan(**d.pop("plan")), d
+
+
+def run(dataset: Path, split: str, out_dir: Path, mode: str = "strict", engine: str = "deterministic",
+        gateway_mode: str = "live", model: str | None = None, cases: set[str] | None = None,
+        run_id: str = "run", config: dict | None = None) -> dict:
+    from .config import load_config
+    cfg = config or load_config()
     dataset = Path(dataset)
     tables = load_tables(dataset)
     store, coverage = ingest_all(dataset, allow_paid=False)
@@ -40,9 +64,23 @@ def run_deterministic(dataset: Path, split: str, out_dir: Path, mode: str = "str
     rules = load_rules(tables["rules"])
     times = evidence_times(dataset)
 
+    gateway = None
+    if engine == "agent":
+        from .llm.gateway import Gateway
+        gateway = Gateway(run_id, cfg, mode=gateway_mode)
+        model = model or cfg["agent"]["model"]
+    agent_stats = Counter()
+    tool_use = Counter()
+
     plans: list[Plan] = []
     for row in tables[SPLITS[split]]:
         cid = row["case_id"]
+        if cases and cid not in cases:
+            continue
+        if engine == "agent" and (saved := _load_case(out_dir, cid)):
+            plans.append(saved[0])                  # resume: a finished case is never re-investigated
+            agent_stats["resumed"] += 1
+            continue
         intent = classify(row["request_text"])
         subject = resolved.get(cid)
         audit_at = by_case[cid].audit_at if cid in by_case else None
@@ -64,6 +102,23 @@ def run_deterministic(dataset: Path, split: str, out_dir: Path, mode: str = "str
             plan.reasons.insert(0, "strict ownership attributed nothing; scored candidates used")
             if plan.support == "resolved":
                 plan.support = "weak"
+        if engine == "agent":
+            extra = {"agent": None}
+            if intent.authorizes_deletion is not False and isinstance(subject, Subject):
+                from .agent import investigate
+                from .tools import CaseTools
+                tools = CaseTools(cid, view, subject, own, workflow, rules, store.resource_re)
+                outcome = investigate(row, tools, plan, gateway, model, cfg, times, intent, audit_at)
+                plan = outcome.plan
+                agent_stats[outcome.status] += 1
+                agent_stats["model_calls"] += outcome.model_calls
+                agent_stats["cache_hits"] += outcome.cache_hits
+                agent_stats["cost_usd_x1e6"] += round(outcome.cost_usd * 1e6)
+                tool_use.update(outcome.tool_calls)
+                extra["agent"] = {"status": outcome.status, "model": model, "model_calls": outcome.model_calls,
+                                  "cost_usd": outcome.cost_usd, "tool_calls": outcome.tool_calls,
+                                  "errors": outcome.errors, "submission": outcome.submission}
+            _save_case(out_dir, plan, extra)
         plans.append(plan)
 
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -74,7 +129,8 @@ def run_deterministic(dataset: Path, split: str, out_dir: Path, mode: str = "str
                                  "reasons": p.reasons, "decisions": p.decisions, "steps_json": dumps(p.steps)},
                                 ensure_ascii=False, default=str) + "\n")
     summary = {
-        "split": split, "ownership": mode, "engine": "deterministic", "rows": len(plans),
+        "split": split, "ownership": mode, "engine": engine, "model": model, "gateway_mode": gateway_mode,
+        "rows": len(plans), "agent": dict(agent_stats), "tool_use": dict(tool_use),
         "status": dict(Counter(p.status for p in plans)),
         "support": dict(Counter(p.support for p in plans)),
         "status_by_support": {f"{s}/{st}": n for (s, st), n in sorted(Counter((p.support, p.status) for p in plans).items())},

@@ -60,7 +60,15 @@
   - Search is exact-value, paginated with an omitted count.
   - 16 tests: cutoff in every tool (derived from the registry), pagination, look-alikes, bad arguments.
     Mutation (bypass the view) goes red. 172 tests passing.
-- ▶️ Next: C4.3 `agent.py` + `code/prompts/investigator.md`, then one live sample case.
+- ✅ C4.3: `agent.py` + `code/prompts/investigator.md` + `main.py run --engine agent --mode live|replay
+  --cases`.
+  - The model can only choose the account, exclude, or add (each citing obs_ids a tool returned); the engine
+    recompiles. 4 offline loop tests cover submit, repair, exhausted repairs and a provider error.
+  - **Live case_28** (flash-lite): 4 tool calls → submit_audit → a valid row. 5 calls, $0.004143, all
+    settled. The agent left the account null ("none of the candidate accounts could be definitively linked"):
+    honest, unresolved.
+  - Replay without a key: byte-identical, 5 cache hits, ledger unchanged.
+- ▶️ Next: C4.4, the LLM half of intent (batched) + cross-check.
 
 ## ▶️ RESUME HERE — 2026-10-24 20:57 UTC (15:57 CDT) — S3 closed; S4 next (second half of S3+S4, A19)
 

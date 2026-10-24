@@ -62,14 +62,19 @@ def cmd_status(args) -> int:
 def cmd_run(args) -> int:
     from datetime import datetime, timezone
 
-    from ghostaudit.runner import run_deterministic
+    from ghostaudit.runner import run
 
-    run_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + f"-det-{args.split}-{args.ownership}"
+    tag = "det" if args.engine == "deterministic" else f"agent-{args.mode}"
+    run_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + f"-{tag}-{args.split}-{args.ownership}"
     out = Path(args.out) if args.out else REPO_ROOT / "runs" / run_id
-    summary = run_deterministic(Path(args.dataset), args.split, out, args.ownership)
+    cases = set(args.cases.split(",")) if args.cases else None
+    summary = run(Path(args.dataset), args.split, out, args.ownership, engine=args.engine, gateway_mode=args.mode,
+                  model=args.model, cases=cases, run_id=run_id)
     print(f"{summary['rows']} rows → {out / 'output.csv'}")
     print(f"status {summary['status']}  support {summary['support']}")
     print(f"workflow assignment {summary['workflow_assignment']}  ambiguous {summary['workflow_ambiguous_requests']}")
+    if summary["agent"]:
+        print(f"agent {summary['agent']}  tools {summary['tool_use']}")
     if summary["ingest_failed_files"]:
         print("ingest failed:", summary["ingest_failed_files"])
         return 1
@@ -90,7 +95,11 @@ def main(argv=None) -> int:
     p.add_argument("--allow-paid", action="store_true", help="permit vision calls for PNGs missing from the cache")
     p.set_defaults(fn=cmd_ingest)
     p = sub.add_parser("run")
-    p.add_argument("--engine", choices=["deterministic"], default="deterministic")
+    p.add_argument("--engine", choices=["deterministic", "agent"], default="deterministic")
+    p.add_argument("--mode", choices=["live", "replay"], default="live",
+                   help="agent only: replay serves cached responses and never contacts the provider")
+    p.add_argument("--model", help="agent model (default: [agent].model in config)")
+    p.add_argument("--cases", help="comma-separated case_ids to run (default: every case of the split)")
     p.add_argument("--split", choices=sorted(REQUEST_FILES), default="targets")
     p.add_argument("--ownership", choices=["strict", "scored"], default="strict")
     p.add_argument("--dataset", default=str(REPO_ROOT / "dataset"))
