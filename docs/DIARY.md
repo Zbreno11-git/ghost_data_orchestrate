@@ -3,6 +3,29 @@
 > One entry per session, newest on top. Narrative: what was done, what was decided and **why**, and what was
 > learned. State does not live here (see PROGRESS.md).
 
+## 2026-10-24 — S4 (second half of S3+S4): gateway, agent, intent, resume/replay, benchmark, $0.237
+
+**Done.**
+- **Gateway:** paid calls settle by error class (A21); a budget refusal happens before sending; responses are
+  cached; replay can't reach the provider (A20).
+- **Agent:** 9 read-only tools and a bounded investigator. It can only pick, exclude or add resources, citing
+  evidence a tool returned.
+- **Intent:** the LLM half, cross-checked with the rule.
+- **Resume:** proven by a real kill (0 duplicate paid calls).
+- **Benchmark:** 10 cases × 2 models.
+- **Spend:** S4 spent $0.2317 settled (+ $0.0044 open from the deliberate kill). Project: $0.339 settled.
+
+**Decided.** A21 (settlement policy), A23 (flash-lite stays).
+
+**Learned.**
+- **The agent is honest but barely moves the score** (+1 exact case of 10 on flash-lite, 0 on 3.8-flash).
+  The remaining error is the unattributable deleted account, and the agent rightly refuses to guess it. A
+  model can't add evidence that isn't there; S6 decides whether the agent earns its cost (A4 trigger).
+- **`pkill -f <pattern>` matched my own shell** (exit 144). Pattern-killing is unsafe when the pattern
+  appears in the calling command line; kill by PID instead.
+- **`gh run list` printed nothing from this shell** while the API listed every run. CI is checked through
+  `gh api …/actions/runs` and the headSha.
+
 ## 2026-10-24 — S3 (first half of the merged S3+S4): deterministic baseline, honest support levels, $0
 
 **Done.** identity → cutoff → ownership → policy → planner → runner, all pure and tested (141 tests).

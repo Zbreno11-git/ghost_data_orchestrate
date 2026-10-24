@@ -132,3 +132,17 @@ def test_custom_cases_are_reproduced_exactly(case, tmp_path):
     run_deterministic(case / "dataset", "targets", tmp_path, "strict")
     m = evaluate(load_output(tmp_path / "output.csv"), load_output(case / "expected_output.csv"))
     assert m["whole_case_exact"]["value"] == 1.0
+
+
+def test_agent_resume_never_reinvestigates_a_checkpointed_case(tmp_path):
+    # C4.5 offline: a case with a checkpoint is loaded, not re-run; replay mode guarantees no provider is reachable.
+    from ghostaudit.planner import Plan
+    from ghostaudit.runner import _save_case, run
+    plan = Plan("case_01", "COMPLETE", [{"step_no": 1, "phase": "VERIFICATION", "system_id": "account_service",
+                                         "resource_id": "account_001", "operation": "VERIFY_RECORD_ABSENT",
+                                         "state": "ABSENT", "evidence_id": "evidence_54"}], "weak", ["checkpointed"])
+    _save_case(tmp_path, plan, {"agent": {"status": "submitted"}})
+    summary = run(DATASET, "samples", tmp_path, engine="agent", gateway_mode="replay", cases={"case_01"},
+                  run_id="resume-test")
+    assert summary["agent"]["resumed"] == 1 and summary["agent"].get("model_calls", 0) == 0
+    assert read_csv(tmp_path / "output.csv")[0]["steps_json"].count("account_001") == 1

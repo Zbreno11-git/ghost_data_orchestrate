@@ -336,3 +336,25 @@ All of C3.0–C3.5 closed (commits `cc3c490` … S3 close). Changes against this
 - **Scored:** whole-case 14/32; steps: precision 168/180, recall 168/193.
 - **Custom cases** 3/3 exact. **Targets (strict):** 518 rows, 169 resolved, 34 weak, 315 unresolved (mostly
   "no account attributed"), 10 NOT_APPLICABLE.
+
+## Outcome S4 (2026-10-24 21:20 UTC)
+
+All of C4.0–C4.6 closed (`8a0683c` … S4 close). Measured:
+- **C4.0/C4.1:** settlement by error class (A21), tested with the SDK's real error classes. Budget refusal
+  happens before sending; 8 concurrent threads never overspend. Mutations M5 and M8 go red.
+- **C4.2:** 9 cutoff-bound tools, derived declarations, citation tracking.
+- **C4.3:** live on case_28, 4 tool calls → submit → valid row, $0.0041. The agent declined to attribute an
+  unproven account.
+- **C4.4:** samples 32/32 deletion; fixtures 14/14 in 5 languages; targets 518/518 rule = LLM (508/10);
+  $0.054 in total.
+- **C4.5:** killed after 4/10 cases, then resumed: 4 resumed, 6 investigated, 0 duplicate paid calls across
+  79 keyed calls. Offline replay of the 10-case run is byte-identical (49/49 from cache); an offline resume
+  test plus mutation.
+  - The kill left one in-flight reservation open ($0.004447), which by design stays counted (it may have been
+    billed).
+- **C4.6:** see A23. The agent ≈ the baseline; flash-lite kept.
+- **Changes against the plan:** the benchmark arms also include det-scored, so the agent is compared with
+  both ownership modes.
+- **S5 budget projection:** running the agent on the 508 authorized targets costs ≈ 508 × $0.0036 ≈ $1.83.
+  The S5 envelope is $1.75, so the pilot should decide whether resolved cases skip the agent (≈ 340 cases ×
+  $0.0036 ≈ $1.22).

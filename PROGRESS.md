@@ -73,73 +73,80 @@
   - **Live:** 32/32 samples are deletion; 14/14 hand-written fixtures (7 mixed-intent, 7 non-deletion, 5
     languages) correct; $0.0045.
   - **Targets:** 518/518 rule = LLM (508 deletion, 10 NA, all high), $0.0497, cached for the full run.
-- ▶️ Next: C4.5 resume (kill mid-run → 0 duplicate paid calls) + full-split replay byte-identical.
+- ✅ C4.5: a real kill after 4/10 cases + resume → 0 duplicate paid calls (79 keyed); offline replay
+  byte-identical; offline resume test + mutation.
+- ✅ C4.6: benchmark 10 × 2 models → flash-lite kept (A23); the agent ≈ the baseline. **S4 closed.**
+- ▶️ Next: S5 (see the resume block).
 
-## ▶️ RESUME HERE — 2026-10-24 20:57 UTC (15:57 CDT) — S3 closed; S4 next (second half of S3+S4, A19)
+## ▶️ RESUME HERE — 2026-10-24 21:22 UTC (16:22 CDT) — S3+S4 closed; S5 next
 
-**Repository state:** see the check list below. HEAD = the "Close S3" commit, pushed. Background runs: none.
+**Repository state:** see the check list below. HEAD = the "Close S4" commit, pushed. Background runs: none.
 Locks: none.
 
-**State of the world (measured 20:55 UTC):** ledger settled $0.107400, outstanding $0. 141 tests passing.
-Deadline 12:00 UTC (≈15 h); no intermediate target (A18).
+**State of the world (measured 21:20 UTC):**
+- Ledger settled $0.339118, outstanding $0.004447. The open amount is one reservation in flight when C4.5
+  killed a run on purpose; by design it stays counted, because it may have been billed.
+- 177 tests passing. Deadline 12:00 UTC (≈14.5 h). No intermediate target (A18).
 
-**Current goal: S4.** A bounded Gemini investigator over the deterministic tools, plus the gateway (budget,
-4xx settlement), cache, resume and offline replay, and the benchmark. It is measured against S3's baseline;
-spend ≈ $0.30.
+**Current goal: S5.** A pilot, the full 518-row run, the evaluation and usage reports, and the safety package.
+Root `output.csv` is published only after validation.
 
 **Exact next step:**
-1. Read the `integracoes` skill.
-2. C4.0: create `code/ghostaudit/llm/gateway.py` + `code/tests/test_gateway.py`.
-   - Settlement by error class: `ClientError` 400/401/403/404 → settle $0, `cost_basis="rejected_<code>"`, no
-     retry; 429 → $0 + bounded retry; `ServerError` / timeout / unknown → reservation.
-   - Use a fake provider that raises the real `google.genai.errors` classes (they carry `.code`).
-   - Record A21.
+1. Write `docs/plans/session-05.md` from MASTER_PLAN §S5. Fold in:
+   - the budget question: agent on all 508 authorized cases ≈ $1.83, or on non-resolved cases only ≈ $1.22;
+   - the 5 rows with no grounded proposal (case_39, 46, 53, 55, 61): Breno's decision;
+   - unresolved investigation before publication (A20).
+2. C5.1 pilot: 30 stratified targets, `main.py run --engine agent --split targets --cases <30>`. Measure
+   $/case and how support levels move, and write the projection.
 
-**Baseline to beat (strict, full official denominators):**
-- status 32/32; whole-case 11/32;
-- steps: precision 161/162, recall 161/193; evidence on matched 161/161; cited recall 61/75.
+**Engines and how to run them:**
+- Deterministic: `main.py run --split samples|targets [--ownership strict|scored]`
+- Agent: `main.py run --engine agent --mode live|replay --cases …`
+- Responses are cached in `runs/cache/llm/` (gitignored). Replay on a clean clone would need that cache:
+  decide in S5 packaging whether to ship it (the vision cache is already committed, A17).
 
-Scored: whole-case 14/32; steps: precision 168/180, recall 168/193. Custom cases 3/3 exact.
+**Measured (2026-10-24):**
+- **Baseline (strict, full denominators):** samples status 32/32; steps P 161/162, R 161/193.
+- **Agent benchmark (A23):** the agent ≈ the baseline; flash-lite ≈ $0.0036/case.
+- **Intent:** targets 508 deletion / 10 NA, rule = LLM on every case (cached).
+- **Targets (strict, deterministic):** 169 resolved, 34 weak, 315 unresolved, 5 invalid (no grounded proposal).
 
-**What the agent should work on (from S3 measurements):**
-- **Unattributed accounts.** 338/550 requests have no deduction-forced primary-profile row. In scored mode
-  the weak candidate is right 8 of 18 times on the samples.
-- **5 target rows with no grounded proposal** (case_39, 46, 53, 55, 61).
-- **Screen panels** that carry state but are read as presence only (the backup panel in case_55).
-- Weak and unresolved rows are listed in `runs/<id>/unresolved.md`. A20 requires them to be investigated
-  before publication.
-
-**Don't forget (measured 2026-10-24):**
-- **Remaining ambiguity, for Breno before S5:** the contract needs a status in each of the 518 rows. A row
-  still unresolved after the agent carries the grounded proposal's status, flagged and never counted as
-  resolved. The 5 rows with no proposal at all need a decision.
-- **Replay** must never build a client or read `.env` (A20). `gemini._api_key()` reads `.env`, so the replay
-  path must not call it.
-- **Gemini:**
-  - 3.8-flash rejects MINIMAL, so it runs at LOW;
-  - keep `thought_signature` (append the model Content unchanged);
-  - every call needs `max_output_tokens`.
-- **The workflow assignment is global** (samples + targets in one solve). A run over a subset changes nothing
-  for the others, but needs every request file loaded.
+**Don't forget:**
+- **Kill by PID,** never `pkill -f <pattern>`: the pattern matched my own shell.
+- **Check CI** with `gh api repos/Zbreno11-git/ghost_data_orchestrate/actions/runs` by headSha; plain
+  `gh run list` prints nothing here.
+- **The workflow assignment is global:** load every request file.
+- **Remaining ambiguity, for Breno:** unresolved rows carry the grounded proposal's status, flagged; the 5
+  rows with no proposal need a decision.
 
 **Re-read, in this order:**
 1. `AGENTS.md`
-2. `docs/PRIMER.md` (the A20 boundary rows)
+2. `docs/PRIMER.md`
 3. this block
-4. `docs/plans/session-03-04.md` §Design — S4 + checkpoints C4.0–C4.6
-5. `docs/DECISIONS.md` A6, A7, A10, A20–A22
-6. skills `integracoes`, `testes-que-provam`
-7. code: `llm/gemini.py`, `llm/ledger.py`, `runner.py`, `planner.py`, `ownership.py`
+4. `docs/plans/MASTER_PLAN.md` §S5
+5. `docs/plans/session-03-04.md` (outcomes)
+6. `docs/DECISIONS.md` A10, A17, A20–A23, D2
+7. skills `software-build`, `falha-ruidosa`
 
-**Depends on Breno:** keep the session running unattended. Before S5: decide on the 5 rows that have no
-grounded proposal.
+**Depends on Breno:** keep the session running unattended; decide on the 5 rows that have no grounded proposal.
 
 **Before trusting this block, check:**
 - `git status --short` → empty; `git rev-parse HEAD origin/main` → identical; `git log -1 --format=%s` starts
-  "Close S3"
-- `.venv/bin/python code/main.py status` → settled $0.107400, outstanding $0.000000
-- `.venv/bin/python -m pytest code/tests -q` → `141 passed`
-- `ls code/ghostaudit/llm` → no `gateway.py` yet
+  "Close S4"
+- `main.py status` → settled $0.339118, outstanding $0.004447
+- `pytest code/tests -q` → `177 passed`
+
+## Proofs from S4
+
+| Proof | Command | Result (literal) | When |
+|---|---|---|---|
+| gateway | `pytest code/tests/test_gateway.py -q` | `15 passed`; mutations M5, M8 red | 21:00Z |
+| live agent | `main.py run --engine agent --mode live --cases case_28` | `submitted 1, model_calls 5, cost_usd_x1e6 4143` | 21:04Z |
+| intent | `scripts/intent_check.py`; targets batch | `samples deletion 32/32; fixtures right 14/14`; targets `(True,'high'): 508, (False,'high'): 10` | 21:06Z |
+| resume | kill after 4 cases, then rerun the same `--out` | `resumed 4, submitted 6`; `duplicates: 0` over 79 keyed calls | 21:12Z |
+| replay | `env -u GEMINI_API_KEY main.py run --engine agent --mode replay …` + `cmp` | `cache_hits 49`, `replay byte-identical (10 cases)` | 21:13Z |
+| benchmark | 10 cases × {lite, flash} | see A23 | 21:17Z |
+| suite | `pytest code/tests -q` | `177 passed` | 21:19Z |
 
 ## Proofs from S3
 

@@ -13,7 +13,7 @@
 A local Python CLI holding a bounded, tool-using deletion-audit agent for HackerRank Orchestrate Oct 2026,
 "Ghost Data Still Exists". For each of the 518 requests in `dataset/deletion_requests.csv` it writes one row of
 `output.csv`: `COMPLETE` / `INCOMPLETE` / `NOT_APPLICABLE` plus canonically ordered steps grounded in
-participant evidence available at `audit_at`. Owner: Breno. State on 2026-10-24 20:56 UTC: S3 closed (deterministic baseline); S4 next.
+participant evidence available at `audit_at`. Owner: Breno. State on 2026-10-24 21:20 UTC: S3+S4 closed (baseline + agent, gateway, replay); S5 next.
 
 ## The requirement that breaks ties
 
@@ -25,7 +25,8 @@ participant evidence available at `audit_at`. Owner: Breno. State on 2026-10-24 
 - **Deadline 2026-10-25 12:00 UTC (07:00 CDT).** The safety package is due at 04:00 UTC and the freeze is at 09:00 UTC. Breno uploads around 10:00 UTC.
   Never let the root `output.csv` be anything but the last fully validated output.
 - **Gemini spend ≤ $4.50 cumulative** across the whole project (the $0.50 margin is never spent). Every paid call goes
-  through `code/ghostaudit/llm/gemini.py` (S4 wraps it in `llm/gateway.py`) and `state/usage_ledger.jsonl`. No call bypasses the ledger.
+  through `code/ghostaudit/llm/gateway.py` (reserve → send → settle by error class, A21; cache; replay) and
+  `state/usage_ledger.jsonl`; `llm/gemini.py` is the only module that touches the SDK. No call bypasses the ledger.
 - **Participant data only.** Never read organizer truth or generators. `dataset/sample_output.csv` is used only by
   the evaluator, never on the prediction path. No hardcoded labels, evidence IDs or case-family shortcuts.
 - **Never fabricate a status.** An API error, budget stop or missing evidence is never turned into
@@ -39,8 +40,9 @@ participant evidence available at `audit_at`. Owner: Breno. State on 2026-10-24 
 
 ## Current session
 
-⚠️ **S3+S4 merged (2026-10-24, A19), one at a time: S3 deterministic baseline on the 32 samples, then S4 agent loop +
-gateway/cache/resume/replay measured against it.** Plan: `docs/plans/session-03-04.md`. No fixed time target (A18).
+⚠️ **S5 next: pilot, full run, reports, safety package.** S3+S4 closed 2026-10-24 21:20 UTC (A19): deterministic
+baseline (status 32/32, steps P 161/162 R 161/193), agent on flash-lite (A23), gateway/cache/resume/replay proven.
+Plan of record: `docs/plans/session-03-04.md` (outcomes at the end). No fixed time target (A18).
 
 Previous (S1+S2 merged, 2026-10-24, A15): contract/serializer/validator/evaluator proven on samples (193/193 legal,
 32/32 canonical, 0 violations); all 94 evidence files → 7,604 Observations (94/94 processed, 0 unparsed); 3 custom

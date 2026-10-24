@@ -4,7 +4,7 @@ Each session is a 1–2.5 h package that ends in something verifiable, plus a di
 (command → expected number, 🐞 predicted defect) lives in `docs/plans/MASTER_PLAN.md`. This file holds the
 **state**, and any change to a checkpoint is noted here with a date and reason.
 
-**Progress: 4 of 8 sessions fully closed** (✅: S0, S1, S2, S3; measured 2026-10-24 20:56 UTC). Partial (🔄) counts as partial.
+**Progress: 5 of 8 sessions fully closed** (✅: S0, S1, S2, S3, S4; measured 2026-10-24 21:20 UTC). Partial (🔄) counts as partial.
 
 > **Order notes.** The order follows data dependency, not showcase value. The contract/evaluator (S1) comes before
 > ingestion because every later step is measured with it. The deterministic baseline (S3) comes before the agent (S4)
@@ -19,10 +19,10 @@ Each session is a 1–2.5 h package that ends in something verifiable, plus a di
 
 ## ▶️ Start the next session here
 
-- Session: **S4 (second half of S3+S4, A19)** — first step: read the `integracoes` skill, then C4.0, the 4xx
-  settlement policy in `code/ghostaudit/llm/gateway.py` + `code/tests/test_gateway.py`
-  (400 → $0 `rejected_400`, 429 → $0 + retry, 5xx/timeout → reservation)
-- Read first: `docs/PRIMER.md` (A20 boundaries), `PROGRESS.md`, `docs/plans/session-03-04.md` §Design — S4
+- Session: **S5 — pilot, full run, reports, safety package** — first step: write `docs/plans/session-05.md`. Then
+  C5.1, the pilot on 30 stratified targets with `main.py run --engine agent`, measuring $/case. Also decide
+  whether resolved cases skip the agent: the full projection is ≈$1.83 against a $1.75 envelope.
+- Read first: `docs/PRIMER.md`, `PROGRESS.md`, `docs/plans/session-03-04.md` (outcomes), DECISIONS A20–A23
 - Depends on Breno: before leaving, keep the session running with unattended permissions (Bash/Edit)
 
 Timeline as approved (UTC; CDT = UTC−5): S0 16:50–18:00 · S1 18:00–19:00 · S2 19:00–21:00 · S3 21:00–23:00 ·
@@ -77,16 +77,14 @@ re-timed 05:30 UTC as the fallback. **Breno, 20:20 UTC (A18): no fixed time targ
 - [x] C3.4 policy per physical copy: 41/41 findings + 34/34 COMPLETE verifications incl. citation
 - [x] C3.5 deterministic run: samples 32 rows, 0 violations; baseline in DIARY; targets 518 rows (5 without a grounded proposal, listed)
 
-### ⬜ S4 — Agent loop + gateway/ledger/cache/resume/replay · ≈$0.30
-> **First step, carried from S2:** decide how a provider 4xx is settled. Today `gemini.py` settles any exception at the full
-> reservation (one 400 on 2026-10-24 cost $0.0176 in the ledger, almost certainly unbilled). Keep it conservative unless the
-> gateway can tell a request-rejected error from a maybe-billed one.
-- [ ] C4.1 gateway budget refusal + concurrent reservation test
-- [ ] C4.2 tools with cutoff + pagination
-- [ ] C4.3 one live case: tool choice → submit → canonical output
-- [ ] C4.4 intent: 32/32 samples deletion, custom NA phrasings NA
-- [ ] C4.5 resume = 0 duplicate paid calls; replay byte-identical with no key
-- [ ] C4.6 model benchmark recorded
+### ✅ S4 — Agent loop + gateway/ledger/cache/resume/replay · spent $0.2317 (+$0.0044 open) · `8a0683c`…S4 close
+- [x] C4.0 4xx settlement by error class (A21), with the SDK's real error classes
+- [x] C4.1 gateway: budget refusal before sending; 8 concurrent threads never overspend; SDK confined to `gemini.py`
+- [x] C4.2 9 tools, cutoff in each (derived from the registry), pagination with omitted counts
+- [x] C4.3 live case_28: 4 tool calls → submit → valid row ($0.0041)
+- [x] C4.4 intent: samples 32/32, fixtures 14/14 (5 languages), targets rule = LLM 518/518
+- [x] C4.5 real kill + resume: 0 duplicate paid calls; offline replay byte-identical (10 cases)
+- [x] C4.6 benchmark 10 × 2 models: flash-lite kept (A23); the agent ≈ the baseline
 
 ### ⬜ S5 — Pilot, full run, 3 custom cases, reports, SAFETY PACKAGE · ≈$1.75 · due 04:00 UTC
 - [ ] C5.1 pilot projection ≤ $1.50

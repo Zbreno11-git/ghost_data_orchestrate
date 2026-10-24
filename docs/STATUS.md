@@ -3,9 +3,9 @@
 > **For:** Breno, and anyone who needs the state without reading code. No jargon. **Updated at the end of each
 > session, with the date.** Numbers are re-checked at the source when written, never copied from the previous version.
 
-**Last update: 2026-10-24 20:56 UTC.**
+**Last update: 2026-10-24 21:20 UTC.**
 
-`████████░░░░░░░░ 4 of 8 sessions closed`
+`██████████░░░░░░ 5 of 8 sessions closed`
 
 ## 2026-10-24 — The project folder now tracks the official challenge files
 
@@ -83,3 +83,28 @@ because the improvement session gets shorter.
 - **From you:** nothing new. At some point before publishing, a decision on the 5 answers that have no evidence
   to stand on.
 - **From us:** next, the AI investigator (session 4), measured against this baseline.
+
+## 2026-10-24 21:20 UTC — the AI investigator works, costs a third of a cent per request, and doesn't guess
+
+**What changed:**
+- **Every paid call goes through one gate.** It books each call before sending it, stops at your $4.50
+  limit, and doesn't charge for requests Google rejects outright.
+- **Answers are cached**, so a re-run or a re-check costs nothing and needs no key.
+- **The AI investigator** (Gemini 3.1 Flash-Lite) reviews each case using read-only tools. It can only point
+  at evidence it actually saw; the program still writes the answer.
+- **It reads intent too.** On all 518 requests it agrees with our rules: 508 ask for deletion and 10 don't.
+
+**How we know:**
+- **Stop and resume:** we stopped a run halfway and restarted it, and no paid call was repeated. Re-running
+  offline gives byte-identical output.
+- **On 10 test cases:** the investigator improves on the plain program only slightly (one more fully right
+  case). The bigger model wasn't better and costs 4× more, so we keep the cheap one.
+- **Why the gain is small:** the remaining misses are accounts that were deleted, where no evidence names
+  their owner. The investigator correctly refuses to guess.
+
+**Spent:** $0.237 this session; $0.339 total of $4.50.
+
+**Missing:**
+- **From you:** before publishing, a decision on the 5 answers that have no evidence to stand on.
+- **From us:** next, a pilot on 30 real requests, then the full run, the reports and the upload package
+  (session 5).
