@@ -306,7 +306,7 @@ Integrated into C5.3, C5.5, C5.11 and C5.12 above, without new modules:
   with model, config, prompt, code, a dataset table and an evidence file; an unchanged row keeps its fingerprint
   and only an edited row moves. 4 mutations red: one survived first, because the test did not assert the
   dataset move, and was fixed. `215 passed`. The ledger is unchanged ($0.339118) after the replay-mode tests.
-- **C5.5 ✅ 22:20Z.** `code/evaluation/compare.py` (evaluator side) classes each case's change and keeps two
+- **C5.5 ✅ 22:16Z (commit 2aeea0c).** `code/evaluation/compare.py` (evaluator side) classes each case's change and keeps two
   kinds of added step apart: "not in the answer but supported by its cited evidence" and "unsupported".
   - **Deterministic, base (S3) → now (C5.2–C5.5a):**
 
