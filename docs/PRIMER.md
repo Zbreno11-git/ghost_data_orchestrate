@@ -47,7 +47,7 @@ participant evidence available at `audit_at`. Owner: Breno. State on 2026-10-25 
 - Engine fix found by an independent custom case: a non-account can never be the account (ERRORS #9).
 - Trace + `main.py explain` (no model call); metamorphic tests; 5 custom cases (5/5).
 - `runs/s6/final` (replay, $0) reproduces root `output.csv` (sha256 `ee9504d5…`); samples unchanged (12/32, P 162/163, R 162/193).
-- **Next:** S7 release freeze (session-07.md); C7.7 Mac check pending.
+- **Next:** S7 release freeze (session-07.md) — **ON HOLD until Breno says go** (02:12 UTC, "Don't open S7 yet"); C7.7 Mac check pending.
 
 Previous (S5, 2026-10-25): as-of ownership (A24), explicit state and row-bound screens (A25), two clocks (A26), agent
 lineage (A27), scope non_resolved (A28), flagged heuristic rows (A29); final run 518 rows, 0 violations; package

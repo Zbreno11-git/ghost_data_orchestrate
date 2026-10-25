@@ -19,6 +19,7 @@ Each session is a 1–2.5 h package that ends in something verifiable, plus a di
 
 ## ▶️ Start the next session here
 
+- **ON HOLD (Breno, 2026-10-25 02:12 UTC: "Don't open S7 yet").** Wait for his go before anything below.
 - Session: **S7 — release freeze** — first step: write `docs/plans/session-07.md` from § S7 (C7.1–C7.7). The
   engine is frozen after S6: `runs/s6/final` reproduces the published `output.csv` byte for byte; C7.1 is a
   replay plus the package rebuild (code changed in S6: trace, explain, account rule). C7.7 (Mac) stays pending.
