@@ -5,7 +5,7 @@
 - Best-effort status: **COMPLETE**
 - Evidential support: **unresolved**
 - **HEURISTIC PREDICTION**: part of this row is not a reconstructed state; see the limits below
-- Run integrity: verified (output.csv, decisions.jsonl and provenance.jsonl match their recorded sha256 and each other; run fingerprint 30c7f4dd5065)
+- Run integrity: verified (output.csv, decisions.jsonl and provenance.jsonl match their recorded sha256 and each other; run fingerprint b0f0247857e1)
 
 ## Request
 

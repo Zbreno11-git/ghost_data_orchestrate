@@ -255,3 +255,36 @@ def test_an_account_service_record_with_a_lineage_is_accepted_as_the_account():
     assert validate_submission(sub, tools) == []
     own = apply_submission(sub, tools)
     assert own.account.resource_id == "account_5" and own.account.system_id == "account_service"
+
+
+def test_an_unasserted_account_stays_an_uncertain_candidate_after_the_review():
+    """S7 C7.5 (an instance of ERRORS #10): the agent's ownership is rebuilt from its submission; it copied links,
+    account, exclusions and ambiguities but not the uncertain candidates, so a reviewed row lost its "uncertain
+    candidate" from the trace, explain and the viewer (case_78, case_94, case_376 in the final run)."""
+    tools = _world([_obs("ev_s", "search_6", "search_service", {"email": "a@x.com"})])
+    tools.ownership.uncertain["account_9"] = "forced_matching: a timing/one-to-one deduction, not asserted"
+    own = apply_submission(_sub(add=[{"resource_id": "search_6", "evidence": ["ev_s#1"]}]), tools)
+    assert own.uncertain == {"account_9": "forced_matching: a timing/one-to-one deduction, not asserted"}
+    assert own.uncertain is not tools.ownership.uncertain                      # a copy, like the other fields
+
+
+def test_an_uncertain_candidate_the_agent_attributes_with_a_lineage_is_no_longer_uncertain():
+    a = _obs("ev_prof", "account_5", "account_service", {"email": "a@x.com"})
+    tools = _world([a])
+    tools.ownership.uncertain["account_5"] = "only_feasible_request: not asserted"
+    tools.ownership.uncertain["account_9"] = "forced_matching: not asserted"
+    own = apply_submission(_sub(account={"resource_id": "account_5", "evidence": ["ev_prof#1"]}), tools)
+    assert own.account.resource_id == "account_5" and set(own.uncertain) == {"account_9"}
+
+
+def test_an_empty_submission_carries_every_ownership_field_over():
+    """Derived from the dataclass, so a field added to Ownership later cannot be silently dropped by the rebuild."""
+    from dataclasses import fields
+    tools = _world([_obs("ev_s", "search_6", "search_service", {"email": "a@x.com"})])
+    tools.ownership.uncertain["account_9"] = "forced_matching: not asserted"
+    tools.ownership.excluded["search_1"] = "another owner"
+    tools.ownership.ambiguities.append("primary profile: two candidates")
+    own = apply_submission(_sub(), tools)
+    names = [f.name for f in fields(own)]
+    assert len(names) >= 6
+    assert [n for n in names if getattr(own, n) != getattr(tools.ownership, n)] == []

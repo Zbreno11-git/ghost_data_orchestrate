@@ -56,7 +56,8 @@ where reading or searching is needed.
   citation and sequence accuracy are in the evaluation report.
 - **Ceiling:** some answer steps name resources that appear in no participant evidence (D10, D13), or only after
   the cutoff (D12). We report them beside the score, not removed from it.
-- **Custom cases:** 5 cases, written by a sub-agent that never saw the engine or the answers.
+- **Custom cases:** 5 cases, written by a sub-agent that never saw the engine, its runs or the sample answers.
+  Each reuses the official `deletion_rules.csv` unchanged (reused, not invented; pinned in a fixture allowlist).
 - **Separate lines:** deterministic gains vs agent contribution are reported apart.
 - **Tuning exposure:** the samples were inspected, so they are not held out. No hidden-target accuracy is claimed.
 
@@ -79,7 +80,8 @@ The usage report has:
 
 ## One worked case
 
-Open `docs/explanations/` (generated from the final run) or the viewer. Walk one INCOMPLETE case:
+Open the viewer or `docs/explanations/` (both from the final run); `docs/release/WALKTHROUGH.md` has seven cases
+written out. Walk one INCOMPLETE case (`case_105` is the ordinary one):
 1. the request text and intent;
 2. the person, and the historical email that matched;
 3. the record in a replica, with both timestamps;

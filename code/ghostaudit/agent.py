@@ -190,7 +190,8 @@ def validate_submission(sub: dict, tools: CaseTools) -> list[str]:
 
 def apply_submission(sub: dict, tools: CaseTools) -> Ownership:
     own = Ownership(tools.case_id, links=dict(tools.ownership.links), account=tools.ownership.account,
-                    excluded=dict(tools.ownership.excluded), ambiguities=list(tools.ownership.ambiguities))
+                    excluded=dict(tools.ownership.excluded), ambiguities=list(tools.ownership.ambiguities),
+                    uncertain=dict(tools.ownership.uncertain))
 
     def link_for(r: str, evidence: list[str]) -> tuple[str, tuple]:
         chain = lineage(r, evidence, tools)
@@ -215,6 +216,7 @@ def apply_submission(sub: dict, tools: CaseTools) -> Ownership:
                            note="agent")
         own.links[acc] = own.account
         own.ambiguities = [a for a in own.ambiguities if "primary profile" not in a]
+        own.uncertain.pop(acc, None)                    # attributed now, with its own lineage
     return own
 
 

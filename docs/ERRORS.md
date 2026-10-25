@@ -234,5 +234,15 @@ would have shown an ordinary weak link: 3 heuristic rows reported instead of 4.
 - Test with close negatives (an agent-attributed account; a plan that no longer uses the pick).
 - The final run re-made at $0 (all cache hits), CSV byte-identical, 4 heuristic rows.
 
+**2nd occurrence (S7 C7.5, 2026-10-25, found while writing the walkthrough; times from `date -u`).** The
+deterministic run records an unasserted deduction (A34a) as an *uncertain candidate*. The agent's ownership is a new
+object built from its submission (`agent.apply_submission`); it copied links, account, exclusions and ambiguities,
+but not the uncertain candidates. The 3 target rows the agent reviewed with one (case_78, case_94, case_376) lost
+it from the trace, `explain` and the viewer; the CSV was unaffected (uncertain candidates never make a step). Caught
+by comparing the field across stages: the deterministic run had 3 such rows, the final run 0. Fixed at the copy, plus
+dropping an entry the agent then attributes with a lineage; 2 tests, both mutations red; runs re-made at $0.
+What is new: the fix for the 1st occurrence re-applied one label, but the rebuild drops *every* field it does not
+copy. The constructor is the place to check, field by field.
+
 > **A property attached to an object holds only until the next stage that rebuilds the object. Apply labels where
 > the object is published, or re-apply after every rebuild, and compare the label count across stages.**

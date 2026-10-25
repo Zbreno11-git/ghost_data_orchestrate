@@ -5,7 +5,8 @@ something else, stop and send me that step's output. The VPS has already passed 
 the package works on a different machine.
 
 **You need:**
-- the three release files from the VPS: `code.zip`, `output.csv`, `SHA256SUMS`;
+- the three files in `/root/ghost-mac/` on the VPS: `code.zip`, `output.csv`, `SHA256SUMS` (checksums of the
+  first two, written when they were handed over);
 - the challenge `dataset/` folder (from the official repository; it is not inside code.zip);
 - Python 3.11 or newer (`python3 --version`);
 - about 5 minutes. Internet is needed only for step 3.
@@ -15,7 +16,7 @@ the package works on a different machine.
 ```bash
 mkdir -p ~/ghost-accept && cd ~/ghost-accept
 # copy code.zip, output.csv and SHA256SUMS here, e.g. from the VPS:
-#   scp root@<vps>:/root/hackthon_1/{code.zip,output.csv} root@<vps>:/root/hackthon_1/docs/release/SHA256SUMS .
+#   scp 'root@<vps>:/root/ghost-mac/{code.zip,output.csv,SHA256SUMS}' .
 ls
 ```
 Expect: `SHA256SUMS  code.zip  output.csv`
@@ -23,11 +24,10 @@ Expect: `SHA256SUMS  code.zip  output.csv`
 ## 1. The files are the ones the VPS released
 
 ```bash
-shasum -a 256 -c SHA256SUMS 2>/dev/null | grep -E '^(code.zip|output.csv):'
+shasum -a 256 -c SHA256SUMS
 ```
-Expect `code.zip: OK` and `output.csv: OK`. The file also lists log.txt and agent-trace.zip, which you don't need
-here; the `grep` hides their "missing" lines. Any `FAILED` line means the copy is not the released file: copy it
-again before going on.
+Expect exactly `code.zip: OK` and `output.csv: OK`. Any `FAILED` line means the copy is not the file handed over:
+copy it again before going on.
 
 ## 2. Unpack into an empty folder and add the dataset beside `code/`
 
@@ -58,10 +58,17 @@ cable unplugged) for steps 4–6.
 unset GEMINI_API_KEY
 .venv/bin/python code/main.py run --engine agent --mode replay --agent-scope non_resolved --split targets --out runs/replay
 ```
-Expect the last lines to include `518 rows → runs/replay/output.csv` and an `agent {...}` summary with
-`'cost_usd_x1e6': 0`.
-- A line mentioning `ReplayMiss`, or a `fallback` count above 0, means a shipped response is missing: send me
-  the output.
+It takes a few minutes. Expect these last four lines (the VPS printed exactly these):
+```text
+518 rows → runs/replay/output.csv
+status {'INCOMPLETE': 363, 'COMPLETE': 145, 'NOT_APPLICABLE': 10}  support {'unresolved': 339, 'resolved': 167, 'weak': 12}
+workflow assignment {'explicit_account': 167, 'forced_matching': 2, 'only_feasible_row': 16, 'only_feasible_request': 1}  ambiguous 332
+agent {'submitted': 352, 'model_calls': 1749, 'cache_hits': 1749, 'cost_usd_x1e6': 0, 'skipped_resolved': 166}  tools {…}
+```
+(`workflow assignment` counts what the deduction found, not what is asserted: forced_matching and
+only_feasible_request picks are uncertain candidates with no step, A34a.)
+- A `'fallback'` key in the `agent {...}` line, or a line mentioning `ReplayMiss`, means a shipped response is
+  missing: send me the output.
 - `No such file or directory: 'dataset/...'` means step 2's dataset copy is not beside `code/`.
 
 ## 5. The replay equals the released answers, and validates
@@ -81,13 +88,13 @@ cmp viewer-rebuilt.html code/viewer/viewer.html && echo VIEWER-IDENTICAL
 open code/viewer/viewer.html
 ```
 Expect:
-- a line `N passed` with no `failed` (N is in `docs/release/RELEASE_RECORD.md`);
+- `307 passed` (no `failed`, no `skipped`);
 - `VIEWER-IDENTICAL`;
 - the viewer opens in your browser.
 
 Turn Wi-Fi back on.
 
-## 7. Look at five cases in the viewer (the walkthrough)
+## 7. Look at seven cases in the viewer (the walkthrough)
 
 Follow `docs/release/WALKTHROUGH.md` (in the repository) with the viewer open. For each case, check that you can
 see:

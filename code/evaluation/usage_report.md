@@ -1,6 +1,6 @@
 # Usage report
 
-Generated 2026-10-25 04:14 UTC by `scripts/make_reports.py` from `runs/s7/final-r2/llm_keys.jsonl` (every model response the final run used) and `state/usage_ledger.jsonl` (every paid call of the project).
+Generated 2026-10-25 04:28 UTC by `scripts/make_reports.py` from `runs/s7/final-r2/llm_keys.jsonl` (every model response the final run used) and `state/usage_ledger.jsonl` (every paid call of the project).
 
 ## Final full-dataset run (the one that produced output.csv)
 

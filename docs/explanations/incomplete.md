@@ -4,7 +4,7 @@
 
 - Best-effort status: **INCOMPLETE**
 - Evidential support: **resolved** (no workflow-only link, ambiguity or unknown state)
-- Run integrity: verified (output.csv, decisions.jsonl and provenance.jsonl match their recorded sha256 and each other; run fingerprint 30c7f4dd5065)
+- Run integrity: verified (output.csv, decisions.jsonl and provenance.jsonl match their recorded sha256 and each other; run fingerprint b0f0247857e1)
 
 ## Request
 
