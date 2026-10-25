@@ -58,24 +58,22 @@ only_feasible_row, nearest_anchor]`, `historical_snapshots = "snapshot_capture"`
 - **Custom:** 5/5.
 - **Targets:** 60 rows changed vs S6, all attributed (A36 59, A34/A34a 3); 0 status flips; 4 heuristic rows
   (case_39/55/61 A29, case_63 A34).
-- **Ledger:** settled $2.270662, outstanding $0.004997, of $4.50 (unchanged since 04:00). Tests: `313 passed`
-  (`pytest code/tests scripts/tests`; 310 shipped + 3 repo-only in `scripts/tests/`; CI runs both).
+- **Ledger:** settled $2.270662, outstanding $0.004997, of $4.50 (unchanged since 04:00). Tests: `322 passed`
+  (`pytest code/tests scripts/tests`; 310 shipped + 12 repo-only in `scripts/tests/`; CI runs both).
 
 **Exact next steps, in order:**
 1. **C7.6, waiting on Breno:** he runs `/root/ghost-mac/MAC_RUNBOOK.md` on his Mac and sends the outputs of
    steps 1, 4, 5, 6, macOS version and chip, browser. Record them in `docs/release/mac_acceptance.md` (literal);
    any failure → fix, rebuild, new file set, re-run. Expected: 2× OK, the four replay lines, IDENTICAL, `0
    violations … against 518`, `310 passed`, VIEWER-IDENTICAL.
-2. **C7.7 preparation (does not depend on the Mac; do it while waiting):**
-   - write `scripts/finalize_release.sh`: stage traces (`stage_traces.py --zip`), verify the four files (code.zip
-     and output.csv must equal `/root/ghost-mac/` sums), then `release_record.py` (checksums into
-     `/root/ghost-release/SHA256SUMS` and `docs/release/SHA256SUMS`, plus `docs/release/RELEASE_RECORD.md`),
-     commit and push;
-   - test `release_record.py` on a scratch release dir (`scripts/tests/`);
-   - add a redaction test for `stage_traces.py` (`scripts/tests/`);
-   - STATUS upload checklist (slots: code.zip, output.csv, chat_transcript = log.txt, agent-trace.zip, AI
-     interview; URL from AGENTS §4.1).
-3. **Close:** log the closing turn; then **Breno** runs `/export`, quits, runs the script, freezes, uploads.
+2. **C7.7 preparation ✅ 04:44Z** (`b65eb24`, `0454ce6`): `scripts/finalize_release.sh` written and rehearsed
+   end to end in a sandbox clone (bare local origin, fake HOME, real runs and traces read-only): exit 0, FROZEN,
+   `sha256sum -c` 4× OK. The rehearsal found one defect (an export alone passed the no-session guard), fixed.
+   `stage_traces.py` and `release_record.py` hardened, 9 tests in `scripts/tests/`. STATUS has Breno's final
+   steps 1-7 (04:44 entry).
+3. **Close (after the Mac results):** write `docs/release/mac_acceptance.md` (literal outputs), commit and push it,
+   append the closing log entry (that turn's message), commit and push; tell Breno: no further messages, then
+   `/export` (default name, or `--no-export`), close Claude Code, `bash scripts/finalize_release.sh`, upload.
 
 **Don't forget:**
 - JSONL is split at "\n" only, never `splitlines()` (log_audit.py, stage_traces.py, provenance.py: all fixed).
@@ -106,7 +104,7 @@ upload.
 **Check before trusting:**
 - `git status --short` → empty; HEAD = origin/main; CI green by head_sha;
 - `main.py status` → $2.270662 / $0.004997;
-- `pytest code/tests scripts/tests -q` → 313 passed;
+- `pytest code/tests scripts/tests -q` → 322 passed;
 - `sha256sum output.csv code.zip` → `0e04ffe2…`, `0c4dfef1…`; `sha256sum -c /root/ghost-mac/SHA256SUMS` → 2× OK.
 
 ## Proofs from S5

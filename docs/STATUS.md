@@ -3,9 +3,49 @@
 > **For:** Breno, and anyone who needs the state without reading code. No jargon. **Updated at the end of each
 > session, with the date.** Numbers are re-checked at the source when written, never copied from the previous version.
 
-**Last update: 2026-10-25 04:31 UTC.**
+**Last update: 2026-10-25 04:44 UTC.**
 
 `██████████████░░ 7 of 8 sessions closed; the last one (S7) is under way`
+
+## 2026-10-25 04:44 UTC — the final steps are ready and rehearsed; waiting for your Mac result
+
+**What changed:** the end-of-project script (`scripts/finalize_release.sh`) is written, tested, and was run end to
+end in a throw-away copy of the project. The rehearsal caught one real flaw, now fixed: a trace with no session in
+it would have been accepted. Nothing was uploaded or published.
+
+### Your final steps, in order (after the Mac check)
+
+1. **Send me your Mac results.** I record them in `docs/release/mac_acceptance.md` and write the closing log
+   entry. After that, don't send me any more messages: an unlogged message stops the script on purpose.
+2. **In this Claude Code session, run `/export`.** Save it under its default name in the project folder, or in
+   `~/ghost-exports/`. If your editor has no `/export`, skip this step and use `--no-export` in step 4: the
+   session files themselves are the full trace.
+3. **Close Claude Code**, so the session file is complete.
+4. **In a terminal on the server:**
+   ```bash
+   cd /root/hackthon_1 && bash scripts/finalize_release.sh      # or: ... finalize_release.sh --no-export
+   ```
+   It checks everything again, builds `agent-trace.zip`, puts the four files in `~/ghost-release/`, writes the
+   checksums and the release record, and pushes them. It ends with "FROZEN" and the list of files. Any problem
+   prints "STOP: …" and changes nothing.
+5. **Copy the four files to your computer:**
+   ```bash
+   scp 'root@<vps>:/root/ghost-release/*' ~/ghost-upload/
+   ```
+6. **Upload them** at https://www.hackerrank.com/contests/hackerrank-orchestrate-october26/challenges/ghost-data-still-exists
+
+   | Slot | File |
+   |---|---|
+   | code.zip | `code.zip` |
+   | output.csv | `output.csv` |
+   | chat_transcript | `log.txt` |
+   | agent trace | `agent-trace.zip` |
+   | AI interview | you (notes: `docs/release/INTERVIEW_CHEAT_SHEET.md` and `WALKTHROUGH.md`) |
+
+7. **Tell me when it is submitted** (in a new session, if you like). Until you say so, it is not submitted.
+
+**If time runs short:** with less than 2 hours to the 12:00 UTC deadline and no finished release, upload the
+current `/root/ghost-mac/` files plus `log.txt` (A31). The older safe set is in `/root/ghost-fallback-s5/`.
 
 ## 2026-10-25 04:31 UTC — package rebuilt after two small fixes; your Mac check is next
 

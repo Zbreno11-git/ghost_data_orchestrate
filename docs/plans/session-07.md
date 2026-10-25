@@ -542,3 +542,9 @@ changes afterwards without a rebuild and a new checksum. The "re-zip after the e
   - While writing it: **ERRORS #10, 2nd occurrence**. `apply_submission` dropped the uncertain candidates (3 target rows lost them from trace, explain and viewer; CSV unaffected). Fixed at the copy with a dataclass-derived test; runs re-made at $0, 7/7 identical.
   - code.zip `0c4dfef1…` accepted; the shipped suite gives 310 passed unpacked; packaged viewer browser-checked (518/518 cases, desktop and phone).
   - Mac file set in `/root/ghost-mac/`. **Mac acceptance PENDING.**
+- **C7.7 preparation ✅ 04:44Z** (`b65eb24`, `0454ce6`; Breno doing his review in parallel).
+  - `stage_traces.py`: empties the stage folder first, takes /export transcripts (sweeps default-named ones out of the public repo root; gitignored), `--require-export`, JSON-escaped .env values redacted. 4 tests, 4 mutations red.
+  - `release_record.py`: writes nothing unless the release code.zip is the accepted archive and output.csv is the final run's. 5 tests, 2 mutations red.
+  - `finalize_release.sh` (amendment 6 steps 3–5) rehearsed end to end in a sandbox: exit 0. The rehearsal caught that an export alone passed the no-session guard, and that the test read the real HOME; both fixed.
+  - Real dry run: 6 redactions, all `sk-` inside longer tokens; no .env value in any trace.
+  - STATUS: Breno's final steps.

@@ -1669,3 +1669,25 @@ branch=main
 repo_root=/root/hackthon_1
 worktree=main
 parent_agent=none
+
+## [2026-10-25T04:45:10Z] C7.7 preparation while Breno reviews: finalize script rehearsed
+
+User Prompt (verbatim, secrets redacted):
+[event time 2026-10-25T04:36:21.538Z, session JSONL 3f2c5c59…:12213, uuid b931b7ea-3591-4218-a794-897e23af4c4a]
+yes, continue while I'll do the review
+
+Agent Response Summary:
+Prepared C7.7 without waiting for the Mac result. stage_traces.py now empties its generated stage folder first, takes /export transcripts (and sweeps default-named ones out of the public repo root, now gitignored), can require an export, and redacts .env values in their JSON-escaped form. release_record.py writes nothing unless the release code.zip is the archive the package check accepted and output.csv is the final run's. Wrote scripts/finalize_release.sh (amendment 6 steps 3-5) and rehearsed it end to end in a sandbox clone with a fake HOME (exit 0, FROZEN, 4 checksums OK). The rehearsal found a real defect, fixed: an export file alone passed the no-session guard; the test that should have caught it read the real HOME. The real trace dry run gives 6 redactions, all "sk-" inside longer tokens, and no .env value in any trace. STATUS now carries Breno's final steps 1-7. Nothing was staged, uploaded or published for real.
+
+Actions:
+* scripts/stage_traces.py, scripts/release_record.py, scripts/finalize_release.sh (new), scripts/tests/test_stage_traces.py (new, 4), scripts/tests/test_release_record.py (new, 5), .gitignore; mutations: 4 + 2 red
+* Sandbox rehearsal (bare local origin, fake HOME, real runs/traces read-only), removed afterwards; commits b65eb24, 0454ce6
+* docs/STATUS.md (final steps), PROGRESS.md, docs/plans/session-07.md
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=main
+repo_root=/root/hackthon_1
+worktree=main
+parent_agent=none
