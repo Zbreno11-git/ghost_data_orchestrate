@@ -157,9 +157,9 @@ no links from timing, naming, labels or one-to-one assumptions).
 - [x] C7.0 state refresh, session-07.md, roadmap rewrite, MASTER_PLAN amendment
 - [x] C7.1 legacy workflow-link comparison (assert vs candidate) + masked-identity cohort backtest (Breno amendment 1) → **Breno decides (A34)**
 - [x] C7.1T temporal interpretation experiment (config-gated, separate from C7.1; Breno amendment 2) → results to Breno before promotion
-- [ ] C7.2 provenance integrity (saved with the run, fingerprint-checked) + offline evidence viewer [old S8]
-- [ ] C7.3 focused review + packaging hardening (explicit validation, exact report paths, truthful isolation, inventory) [old C7.2 part]
-- [ ] C7.4 final integration on the approved config; release candidate; clean-unpack VPS check; viewer in a browser [old C7.1, C7.2]
+- [x] C7.2 provenance integrity (saved with the run, fingerprint-checked) + offline evidence viewer [old S8]
+- [x] C7.3 focused review + packaging hardening (explicit validation, exact report paths, truthful isolation, inventory) [old C7.2 part]
+- [x] C7.4 final integration on the approved config; release candidate; clean-unpack VPS check; viewer in a browser [old C7.1, C7.2]
 - [ ] C7.5 submission documentation: README entry point, REQUIREMENTS_MAP, reports [old C7.2 docs, C7.4]
 - [ ] C7.6 Mac runbook, walkthrough, interview cheat sheet → **Mac acceptance by Breno (PENDING until run on the Mac)** [old C7.5–C7.7]
 - [ ] C7.7 final artifacts, trace closure, RELEASE_RECORD, checksums, upload checklist, **freeze** [old C7.3, C7.4]

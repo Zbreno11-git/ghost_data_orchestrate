@@ -3,9 +3,30 @@
 > **For:** Breno, and anyone who needs the state without reading code. No jargon. **Updated at the end of each
 > session, with the date.** Numbers are re-checked at the source when written, never copied from the previous version.
 
-**Last update: 2026-10-25 02:48 UTC.**
+**Last update: 2026-10-25 04:01 UTC.**
 
 `██████████████░░ 7 of 8 sessions closed; the last one (S7) is under way`
+
+## 2026-10-25 04:01 UTC — new answers file built and checked; three steps left
+
+**What changed:**
+- **Your two calls are applied.** Timing-picked accounts are now asserted only where the method held up in our
+  hide-and-recover test, with the others shown as "uncertain". Snapshots dated before the audit, found inside
+  later exports, are read but never cited.
+- **Score on the 32 examples:** every status right (32/32); fully right 12 → **14**; steps found 162 → **167 of
+  193**; listed steps that are right 167 of 168. No correct step was lost and nothing flipped. The AI reviewer
+  changed no answer this time: it only refined certainty labels.
+- **The 5 test cases:** all fully right.
+- **New answers file and code package are built and pass every release check** on the server. The checks ran
+  offline and without the key, and reproduced the answers file byte for byte. They also confirmed no copy of the
+  challenge data inside the package.
+- **The evidence viewer works** in a browser on desktop and phone width, with no internet.
+- **The previous safe version** (from 01:14) is kept aside, untouched, in case anything goes wrong.
+- **Spending:** $2.27 of your $4.50 (this session $0.39).
+
+**Coming to you, in order:**
+1. The Mac check, with a copy-paste runbook (about 5 minutes).
+2. At the very end: `/export` and quit, run one script, then upload. You'll get a checklist.
 
 ## 2026-10-25 02:48 UTC — final session started (S7, with the viewer folded in)
 

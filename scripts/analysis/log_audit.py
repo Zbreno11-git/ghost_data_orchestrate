@@ -31,7 +31,11 @@ def norm(text: str) -> str:
 
 def human_messages(session: Path) -> list[dict]:
     out = []
-    for n, line in enumerate(session.read_text(encoding="utf-8").splitlines(), 1):
+    # JSONL records end at "\n" only: str.splitlines() also splits at U+2028/U+2029 inside JSON strings (a session
+    # that quoted one broke the audit, S7 2026-10-25).
+    for n, line in enumerate(session.read_text(encoding="utf-8").split("\n"), 1):
+        if not line.strip():
+            continue
         e = json.loads(line)
         text = None
         if e.get("type") == "user" and not e.get("isMeta") and not e.get("isCompactSummary"):

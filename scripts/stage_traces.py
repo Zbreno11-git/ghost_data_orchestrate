@@ -99,7 +99,7 @@ def main(argv=None) -> int:
         red, hits = redact(text, secrets)
         hits_total += hits
         if src.suffix == ".jsonl":
-            for i, line in enumerate(red.splitlines(), 1):
+            for i, line in enumerate(red.split("\n"), 1):     # not splitlines(): U+2028 can sit inside a string
                 if line.strip():
                     try:
                         json.loads(line)

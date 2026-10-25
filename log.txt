@@ -1577,3 +1577,25 @@ branch=main
 repo_root=/root/hackthon_1
 worktree=main
 parent_agent=none
+
+## [2026-10-25T04:01:32Z] C7.4 closed (final runs, release candidate accepted); pre-compact checkpoint
+
+User Prompt (verbatim, secrets redacted):
+[event time 2026-10-25T03:44:11.327Z, session JSONL 3f2c5c59…:10140, uuid 1faf0467-bbc3-4cb8-8509-a58635b7d934; sent inside the running turn. Also answered in this turn, at 2026-10-25T03:43:23.201Z (JSONL :10119): forced_matching "Demote it (Recommended)"; elimination-based only_feasible_row "Keep, labelled (Recommended)" → A34a]
+prepare a compact using the skill after the next checkpoint - the next prompt reflects the following of the actual plan
+
+Agent Response Summary:
+Applied A34a. Closed C7.4: a free replay probe predicted 82 paid cases and the live pass paid exactly those 82 ($0.353; C7.4 total $0.394). The gate vs S6 on the samples: whole-case 12→14, F1 0.9101→0.9252, 0 correct steps lost, 0 flips; agent contribution 0 rows. All 60 changed target rows are attributed to A34/A34a or A36. Found and fixed ERRORS #10: the agent's recompiled plan dropped the A34 heuristic label on case_63; the final runs were re-made at $0 with byte-identical CSVs. The release candidate (code.zip 47df5065…) was accepted by the hardened clean-unpack check, after a credential false positive inside base64 thought signatures was fixed. Root output.csv published (0e04ffe2…); the S5 fallback is kept in /root/ghost-fallback-s5/. Then the pre-compact procedure: resume block, STATUS, PRIMER, commit and push.
+
+Actions:
+* Runs: runs/s7/probe-replay-targets, runs/s7/final*, runs/s7/final-r2* ($0), runs/s7/c71/noforced-*; gate, diagnose, make_reports, explain ×7, package_code (accepted), viewer browser check on the packaged viewer
+* Code: runner.label_nearest_anchor, release/checks.py token-boundary credential rule, make_reports S7 sections, package_code --report, scripts/release_record.py (untested), README rewrite
+* Docs: final_gate.md, target_changes.md, ERRORS #10, REQUIREMENTS_MAP contract table, MAC_RUNBOOK, INTERVIEW_CHEAT_SHEET, PROGRESS resume block, STATUS, PRIMER; commits b717695, d578d09 and this checkpoint
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=main
+repo_root=/root/hackthon_1
+worktree=main
+parent_agent=none

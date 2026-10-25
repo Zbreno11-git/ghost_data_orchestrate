@@ -517,3 +517,20 @@ changes afterwards without a rebuild and a new checksum. The "re-zip after the e
   2. `verify_run` binds output.csv as well; CSV and decisions consistency is checked; legacy and damaged are told apart. 6 new tests; 2 mutations red. `297 passed`.
   3. PROGRESS resume block refreshed.
 - **A34a ✅ 03:43:23Z (Breno).** forced_matching demoted; elimination-based only_feasible_row kept, labelled. Combined deterministic run (`runs/s7/det`, re-run): samples 32/32, whole-case 14/32, P 167/168, R 167/193, F1 0.9252, 0 violations; targets 0 violations. It equals the measured no-forced run.
+- **C7.4 ✅ 04:00Z. Final integration on the approved configuration (A33 strict, A34+A34a, A36; agent scope non_resolved).**
+  - **Paid pass.** A free replay probe found 82 changed agent briefs. The live pass paid **exactly those 82** ($0.353; estimate $0.29). C7.4 total $0.394, under the $0.50 hard stop: targets $0.353, samples $0.041, custom $0.
+  - **ERRORS #10.** The agent's recompiled plan dropped the A34 HEURISTIC label on case_63.
+    - Fixed with `label_nearest_anchor`, applied before and after the review; test with close negatives.
+    - Final runs re-made as `runs/s7/final-r2*`: all 1749 + 100 calls cache hits, $0, CSVs byte-identical, 4 heuristic target rows.
+  - **Gate vs S6** (`docs/diagnostics/s7/final_gate.md`):
+    - samples: status 32/32, whole-case 12→14, P 167/168, R 167/193, F1 0.9101→0.9252, cited recall 61→62/75, sequence 12→14; correct steps +5 / −0; incorrect +0 / −0; 0 flips; causes 32→27;
+    - custom 5/5;
+    - targets: 60 rows changed, each attributed (`target_changes.md`): A36 58 + 1, A34/A34a 3; 0 status flips.
+  - **Agent contribution:** 0 rows on samples and targets, support moves only. The deterministic gains are separate.
+  - **Release candidate:**
+    - `package_code.py --run runs/s7/final-r2`: fresh venv, `unshare -rn`, provider-client construction blocked, output and viewer byte-identical, `0 violations … against 518`, inventory clean (1927 entries, 2,578,083 bytes);
+    - the credential scan first flagged `sk-` inside Gemini thought_signature base64 (a false positive). Keys must now start a token; test plus mutation.
+  - **Published (local, A31):** root `output.csv` `0e04ffe2…` (= `runs/s7/final-r2`), `code.zip` `47df5065…`.
+  - **Fallback:** the S5 package is preserved in `/root/ghost-fallback-s5/` (`ee9504d5…`, `f58aaefe…`).
+  - **Browser check of the viewer extracted from code.zip:** chromium 156, 1280/390 px, no network, hostile text inert.
+  - Reports, diagnostics and explanations (now 7 classes, including A34 and A36 examples) are regenerated from `final-r2`. `303 passed`.
