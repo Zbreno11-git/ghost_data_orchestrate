@@ -4,7 +4,8 @@
   python code/main.py ingest [--report] [--dataset DIR]
   python code/main.py status
   python code/main.py run --engine deterministic --split samples|targets [--ownership strict|scored] [--out DIR]
-  python code/main.py explain <case_id> --run DIR [--dataset DIR] [--md FILE]   (no model call)
+  python code/main.py explain <case_id> --run DIR [--md FILE]   (no model call)
+  python code/main.py viewer --run DIR --out FILE.html         (offline evidence viewer, no model call)
 """
 from __future__ import annotations
 
@@ -91,6 +92,13 @@ def cmd_run(args) -> int:
     return 0
 
 
+def cmd_viewer(args) -> int:
+    from viewer.build import build
+    meta = build(Path(args.run), Path(args.out))
+    print(f"wrote {args.out} ({meta['bytes']} bytes, sha256 {meta['html_sha256'][:16]}…); execution metadata in {args.out}.meta.json")
+    return 0
+
+
 def cmd_explain(args) -> int:
     from ghostaudit.explain import explain
     text = explain(Path(args.run), args.case_id, Path(args.dataset))
@@ -139,6 +147,10 @@ def main(argv=None) -> int:
     p.add_argument("--dataset", default=str(REPO_ROOT / "dataset"))
     p.add_argument("--md", help="write the explanation to this Markdown file")
     p.set_defaults(fn=cmd_explain)
+    p = sub.add_parser("viewer", help="build the offline evidence viewer (one HTML file) from a run; no model call")
+    p.add_argument("--run", required=True)
+    p.add_argument("--out", required=True)
+    p.set_defaults(fn=cmd_viewer)
     p = sub.add_parser("status")
     p.set_defaults(fn=cmd_status)
     args = ap.parse_args(argv)

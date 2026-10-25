@@ -495,3 +495,20 @@ changes afterwards without a rebuild and a new checksum. The "re-zip after the e
 - **Decision ✅ 03:18:25Z (Breno): A34 + A36** (both recommendations). Defaults set.
   - Combined deterministic run `runs/s7/det`: samples status 32/32, whole 14/32, P 167/168, R 167/193, F1 0.9252, 0 violations; custom 5/5; targets 0 violations, 59 rows changed (case_376 among them), 0 flips.
   - HEURISTIC PREDICTION (A34) label on case_63, plus samples case_01 and case_04.
+- **C7.2 ✅ 03:30Z.**
+  - **Provenance with the run:**
+    - `provenance.jsonl` (header with the run fingerprint, plus every referenced observation);
+    - `summary.json` gains fingerprints (code, dataset, extraction = the vision extracts, config, run) and artifact sha256s;
+    - `verify_run` checks the hashes and the run association;
+    - explain no longer re-ingests the dataset (it imports neither `ghostaudit.ingest` nor llm nor google; tested).
+    - Deviation from the plan, made safer: there is no "re-ingest when fingerprints match" path at all, because legacy runs carry no fingerprints. They get a warning instead.
+  - **Tests:** `test_provenance.py` (5: modified file, foreign run, legacy run, no ingest import; mutations of the hash and association checks red).
+  - **Viewer** (`code/viewer/build.py`, `main.py viewer`): one HTML file, CSP `default-src 'none'`, no URL / fetch / innerHTML.
+    - It is built on `case_view`, shared with explain, with a basis per step and status and support kept separate.
+    - Heuristic banner; "Predicted complete, not proven" for an unresolved COMPLETE.
+    - Canonical HTML vs a `.meta.json` sidecar for execution metadata.
+    - `test_viewer.py` (6; mutations of the `<` escape and a run-dir leak red).
+  - **Browser:** chromium 156.0.8078.4 (Playwright 1.64.1, headless), via `scripts/viewer_browser_check.py` on `runs/s7/det/targets` (4.2 MB).
+    - Desktop 1280 and phone 390: no horizontal scroll, 0 console errors, 0 network requests.
+    - Search, filters, the empty result and the five case kinds rendered; a hostile excerpt was inert.
+    - Screenshots were checked by eye.

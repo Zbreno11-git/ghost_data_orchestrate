@@ -18,3 +18,7 @@ agent-trace/
 state/*.lock
 # the submitted answers file: local only until Breno uploads (public repo, A31)
 /output.csv
+
+# S7: the built evidence viewer is generated (package_code.py / main.py viewer), never committed
+code/viewer/*.html
+code/viewer/*.meta.json
