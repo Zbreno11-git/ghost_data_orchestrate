@@ -130,6 +130,7 @@ def run(dataset: Path, split: str, out_dir: Path, mode: str = "strict", engine: 
     dataset = Path(dataset)
     tables = load_tables(dataset)
     store, coverage = ingest_all(dataset, allow_paid=False)
+    store.time_policy = (cfg.get("time") or {}).get("historical_snapshots", "manifest")
     failed = [c.file_id for c in coverage.files if c.status == "failed"]
     identity = IdentityIndex(tables["identities"], tables["audit"])
     owners = OwnerIndex(identity)                               # queried as of each case's audit_at
@@ -248,6 +249,7 @@ def run(dataset: Path, split: str, out_dir: Path, mode: str = "strict", engine: 
         "split": split, "ownership": mode, "engine": engine, "model": model, "gateway_mode": gateway_mode,
         "agent_scope": cfg["agent"].get("scope", "all"),
         "asserted_mechanisms": sorted(asserted) if asserted is not None else "all",
+        "time_policy": store.time_policy,
         "rows": len(plans), "agent": dict(agent_stats), "tool_use": dict(tool_use),
         "status": dict(Counter(p.status for p in plans)),
         "support": dict(Counter(p.support for p in plans)),

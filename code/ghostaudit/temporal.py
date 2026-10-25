@@ -12,6 +12,15 @@ Two clocks per observation (both kept, with their provenance in ingest):
   - activity/audit row: the event time;
   - screen panels and PDF free text: none (a screen shows the state at its capture).
 
+Time policy (S7 C7.1T, `[time] historical_snapshots`, set once on the store so identity, ownership, state, tools
+and citations all read the same semantics):
+- `manifest` (the A26 baseline): as below;
+- `snapshot_capture`: additionally, an observation from a snapshot envelope with its own explicit capture time
+  (`snapshot_dated`, ≤ its export's capture) is readable when that capture time is ≤ audit_at, even inside an
+  export captured later. Nothing else is: a later record's or line's claimed time, a lookup's `recorded_at`, or a
+  screen never qualifies. It is readable, never citable: `citable()` keeps AGENTS §6.6 (an evidence item captured
+  after audit_at is never cited).
+
 Admissible (S5 C5.3b) means `captured_at <= audit_at` (AGENTS §6.6: never an item captured after audit_at, even
 if it holds older timestamps) **and** `event_time <= audit_at` (an observation of something after the cutoff
 is rejected even inside an admissible artifact). Inclusive at both ends. An observation timed after its own
@@ -39,9 +48,21 @@ class CaseView:
     def __init__(self, store: EvidenceStore, audit_at: datetime):
         self._store = store
         self.audit_at = audit_at
+        self.policy = getattr(store, "time_policy", "manifest")
+        if self.policy not in ("manifest", "snapshot_capture"):
+            raise ValueError(f"unknown time policy {self.policy!r}")
 
     def admissible(self, obs: Observation) -> bool:
-        return obs.captured_at <= self.audit_at and event_time(obs) <= self.audit_at
+        if event_time(obs) > self.audit_at:
+            return False
+        return obs.captured_at <= self.audit_at or (self.policy == "snapshot_capture" and obs.snapshot_dated)
+
+    def citable(self, obs_id: str) -> bool:
+        """The evidence item behind an admissible observation may be cited: its artifact was captured by audit_at."""
+        for o in self._store.by_source.get(obs_id.split("#", 1)[0], ()):
+            if o.obs_id == obs_id:
+                return o.captured_at <= self.audit_at
+        return False
 
     @property
     def observations(self) -> list[Observation]:

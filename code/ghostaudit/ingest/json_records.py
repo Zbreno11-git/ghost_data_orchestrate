@@ -60,6 +60,12 @@ def _lookup(add, loc, r, recorded_by, subject_key):
         wrapper={**subject, "recorded_by": recorded_by})
 
 
+def _snapshot_dated(t, entry: ManifestEntry) -> bool:
+    """An envelope's explicit capture time that is consistent with its export (≤ the file's capture). A snapshot
+    dated after its own export is contradictory and is never read early (S7 C7.1T)."""
+    return t is not None and t <= entry.captured_at
+
+
 def ingest_json(entry: ManifestEntry, store: EvidenceStore, cov: FileCoverage, systems: dict[str, str]) -> None:
     doc = json.loads(entry.path.read_text(encoding="utf-8"))
     shape = shape_of(doc)
@@ -72,15 +78,16 @@ def ingest_json(entry: ManifestEntry, store: EvidenceStore, cov: FileCoverage, s
     if shape == "snapshot_bundle":
         for si, snap in enumerate(doc["snapshots"]):
             ds, coll, t = snap["data_store"], snap["collection"], _ts(snap["captured_at"])
+            sd = _snapshot_dated(t, entry)
             add(f"snap{si}", kind="scope", observed_at=t, system_id=ds, resource_id=None, container=coll,
-                fields={"collection": coll, "record_count": len(snap["records"])})
+                fields={"collection": coll, "record_count": len(snap["records"])}, snapshot_dated=sd)
             for ri, r in enumerate(snap["records"]):
                 loc = f"snap{si}:{ri}:{r.get('resource_id')}"
                 if LOOKUP_KEYS <= set(r) and ("lookup_value" in r or "subject_reference" in r):
                     _lookup(add, loc, r, ds, "lookup_value" if "lookup_value" in r else "subject_reference")
                 else:
                     add(loc, kind="record", observed_at=t, system_id=ds, resource_id=r.get("resource_id"),
-                        container=coll, fields=flatten(r))
+                        container=coll, fields=flatten(r), snapshot_dated=sd)
     elif shape == "service_export":
         t_file = _ts(doc.get("exported_at"))
         for sysid, colls in doc["service_exports"].items():
@@ -121,11 +128,13 @@ def ingest_json(entry: ManifestEntry, store: EvidenceStore, cov: FileCoverage, s
         if sysid is None:
             cov.notes.append(f"collection {coll!r} has no data_store in any bundle; system_id left empty")
         t = _ts(doc.get("captured_at"))
+        sd = _snapshot_dated(t, entry)
         add("scope", kind="scope", observed_at=t, system_id=sysid, resource_id=None, container=coll,
-            fields={"collection": coll, "record_count": len(doc["records"]), "source": doc.get("source")})
+            fields={"collection": coll, "record_count": len(doc["records"]), "source": doc.get("source")},
+            snapshot_dated=sd)
         for ri, r in enumerate(doc["records"]):
             add(f"rec{ri}:{r.get('resource_id')}", kind="record", observed_at=t, system_id=sysid,
-                resource_id=r.get("resource_id"), container=coll, fields=flatten(r))
+                resource_id=r.get("resource_id"), container=coll, fields=flatten(r), snapshot_dated=sd)
     cov.observations = add.n
     cov.status = "partial" if cov.notes else "processed"
     cov.notes.insert(0, f"shape={shape}")

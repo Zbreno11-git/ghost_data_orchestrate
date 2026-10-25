@@ -52,6 +52,10 @@ class Observation:
     fields: dict = field(default_factory=dict)
     wrapper: dict = field(default_factory=dict)
     locator: str = ""
+    # S7 C7.1T: observed_at is a snapshot envelope's own explicit `captured_at` (a historical capture carried
+    # inside an export), as opposed to a record's or line's claimed time. Only these can be read under the
+    # `snapshot_capture` time policy; never serialized into tool output.
+    snapshot_dated: bool = False
 
     def __post_init__(self):
         if self.kind not in KINDS:
@@ -115,6 +119,7 @@ class EvidenceStore:
         self.by_identifier: dict[tuple[str, str], list[tuple[Observation, str, str]]] = defaultdict(list)
         self.by_source: dict[str, list[Observation]] = defaultdict(list)
         self.by_trace: dict[tuple[str, str], Observation] = {}
+        self.time_policy = "manifest"     # [time] historical_snapshots, set by the runner (S7 C7.1T)
 
     def __len__(self):
         return len(self.observations)

@@ -336,6 +336,13 @@ def assess(resource_id: str, system_id: str | None, view: CaseView, rules: dict[
     copies = tuple(copy_states(resource_id, system_id, treat, view, subject))
     ops = TREATMENT_OPS[treat]
     bad = [c for c in copies if c.state in VIOLATION[treat]]
+    # Only an evidence item captured by audit_at is cited (AGENTS §6.6). Under the manifest policy every admissible
+    # copy is citable, so this changes nothing; under snapshot_capture a state known only from a later export
+    # cannot be cited, and is left unknown rather than cited from a forbidden file (S7 C7.1T).
+    if bad and not [c for c in bad if view.citable(c.obs_id)]:
+        return Assessment(resource_id, system_id, cat, treat, "unknown", copies, None, ops,
+                          "the violating state is known only from an export captured after audit_at (not citable)")
+    bad = [c for c in bad if view.citable(c.obs_id)]
     if bad:
         proof = max(bad, key=lambda c: (c.at, c.obs_id))
         return Assessment(resource_id, system_id, cat, treat, "violation", copies, proof, ops,
@@ -348,7 +355,11 @@ def assess(resource_id: str, system_id: str | None, view: CaseView, rules: dict[
         return Assessment(resource_id, system_id, cat, treat, "unknown", copies, None, ops,
                           "no admissible evidence of its state" if not copies else
                           f"{len(unknown)} copies in an undetermined state")
-    proof = max(copies, key=_proof_rank)
+    citable = [c for c in copies if view.citable(c.obs_id)]
+    if not citable:
+        return Assessment(resource_id, system_id, cat, treat, "unknown", copies, None, ops,
+                          "compliant only by an export captured after audit_at (not citable)")
+    proof = max(citable, key=_proof_rank)
     return Assessment(resource_id, system_id, cat, treat, "compliant", copies, proof, ops,
                       f"{len(copies)} copies compliant")
 
