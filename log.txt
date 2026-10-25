@@ -1398,3 +1398,97 @@ branch=main
 repo_root=/root/hackthon_1
 worktree=main
 parent_agent=none
+
+## [2026-10-25T02:50:06Z] S7 amendments from Breno: masked backtest, temporal experiment, packaging and finalization fixes
+
+User Prompt (verbatim, secrets redacted):
+[event time 2026-10-25T02:48:05.049Z, session JSONL 3f2c5c59…:8931, sent inside the running turn; the paste arrived truncated after "temporarily hide those". The agent asked for the rest; Breno answered with the full text at 2026-10-25T02:49:07.965Z, JSONL :8954, uuid 6dd2456e-bb37-4ed9-b9ed-b770d8cbbb70. Full text:]
+The merged S7 plan looks good. Before proceeding, please incorporate these amendments into the existing checkpoints. Keep the session focused: two bounded accuracy investigations, followed by the viewer, acceptance and release work already planned.
+
+**1. Strengthen C7.1 with a masked-identity backtest.**
+
+The four affected public samples are too few to decide whether the existing workflow-account assignments are reliable.
+
+Using cases whose account ownership is established by explicit admissible evidence, temporarily hide those links and measure whether our existing assignment mechanisms recover them. Hide concurrent request cohorts together, not one person at a time; otherwise elimination may make the test artificially easy.
+
+Remove equivalent ownership clues from derived indexes and cached associations as well. Respect each case’s cutoff and add a control demonstrating that the hidden link cannot still be retrieved. Keep the known identity mapping accessible only to the evaluator.
+
+Report correct assignments, incorrect assignments and abstentions by mechanism, candidate count and cohort size. Explain selection bias: originally identifiable accounts may differ from genuinely anonymous accounts, so this is supporting evidence, not hidden-target accuracy.
+
+Start with the mechanisms we already have. This does not authorize new cadence, status-based or arbitrary guessing rules.
+
+**2. Add a separate, bounded temporal interpretation experiment before choosing the final configuration.**
+
+We may be treating artifact export time and historical snapshot creation time too uniformly.
+
+Re-read the official time contract and inspect the supplied formats. Compare the existing cutoff policy with a carefully scoped interpretation for explicitly dated historical snapshots contained in later exports.
+
+Distinguish:
+- a historical snapshot explicitly captured before the audit;
+- a later assertion describing an earlier event;
+- an observation without a reliable internal timestamp.
+
+Do not globally bypass the manifest cutoff or treat any old timestamp as proof that information existed before the audit. Document the interpretation and its assumptions before measuring sample gains. If the contract remains ambiguous, state that clearly.
+
+Implement the experiment behind configuration, preserving both timestamps and the original baseline. Add positive and negative synthetic cases, including a genuine post-audit observation, a retrospective claim and conflicting timestamps. Apply the chosen semantics consistently to identity, state reconstruction, agent tools and citation validation.
+
+Run deterministic comparisons first: all samples, custom cases and target changes. Trace recovered steps and status flips to the original evidence. Present the results before promoting the variant. Keep this experiment separate from the workflow-link experiment so we can attribute each change.
+
+Timebox both investigations and continue independent viewer/documentation work. Do not restart S6.
+
+**3. Replace C7.1’s automatic recommendation rule.**
+
+Do not recommend keeping weak links simply because removing them loses more correct sample steps than it removes incorrect ones.
+
+Base the recommendation on evidence quality, the masked-link backtest, full sample metrics, target changes and structural validity. Explain the trade-offs without inventing an aggregate score or assuming the hidden grader’s weights.
+
+A valid CSV does not establish truthful ownership, and a small sample advantage does not convert a heuristic into evidence. Keep A29 separate and show any interaction explicitly. Present the concrete alternatives to me before selecting the release configuration.
+
+**4. Fix the dataset-hash packaging rule in C7.3.**
+
+The proposed blanket rejection of any file matching a supplied dataset hash would reject our own custom fixtures: `custom_cases/tombstone_pair/dataset/deletion_rules.csv` is identical to the official policy file.
+
+Continue excluding the supplied challenge dataset. Handle legitimate custom-test dependencies through an explicit, documented fixture allowlist, or generate the minimal fixture inputs during testing. Do not add a broad exception that permits bundling the challenge dataset.
+
+Describe provenance accurately: the scenarios were independently authored, but reused policy content was not independently invented. Add tests proving both that the legitimate fixture works and that an unauthorized dataset copy is rejected.
+
+**5. Tighten viewer wording and reproducibility.**
+
+Do not label every finding “observed.” Some findings are heuristic. Show the basis per item—direct observation, inference or heuristic—while keeping status and support separate.
+
+Use stable identifiers for the displayed result. Separate variable execution metadata, such as local paths, run-directory names and wall-clock generation times, from the canonical content used for replay comparison. Document exactly what must match byte-for-byte.
+
+Validate the integrity and run association of saved provenance as well as its existence. A modified provenance file must not silently produce an apparently verified explanation. Keep the shared CLI/viewer representation.
+
+When embedding JSON in HTML, use actual script-safe escaping, including escaping `<` as `\u003c`; verify that a hostile `</script>` excerpt round-trips as inert text.
+
+**6. Correct the finalization order in C7.7.**
+
+The current sequence risks computing checksums and then changing `agent-trace.zip` by adding the export and re-zipping it.
+
+Use this order:
+1. Finish implementation, documentation and Mac acceptance; resolve failures.
+2. Record the closing turn, export the relevant conversations and close the sessions.
+3. Copy the complete traces, review/redact staged copies and create the final archives.
+4. Verify the final artifact set.
+5. Write checksums and the external release record, then freeze.
+6. Transfer and submit those exact files.
+
+Prepare the finalization script beforehand. Nothing included in a checksummed archive may change afterward without rebuilding and updating its checksum. Keep the checksum manifest outside the archives it hashes.
+
+Update the plan and acceptance criteria with these amendments, summarize the changes, and proceed with the authorized work. Preserve the safety package and budget controls. Pause for my final configuration decision and actual Mac acceptance, while continuing work that does not depend on those answers..
+
+Agent Response Summary:
+C7.0 closed and pushed (439baea). The mid-turn paste was truncated in the session log itself, so the agent asked for the remainder rather than guess. The six amendments are appended to docs/plans/session-07.md as a dated section superseding the named clauses: masked-identity cohort backtest in C7.1; a separate, config-gated temporal interpretation experiment C7.1T; the automatic recommendation rule withdrawn; the dataset-hash rule replaced by a documented fixture allowlist; viewer basis-per-item, canonical vs execution metadata, and provenance integrity hashes; finalization order corrected so nothing changes after checksums.
+
+Actions:
+* Committed and pushed C7.0 (439baea): session-07.md, SESSIONS, PRIMER, PRIMER_HISTORY, PROGRESS, STATUS, MASTER_PLAN amendment, DECISIONS A35
+* AskUserQuestion for the truncated text; appended the amendments section to docs/plans/session-07.md; appended this entry
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=main
+repo_root=/root/hackthon_1
+worktree=main
+parent_agent=none

@@ -375,3 +375,111 @@ sha256sum -c docs/release/SHA256SUMS; git status --short; CI by head_sha
 
 - **C7.0** opened 02:45Z: log entry 02:45:47Z appended; this file written from the approved plan.
 - **C7.0 ✅ 02:47Z.** SESSIONS (S7 rewritten, S8 marked merged; the historical timeline lines still name S8 as they were planned), PRIMER (current S7, previous S6; S5 narrative → PRIMER_HISTORY), PROGRESS, STATUS, MASTER_PLAN amendment appended (no earlier text edited), DECISIONS A35 (A14 marked superseded).
+
+## Amendments (Breno, 2026-10-25 02:48Z, completed in his answer at 02:49:07Z; they supersede the clauses named)
+
+Session focus: two **bounded** accuracy investigations (C7.1 and C7.1T), then the viewer, acceptance and release
+work already planned. Timeboxes: C7.1 until 04:15Z, C7.1T until 05:15Z. When a timebox ends, the findings stand as
+measured and the work moves on. S6 is not restarted.
+
+### A1 → C7.1: masked-identity backtest (added)
+- **Population.** Cases (samples and targets) whose account comes from **explicit** admissible evidence
+  (`explicit_account`).
+- **Masking.**
+  - Hide those links **by concurrent request cohort**, not one person at a time: every request whose workflow
+    window overlaps the cohort's is masked together, so elimination cannot become artificially easy.
+  - Equivalent clues are removed from the derived indexes and cached associations as well: the owner index
+    entries, the A30 fan-out, and checkpoints (none are reused).
+- **Cutoff and control.**
+  - Each case keeps its own cutoff.
+  - **Control:** after masking, a probe shows the hidden account is no longer retrievable by the explicit path,
+    which then yields nothing.
+  - The known mapping is held only in the evaluator script (`scripts/analysis/masked_backtest.py`), never passed
+    to the engine.
+- **Mechanisms.** Only the existing ones: only_feasible_row, forced_matching, only_feasible_request, and the
+  strict→scored nearest-anchor fallback. No new cadence-, status- or guess-based rule.
+- **Report.** Correct / incorrect / abstain, broken down by mechanism, by candidate count, and by cohort size.
+- **Selection-bias note.** Identifiable accounts may differ from genuinely anonymous ones, so this is supporting
+  evidence, not hidden-target accuracy.
+
+### A2 → new C7.1T: temporal interpretation experiment (added, separate from C7.1)
+- **Before measuring:**
+  - re-read the official time contract (AGENTS §6.2/§6.6, problem_statement) and survey the formats;
+  - write down the interpretation and its assumptions, distinguishing three things:
+    - (a) a historical snapshot explicitly captured before the audit, inside a later export;
+    - (b) a later assertion describing an earlier event;
+    - (c) an observation without a reliable internal timestamp;
+  - state any remaining ambiguity.
+- **Behind config.** `[time] historical_snapshots = "manifest" | "snapshot_capture"`, default `manifest` (the
+  A26 baseline).
+  - Both timestamps are preserved.
+  - No global manifest bypass; an old timestamp alone never proves pre-audit existence.
+  - The chosen semantics apply alike to identity, state, agent tools and citation validation, through
+    `CaseView`.
+- **Synthetic cases:** positive and negative, including a genuine post-audit observation, a retrospective claim,
+  and conflicting timestamps.
+- **Measurement:**
+  - deterministic comparisons first: all samples, custom cases, and the target changes;
+  - every recovered step and status flip traced to its evidence;
+  - results presented to Breno **before** the variant is promoted;
+  - attributed separately from C7.1.
+
+### A3 → C7.1 recommendation rule (replaced)
+The automatic rule ("recommend candidate unless … loses more correct sample steps") is **withdrawn**.
+- **The recommendation rests on:**
+  - evidence quality;
+  - the masked backtest;
+  - full sample metrics;
+  - target changes;
+  - structural validity.
+- **What it does not do:**
+  - no aggregate score, and no assumed grader weights;
+  - a valid CSV is not truthful ownership, and a small sample advantage does not turn a heuristic into evidence.
+- **The A29 interaction** is shown explicitly.
+- **Decision:** the concrete alternatives go to Breno, and he selects the release configuration (A34; it covers
+  C7.1T too).
+
+### A4 → C7.3 dataset-hash rule (replaced)
+- **Problem:** a blanket hash rejection would reject our own fixtures. `custom_cases/tombstone_pair/dataset/
+  deletion_rules.csv` is identical to the official policy file.
+- **Rule:**
+  - `dataset/` stays excluded;
+  - a file whose sha256 equals a supplied dataset file is rejected **unless** it is listed in a documented
+    fixture allowlist (`code/evaluation/custom_cases/FIXTURE_ALLOWLIST.md` plus a machine list), with its path
+    and the reason it is there;
+  - no broad exception.
+- **Provenance wording:** the scenarios were independently authored; reused policy content
+  (deletion_rules.csv) was not independently invented.
+- **Tests:**
+  - the allowlisted fixture passes;
+  - an unlisted copy of a dataset file (even the same content under another path) is rejected for that reason.
+
+### A5 → C7.2 viewer wording and reproducibility (tightened)
+- **Basis per item.** Each item shows its basis: direct observation / inference (scope absence, workflow
+  deduction) / heuristic (A29). No blanket "observed" label on findings. Status and support stay separate.
+- **Stable identifiers.** Results are identified by stable ids: the output.csv sha256, the canonical content hash,
+  the run fingerprint.
+- **Canonical vs execution metadata.**
+  - Canonical content (embedded data and HTML) excludes local paths, run-directory names and wall-clock times.
+  - Those go in a separate execution-metadata block, which is excluded from the byte comparison.
+  - The rule for exactly what must match byte for byte is documented.
+- **Provenance integrity.**
+  - `provenance.jsonl` carries a sha256 recorded in `summary.json`, together with the run fingerprint.
+  - explain and the viewer verify the hash and the run association.
+  - A modified provenance file prints a ⚠ "provenance integrity failed", never an apparently verified
+    explanation.
+  - CLI and viewer keep one shared representation.
+- **JSON in HTML.** Escaping is script-safe: `<` `>` `&` U+2028 U+2029 become `\uXXXX`. Tested: a hostile
+  `</script>` excerpt round-trips as inert text.
+
+### A6 → C7.7 finalization order (replaced)
+1. Finish implementation, documentation and Mac acceptance; resolve failures.
+2. Record the closing turn in log.txt; Breno exports the conversations (`/export`) and closes the sessions.
+3. Copy the complete traces, review and redact the staged copies, then create the final archives.
+4. Verify the final artifact set: code.zip, output.csv, log.txt, agent-trace.zip.
+5. Write the checksums (`docs/release/SHA256SUMS`, outside every archive it hashes) and the external release
+   record; then freeze.
+6. Breno transfers and submits exactly those files.
+
+`scripts/finalize_release.sh` is prepared beforehand and runs steps 3–5. Nothing inside a checksummed archive
+changes afterwards without a rebuild and a new checksum. The "re-zip after the export" step is removed.
