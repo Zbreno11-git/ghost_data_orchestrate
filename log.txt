@@ -874,3 +874,24 @@ branch=main
 repo_root=/root/hackthon_1
 worktree=main
 parent_agent=none
+
+## [2026-10-25T00:51:24Z] Owner decisions: agent scope non_resolved; flagged heuristic rows
+
+User Prompt (verbatim, secrets redacted):
+[answer to the agent's two-question form, event time 2026-10-25T00:41:32.078Z, session JSONL 3f2c5c59…:5542, uuid 539d1a65-d092-45ea-a95d-c87abbbe52c2; the harness wraps the selected options as below]
+Your questions have been answered: "Agent scope for the full 518 run? Measured: on 40 cases (10 samples + 30 pilot targets) the evidence-validated agent changed 0 rows and added 0 unsupported steps, at $0.0035/case. Spend so far $0.53 of $4.50."="Non-resolved only (Recommended)", "The 3 rows with no grounded proposal (table in docs/plans/session-05.md, C5.6): case_39 flow shown 'Healthy · Continuous' 26h before audit, enablement only proven later; case_55 backup shown with retention to July, restore permission only proven later; case_61 object known only by its file alias on a storage screen + a catalog claim. How should they be published?"="Heuristic rows, flagged (Recommended)". You can now continue with these answers in mind.
+
+Agent Response Summary:
+Recorded both decisions as A28 (agent reviews only weak and unresolved proposals; resolved ones are published as computed) and A29 (rows with no grounded proposal get flagged heuristic predictions from three generic pre-audit screen rules, kept unresolved and labelled). Implemented A29 with red-first tests and mutations; targets now validate with 0 violations, samples unchanged. Launched the full run, added hash-verified replay artifacts, recorded every used response per run, and wrote the solution README, the report generator, the package builder, the trace stager and the release kit. Spend: $0.53 settled before the full run.
+
+Actions:
+* DECISIONS A28/A29; code/ghostaudit/{policy,runner,artifacts,llm/gateway,ingest/images}.py; scripts/{package_code,make_reports,stage_traces}.py; code/README.md
+* Background runs: runs/s5/full-1 (agent, non_resolved), runs/s5/final-samples and final-custom-*
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=main
+repo_root=/root/hackthon_1
+worktree=main
+parent_agent=none
