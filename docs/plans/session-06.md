@@ -205,3 +205,30 @@
     engine never read: one JSON file was an "unknown JSON shape" (it failed ingestion, recorded in coverage
     but never checked), and the lookup adapter drops `customer_name`. The controls exposed both. `_run` now
     asserts `ingest_failed_files == []`, and the name path goes through a SQL row.
+- **C6.6 ✅ 01:57Z. Ownership mode by metrics** (criterion written before measuring: no correct step removed, no
+  unexplained flip, then the highest step F1, whole-case as the tiebreak).
+  - Runs `runs/s6/c66strict-*` and `runs/s6/scored-*` on the S6 code. Report
+    `docs/diagnostics/s6/c66_strict_vs_scored.md`, from the new `code/evaluation/gate.py`.
+
+    | | Strict | Scored |
+    |---|---|---|
+    | samples whole-case | 12/32 | 14/32 |
+    | samples step P | 162/163 | 167/181 |
+    | samples step R | 162/193 | 167/193 |
+    | samples step F1 | **0.9101** | 0.8930 |
+    | cited recall | 61/75 | 62/75 |
+    | custom | 3/3 | 3/3 |
+    | targets support | 172 / 20 / 326 | 101 / 400 / 17 |
+    | targets violations | 0 | 0 |
+
+  - **What scored adds on the samples:** 5 correct account steps and 13 wrong (7 cite evidence of another
+    person's account, 6 unsupported); 0 correct removed; 0 status flips. On the targets it rewrites 331 rows.
+  - **→ A33: strict stays**, by the criterion, and because scored creates timing-only accounts (owner rule).
+    A32 (status compatibility) is recorded as rejected.
+  - The strict targets output is byte-identical to base (`cmp`).
+  - **Evaluator additions:**
+    - `compare.py` now counts **incorrect steps removed** (test_compare.py; red before the change and under the
+      mutation; its first fixture wrote JSON-escaped CSV and parsed as nothing, caught by the expected counts);
+    - `gate.py` assembles Breno's gate list per set (P/R/F1, whole, status, citation, sequence; correct
+      gained/lost; incorrect added (supported vs unsupported) and removed; flips; support moves; causes
+      before/after; row contribution between two runs).

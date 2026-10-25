@@ -75,6 +75,7 @@ def compare(base: Path, cand: Path, gold_path: Path, dataset: Path) -> tuple[lis
         bk = {match_key(s): s for s in pb[1] or []}
         ck = {match_key(s): s for s in pc[1] or []}
         removed = [k for k in bk if k in gk and k not in ck]
+        wrong_removed = [k for k in bk if k not in gk and k not in ck]
         added = [k for k in ck if k not in bk]
         add_gold = [k for k in added if k in gk]
         add_supported = [k for k in added if k not in gk and ev.supported(ck[k], pc[1])]
@@ -84,6 +85,7 @@ def compare(base: Path, cand: Path, gold_path: Path, dataset: Path) -> tuple[lis
                "status": f"{pb[0]}→{pc[0]}", "flip": pb[0] != pc[0],
                "flip_to_complete": pb[0] == "INCOMPLETE" and pc[0] == "COMPLETE",
                "correct_kept": sum(1 for k in ck if k in gk and k in bk), "correct_removed": len(removed),
+               "incorrect_removed": len(wrong_removed),
                "added_in_gold": len(add_gold), "added_supported_not_in_gold": len(add_supported),
                "added_unsupported": len(add_unsupported), "matched_cand": sum(1 for k in ck if k in gk),
                "citation_ok_cand": cite_ok, "support": f"{sb.get(cid, '-')}→{sc.get(cid, '-')}",
@@ -91,7 +93,7 @@ def compare(base: Path, cand: Path, gold_path: Path, dataset: Path) -> tuple[lis
                "removed": [k[2] + ":" + k[3] for k in removed],
                "added": [k[2] + ":" + k[3] for k in added]}
         rows.append(row)
-        for k in ("correct_kept", "correct_removed", "added_in_gold", "added_supported_not_in_gold",
+        for k in ("correct_kept", "correct_removed", "incorrect_removed", "added_in_gold", "added_supported_not_in_gold",
                   "added_unsupported", "matched_cand", "citation_ok_cand"):
             tot[k] += row[k]
         tot["whole_base"] += row["whole_base"]
@@ -119,7 +121,7 @@ def to_markdown(rows: list[dict], s: dict, base: Path, cand: Path) -> str:
            f"| matched steps (cand) | | {s['matched_cand']}/{s['gold_steps']} |",
            f"| citation correct on matched (cand) | | {s['citation_ok_cand']}/{s['matched_cand']} |", "",
            f"Whole-case gained {s['whole_gained']}, lost {s['whole_lost']}. Correct steps kept {s['correct_kept']}, "
-           f"**removed {s['correct_removed']}**. Added: in the answer {s['added_in_gold']}, not in the answer but "
+           f"**removed {s['correct_removed']}**; incorrect steps removed {s['incorrect_removed']}. Added: in the answer {s['added_in_gold']}, not in the answer but "
            f"supported by cited evidence {s['added_supported_not_in_gold']}, **unsupported {s['added_unsupported']}**. "
            f"Status flips {s['flips']} (INCOMPLETE→COMPLETE **{s['flips_to_complete']}**). "
            f"Agent cost ${s['cost_usd']:.6f}"
