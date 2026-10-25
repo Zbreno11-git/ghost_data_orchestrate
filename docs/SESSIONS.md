@@ -155,8 +155,8 @@ no links from timing, naming, labels or one-to-one assumptions).
 > in `docs/plans/session-07.md` (C7.0) and in the MASTER_PLAN amendment; the old S7 list (C7.1–C7.7 of
 > 2026-10-25) is superseded by:
 - [x] C7.0 state refresh, session-07.md, roadmap rewrite, MASTER_PLAN amendment
-- [ ] C7.1 legacy workflow-link comparison (assert vs candidate) + masked-identity cohort backtest (Breno amendment 1) → **Breno decides (A34)**
-- [ ] C7.1T temporal interpretation experiment (config-gated, separate from C7.1; Breno amendment 2) → results to Breno before promotion
+- [x] C7.1 legacy workflow-link comparison (assert vs candidate) + masked-identity cohort backtest (Breno amendment 1) → **Breno decides (A34)**
+- [x] C7.1T temporal interpretation experiment (config-gated, separate from C7.1; Breno amendment 2) → results to Breno before promotion
 - [ ] C7.2 provenance integrity (saved with the run, fingerprint-checked) + offline evidence viewer [old S8]
 - [ ] C7.3 focused review + packaging hardening (explicit validation, exact report paths, truthful isolation, inventory) [old C7.2 part]
 - [ ] C7.4 final integration on the approved config; release candidate; clean-unpack VPS check; viewer in a browser [old C7.1, C7.2]

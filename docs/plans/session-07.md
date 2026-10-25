@@ -491,3 +491,7 @@ changes afterwards without a rebuild and a new checksum. The "re-zip after the e
   - Comparison A/B/C: `docs/diagnostics/s7/legacy_links.md`. B and C leave case_63 (targets) as an invalid empty COMPLETE; A29 finds nothing.
   - Deviation: the agent pass on the alternatives is deferred to C7.4 on the chosen config. A27 means it cannot re-assert a workflow-only account, so the deterministic comparison decides. $0 spent.
   - Decision to Breno together with C7.1T.
+- **C7.1T (measured) 03:20Z.** Interpretation committed first (8c58d55, 03:09Z). v1 was rejected by its own numbers (F1 0.7308, 4 flips). The v2 rule was written before re-measuring (84f591b). v2: samples +5 correct, 0 lost, 0 wrong, 0 flips, whole 14/32, F1 0.9252; targets 59 rows, 0 flips, 0 violations. 7 tests (real JSON adapter, positive and negative: post-audit snapshot, retrospective claim, contradictory dates, uncitable violation); 4 mutations red.
+- **Decision ✅ 03:18:25Z (Breno): A34 + A36** (both recommendations). Defaults set.
+  - Combined deterministic run `runs/s7/det`: samples status 32/32, whole 14/32, P 167/168, R 167/193, F1 0.9252, 0 violations; custom 5/5; targets 0 violations, 59 rows changed (case_376 among them), 0 flips.
+  - HEURISTIC PREDICTION (A34) label on case_63, plus samples case_01 and case_04.

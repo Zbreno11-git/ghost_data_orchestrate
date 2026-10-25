@@ -42,13 +42,15 @@ cache_dir = "runs/cache/llm"
 # the listed ones are asserted (become the account, get steps, support ≤ weak); the others are recorded as
 # uncertain investigation candidates. Part of the config, so it enters every checkpoint fingerprint.
 [ownership]
-asserted_mechanisms = ["corroborated_run", "only_feasible_row", "only_feasible_request", "forced_matching", "nearest_anchor"]
+# A34 (Breno, 2026-10-25, after the masked backtest): only_feasible_request (1/5 correct) is not asserted;
+# nearest_anchor (48/168) only fills a row that would otherwise be empty, flagged as a HEURISTIC PREDICTION.
+asserted_mechanisms = ["corroborated_run", "only_feasible_row", "forced_matching", "nearest_anchor"]
 
 # Time (S7 C7.1T). "manifest" = the A26 baseline (an artifact captured after audit_at is never read).
 # "snapshot_capture" = also read a snapshot envelope's records when its own explicit captured_at ≤ audit_at, even
-# inside a later export; such records are never cited (temporal.CaseView). Experiment; Breno decides.
+# inside a later export; such records are never cited (temporal.CaseView). A36 (Breno, 2026-10-25): adopted (v2).
 [time]
-historical_snapshots = "manifest"
+historical_snapshots = "snapshot_capture"
 
 # Investigator agent (C4.3). The model reviews the deterministic proposal; the engine recompiles its decisions.
 [agent]

@@ -198,7 +198,13 @@ def run(dataset: Path, split: str, out_dir: Path, mode: str = "strict", engine: 
             assessments = {r: assess(r, l.system_id, view, rules, subject) for r, l in own.links.items()}
             plan = plan_case(cid, audit_at, intent, subject, own, assessments, times)
             plan.reasons.insert(0, "strict ownership attributed nothing; scored candidates used")
-            if plan.support == "resolved":
+            if plan.steps and own.account is not None and own.account.note.startswith("nearest anchor"):
+                # A34 (Breno): the nearest-anchor pick (48/168 correct in the masked backtest) is published only
+                # for a row that would otherwise be empty, and as a flagged heuristic prediction, never as evidence.
+                plan.reasons.insert(0, f"HEURISTIC PREDICTION (A34), not an attributed account: "
+                                       f"{own.account.resource_id} is the {own.account.note}")
+                plan.support = "unresolved"
+            elif plan.support == "resolved":
                 plan.support = "weak"
         elif (mode == "strict" and plan.status != "NOT_APPLICABLE" and not plan.steps and isinstance(subject, Subject)
                 and cid in workflow.ranked and workflow.ranked[cid][0].record_type != "CLASSIFY_REQUEST"):
