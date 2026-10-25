@@ -1,0 +1,32 @@
+[
+ {
+  "path": "code/evaluation/custom_cases/clean_primary_dirty_replica/dataset/deletion_rules.csv",
+  "sha256": "e12d47ca4cbecc4a3c924b52705d9c5b1ebcfa71d6a28f58d988571eeccb32f7",
+  "equals": "dataset/deletion_rules.csv",
+  "reason": "the custom case applies the official deletion policy unchanged; the scenario is independently authored, the policy content is reused, not invented"
+ },
+ {
+  "path": "code/evaluation/custom_cases/historical_email_replica/dataset/deletion_rules.csv",
+  "sha256": "e12d47ca4cbecc4a3c924b52705d9c5b1ebcfa71d6a28f58d988571eeccb32f7",
+  "equals": "dataset/deletion_rules.csv",
+  "reason": "the custom case applies the official deletion policy unchanged; the scenario is independently authored, the policy content is reused, not invented"
+ },
+ {
+  "path": "code/evaluation/custom_cases/post_cutoff_evidence_ignored/dataset/deletion_rules.csv",
+  "sha256": "e12d47ca4cbecc4a3c924b52705d9c5b1ebcfa71d6a28f58d988571eeccb32f7",
+  "equals": "dataset/deletion_rules.csv",
+  "reason": "the custom case applies the official deletion policy unchanged; the scenario is independently authored, the policy content is reused, not invented"
+ },
+ {
+  "path": "code/evaluation/custom_cases/success_claim_contradicted/dataset/deletion_rules.csv",
+  "sha256": "e12d47ca4cbecc4a3c924b52705d9c5b1ebcfa71d6a28f58d988571eeccb32f7",
+  "equals": "dataset/deletion_rules.csv",
+  "reason": "the custom case applies the official deletion policy unchanged; the scenario is independently authored, the policy content is reused, not invented"
+ },
+ {
+  "path": "code/evaluation/custom_cases/tombstone_pair/dataset/deletion_rules.csv",
+  "sha256": "e12d47ca4cbecc4a3c924b52705d9c5b1ebcfa71d6a28f58d988571eeccb32f7",
+  "equals": "dataset/deletion_rules.csv",
+  "reason": "the custom case applies the official deletion policy unchanged; the scenario is independently authored, the policy content is reused, not invented"
+ }
+]
