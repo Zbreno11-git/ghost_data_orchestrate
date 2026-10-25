@@ -69,7 +69,8 @@ def read_image(entry: ManifestEntry, model: str, cfg: dict, allow_paid: bool, ru
     sha = hashlib.sha256(data).hexdigest()
     path = _cache_path(cfg, sha, model)
     if path.exists():
-        cached = json.loads(path.read_text())
+        from ..artifacts import read_text
+        cached = json.loads(read_text(REPO_ROOT / cfg["vision"]["cache_dir"], path))
         if cached["sha256"] == sha and cached.get("prompt_sha256") == PROMPT_SHA256:
             return cached
     if not allow_paid:

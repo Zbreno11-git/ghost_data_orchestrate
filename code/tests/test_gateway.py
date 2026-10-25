@@ -138,6 +138,8 @@ def test_identical_request_is_served_from_cache_without_a_paid_call(tmp_path):
     rows = len(led.rows())
     r2, u2 = _call(gw)
     assert p.sent == 1 and len(led.rows()) == rows and u2["cache"] and r2.text == r1.text == "first"
+    # both uses are recorded, so a run can list every response behind its output (live, then cached)
+    assert [u["cache"] for u in gw.used] == [False, True] and gw.used[0]["request_key"] == gw.used[1]["request_key"]
 
 
 def test_request_key_is_stable_and_sensitive():
@@ -173,3 +175,22 @@ def test_replay_never_reaches_the_provider_or_the_network(tmp_path, monkeypatch)
 def test_only_the_provider_module_calls_the_sdk():
     users = [p for p in (CODE / "ghostaudit").rglob("*.py") if "generate_content(" in p.read_text()]
     assert [p.relative_to(CODE).as_posix() for p in users] == ["ghostaudit/llm/gemini.py"]
+
+
+# --- S5 C5.11: declared replay artifacts are verified on read; every used response is recorded ---
+
+def test_a_manifest_rejects_a_tampered_or_undeclared_artifact(tmp_path):
+    import pytest as _pytest
+    from ghostaudit.artifacts import ArtifactMismatch, read_text, write_manifest
+    a, b = tmp_path / "x" / "a.json", tmp_path / "x" / "b.json"
+    a.parent.mkdir()
+    a.write_text('{"v": 1}')
+    b.write_text('{"v": 2}')
+    assert read_text(tmp_path, a) == '{"v": 1}'                 # no manifest: a working checkout reads as is
+    write_manifest(tmp_path, [a])
+    assert read_text(tmp_path, a) == '{"v": 1}'
+    with _pytest.raises(ArtifactMismatch, match="not declared"):
+        read_text(tmp_path, b)
+    a.write_text('{"v": 9}')
+    with _pytest.raises(ArtifactMismatch, match="sha256"):
+        read_text(tmp_path, a)

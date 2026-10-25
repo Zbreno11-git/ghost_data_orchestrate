@@ -84,6 +84,7 @@ class Gateway:
         self._provider = provider
         self._sleep = sleep
         self.stats = {"cache_hits": 0, "paid_calls": 0, "failed_attempts": 0, "replay_misses": 0}
+        self.used: list[dict] = []      # every response this run used, live or cached (usage report, package)
 
     # --- provider: built only on a live cache miss -------------------------------------------------
     def provider(self):
@@ -99,8 +100,9 @@ class Gateway:
         return self.cache_dir / f"{key[:2]}/{key}.json"
 
     def cached(self, key: str) -> dict | None:
+        from ..artifacts import read_text
         p = self._cache_path(key)
-        return json.loads(p.read_text()) if p.exists() else None
+        return json.loads(read_text(self.cache_dir, p)) if p.exists() else None
 
     def _store(self, key: str, record: dict) -> None:
         p = self._cache_path(key)
@@ -118,6 +120,8 @@ class Gateway:
         hit = self.cached(key)
         if hit is not None:
             self.stats["cache_hits"] += 1
+            self.used.append({"request_key": key, "purpose": purpose, "model": model, "case_id": case_id,
+                              "cache": True, "usage": hit["usage"]})
             resp = types.GenerateContentResponse.model_validate(hit["response"])
             return resp, {**hit["usage"], "cost_usd": 0.0, "cache": True, "request_key": key}
         if self.mode == "replay":
@@ -152,6 +156,8 @@ class Gateway:
                                model_version=getattr(resp, "model_version", None), cost_basis="usage_metadata",
                                attempt=attempt, request_key=key, **measured)
             self.stats["paid_calls"] += 1
+            self.used.append({"request_key": key, "purpose": purpose, "model": model, "case_id": case_id,
+                              "cache": False, "usage": measured})
             self._store(key, {"model": model, "purpose": purpose, "case_id": case_id, "usage": measured,
                               "response": resp.model_dump(mode="json", exclude_none=True)})
             return resp, {**measured, "cache": False, "request_key": key}

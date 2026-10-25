@@ -204,6 +204,10 @@ def run(dataset: Path, split: str, out_dir: Path, mode: str = "strict", engine: 
         "ingest_failed_files": failed,
     }
     (out_dir / "summary.json").write_text(json.dumps(summary, indent=1) + "\n")
+    if gateway is not None:     # the responses behind this output, live or cached: usage report and package
+        with open(out_dir / "llm_keys.jsonl", "w", encoding="utf-8") as fh:
+            for u in gateway.used:
+                fh.write(json.dumps(u, sort_keys=True) + "\n")
     lines = ["# Cases that are not fully resolved", "",
              "A row that validates is not a supported verdict (A20). `weak` rows depend on a workflow-only link or a "
              "low-confidence intent; `unresolved` rows lack an identity, an account, an intent or a state. Each is "
