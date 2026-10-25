@@ -4,32 +4,84 @@
 > handoff moves to `docs/HANDOFFS.md`, after relocating what lives only here (open decision → SESSIONS,
 > lesson → ERRORS, constraint → PRIMER).
 
-## ⏱ Live — S7 in progress (opened 2026-10-25 02:45 UTC)
+## ⏱ Live — S7 in progress (opened 2026-10-25 02:45 UTC; measured 03:40 UTC)
 
-Plan and checkpoint log: `docs/plans/session-07.md` ("Progress"). S7 and S8 merged by Breno (A35).
+Plan and checkpoint log: `docs/plans/session-07.md` (Amendments + "Progress"). S7 = S7+S8 merged by Breno (A35).
 
-| C | State |
-|---|---|
-| C7.0 roadmap rewrite | ✅ 02:49Z |
-| C7.1 legacy-link comparison | pre-measured read-only (19 target / 4 sample rows on a workflow-tier account); runs pending; then **Breno decides (A34)** |
-| C7.2 provenance + viewer | pending |
-| C7.3 hardening | pending |
-| C7.4 integration + release candidate | pending |
-| C7.5 docs | pending |
-| C7.6 Mac handoff + acceptance | pending (Breno) |
-| C7.7 artifacts + freeze | pending |
+| C | State | Evidence |
+|---|---|---|
+| C7.0 roadmap rewrite | ✅ 02:49Z | `439baea`, `c908cf9` (Breno's six amendments recorded) |
+| C7.1 legacy workflow links | ✅ decided: **A34** (03:18:25Z) | `docs/diagnostics/s7/legacy_links.md` (backtest summary corrected 03:38Z: variants never pooled) |
+| C7.1 follow-up: forced_matching | ⏳ **Breno's answer pending** (case_78/case_94 review in legacy_links.md) | config unchanged until he answers |
+| C7.1T time policy | ✅ decided: **A36** snapshot_capture v2 | `temporal_interpretation.md` (written first, `8c58d55`), `temporal_experiment.md` |
+| C7.2 provenance + viewer | ✅ 03:33Z; run binding to output.csv ✅ 03:39Z | `f21a996`, `8d83eb2`, `d6f75a2`; browser check: chromium 156, 1280/390 px |
+| C7.3 packaging hardening | ✅ code + tests 03:36Z (`d84ae0c`); dry run on `runs/s7/det/targets` accepted | the release-candidate run is C7.4 |
+| C7.4 integration + release candidate | next | |
+| C7.5 docs (README, REQUIREMENTS_MAP, reports) | pending | |
+| C7.6 Mac handoff + **Mac acceptance (Breno)** | pending | |
+| C7.7 final artifacts, traces, checksums, freeze | pending | finalization order fixed by Breno (amendment 6) |
 
-## ▶️ RESUME HERE — 2026-10-25 02:47 UTC — S7 C7.0
+## ▶️ RESUME HERE — 2026-10-25 03:40 UTC — S7 between C7.3 and C7.4
 
-- **State:** HEAD = origin `94ebac5` + C7.0 doc edits (uncommitted until the C7.0 commit). Root `output.csv`
-  `ee9504d5…` (= `runs/s6/final`); `code.zip` `f58aaefe…` is the S5 build (the fallback package, kept untouched).
-  Ledger $1.876497 + $0.004447 open. `244 passed`.
-- **Next step:** finish C7.0 (STATUS, commit), then C7.1: add `[ownership] workflow_accounts` ("assert" default /
-  "candidate") with tests, run `runs/s7/c71-{assert,candidate}-{samples,targets,custom-*}` deterministic, then the
-  agent pass on "candidate" in live mode (≈$0.09, hard stop $0.20), then `gate.py` → decision table to Breno.
-- **Depends on Breno:** the A34 decision; the Mac acceptance; export and upload at the very end (A31).
-- **Re-read:** AGENTS.md, docs/PRIMER.md, this block, docs/plans/session-07.md, DECISIONS A31–A35, ERRORS #4–#9.
-- **Check before trusting:** `git status --short`, `git log -1`, `main.py status`, `pytest -q`, `sha256sum output.csv`.
+**Settled; do not reopen** (DECISIONS):
+- A34: assert only `only_feasible_row` and `forced_matching` (plus `corroborated_run`); `only_feasible_request` is an
+  uncertain candidate; the nearest-anchor pick only fills an otherwise empty row, flagged HEURISTIC PREDICTION.
+- A36: time policy `snapshot_capture` v2. Envelope-dated pre-audit snapshots are read and never cited.
+- A35: viewer is a deliverable; freeze is last.
+
+**Open, waiting for Breno:**
+- whether `forced_matching` stays asserted (recommendation in the chat and in `legacy_links.md`). If he says
+  demote, set `asserted_mechanisms = ["corroborated_run", "only_feasible_row", "nearest_anchor"]` in
+  `code/config/default.toml`. Measured: targets case_78 and case_94 each lose one uncited future
+  `VERIFY_RECORD_ABSENT`; samples unchanged.
+
+**Current configuration** (`code/config/default.toml`): strict ownership (A33); `asserted_mechanisms` = corroborated_run,
+only_feasible_row, forced_matching, nearest_anchor; `historical_snapshots = "snapshot_capture"`; agent scope
+`non_resolved` (A28) via `--agent-scope`; model gemini-3.1-flash-lite.
+
+**Measured combined result, deterministic** (`runs/s7/det`, 03:21Z; agent not yet run on this config):
+- samples: status 32/32, whole-case 14/32, P 167/168, R 167/193, F1 0.9252, 0 violations (S6: 12/32, F1 0.9101);
+- custom 5/5;
+- targets: 0 violations, 59 rows differ from S6, 0 status flips;
+- HEURISTIC PREDICTION rows: targets 4 (case_39/55/61 under A29, case_63 under A34).
+
+The deterministic gains are separate from any agent contribution, which C7.4 measures.
+
+**Packages:**
+- **Fallback, untouched:** root `output.csv` sha256 `ee9504d5…8c4c` (= S5/S6 published rows) and `code.zip`
+  `f58aaefe…` (S5 build). They stay as they are until C7.4 publishes a validated replacement.
+- **Eventual release:** rebuilt in C7.4 from `runs/s7/final` with `scripts/package_code.py` (hardened), then frozen in
+  C7.7.
+
+**Next concrete action (C7.4):**
+```
+.venv/bin/python code/main.py run --engine agent --mode live --agent-scope non_resolved --split targets --out runs/s7/final
+```
+- Cache hits are free; only changed briefs pay. Estimate ≤ $0.35; hard stop $0.50 for C7.4.
+- Then run the same for `--split samples` (`runs/s7/final-samples`) and the 5 custom cases, then validate and
+  run `gate.py` vs S6.
+- Then `package_code.py --run runs/s7/final` (fresh venv) → exit 0, publish root `output.csv` atomically, and
+  regenerate `docs/explanations/`.
+
+**Ledger:** settled $1.876497, outstanding $0.004997 (03:40Z). $0.00055 of that is a reservation left open by the C7.3
+live-mode probe control; it was never sent.
+
+**Tests:** `297 passed` (03:39Z). HEAD `d6f75a2`, pushed.
+
+**Re-read, in order:**
+1. AGENTS.md
+2. docs/PRIMER.md
+3. this block
+4. docs/plans/session-07.md (Amendments, Progress)
+5. DECISIONS A31–A36
+6. docs/diagnostics/s7/legacy_links.md and temporal_experiment.md
+7. ERRORS #4–#9
+
+**Check before trusting:**
+- `git status --short` and `git log -1`;
+- `main.py status`;
+- `pytest -q` → 297;
+- `sha256sum output.csv` → `ee9504d5…`.
 
 ## Proofs from S5
 

@@ -1515,3 +1515,65 @@ branch=main
 repo_root=/root/hackthon_1
 worktree=main
 parent_agent=none
+
+## [2026-10-25T03:40:49Z] Breno review: unpooled backtest, case_78/94 review, CSV-bound verification, resume refresh
+
+User Prompt (verbatim, secrets redacted):
+[event time 2026-10-25T03:35:10.933Z, session JSONL 3f2c5c59…:9956, uuid a769ede6-f5b2-463d-a925-1d4f06618e14; sent inside the running turn]
+<pasted_content id="0f11">
+Please incorporate these three targeted fixes into S7 while continuing the viewer. Inspect the current HEAD first: this review covered commit f21a996, so avoid duplicating anything already fixed. Keep the scope bounded and preserve the current release candidate.
+
+**1. Correct the interpretation of the workflow backtest and review the two forced-matching cases.**
+
+The reported `forced_matching = 10/11` combines 1/2 from cohort masking with 9/9 from the easier one-request-at-a-time experiment. The latter is explicitly reference-only. These results must not be pooled into a reliability estimate, and repeated variants must not be presented as independent observations.
+
+Correct the summaries and decision rationale to distinguish the experiments, denominators and selection bias. Apply the same reporting discipline to the other mechanisms.
+
+Review `case_78` and `case_94` specifically: show their actual ownership evidence, assumptions, and the exact steps retained or removed when forced matching is disabled. Identify any independently supported steps and any interaction with the empty-row fallback. Do not create replacement guesses.
+
+Give me a concise recommendation based on that comparison before changing the approved release configuration. Continue independent viewer work meanwhile. If retained, these associations must remain visibly labelled as workflow inferences, not direct observations.
+
+**Why:** the current aggregate overstates the evidence supporting this mechanism; the stricter experiment is small and mixed.
+
+**2. Bind the viewer to the actual submitted CSV.**
+
+At the reviewed commit, `verify_run()` checks provenance and decisions hashes but not `output.csv`, although its hash is recorded in `summary.json`.
+
+Verify all three required artifacts and ensure the CSV's case IDs, statuses and ordered steps match the decisions used by the viewer. Missing or inconsistent artifacts must prevent an overall “verified run” claim. Distinguish legacy runs without integrity metadata from damaged current runs.
+
+Add focused tests for:
+- changing only the CSV;
+- changing its contents and updating its recorded hash while leaving decisions inconsistent;
+- a missing required artifact;
+- an intact run passing verification.
+
+Keep CLI and viewer on the shared representation. This is protection against accidental inconsistencies, not a claim of tamper-proof authenticity.
+
+**Why:** a correct explanation of one result must not silently accompany a different submission file.
+
+**3. Refresh the current-session handoff.**
+
+Update PROGRESS.md, especially RESUME HERE, and reconcile it with the S7 checkpoint log and recorded A34/A36 decisions. Clearly separate completed work, work in progress and remaining acceptance steps. Preserve historical records, but remove stale instructions from the active resume block.
+
+Record the current configuration, measured combined results, next concrete action, and which package is still the fallback versus the eventual rebuilt release.
+
+**Why:** a resumed Claude session should continue the viewer and release work without repeating experiments or reopening settled decisions.
+
+Finish with a short account of changes and relevant test results. Keep deterministic sample gains separate from agent contribution; no new full paid run is needed for these fixes. Continue S7 afterward, with Mac acceptance and final freeze still in their planned order.
+</pasted_content id="0f11">
+
+Agent Response Summary:
+Inspected HEAD first (the review covered f21a996; C7.2 viewer and C7.3 packaging had landed since). Fix 1: the backtest summary is corrected. Variants are repeated runs and are never pooled: strict variants give forced_matching 1/2 and 0/1, and never exercise elimination-based only_feasible_row. CORRECTION to this log's 03:20 entry, which quoted pooled figures (22/22, 10/11). case_78/case_94 reviewed: each loses only one uncited future VERIFY_RECORD_ABSENT if forced_matching is off; no finding, flip, sample change or empty-row interaction. The recommendation goes to Breno before any configuration change. Fix 2: verify_run binds output.csv, decisions.jsonl and provenance.jsonl to their recorded sha256 and checks that the CSV carries the decisions' ids, statuses and steps; legacy and damaged are distinguished; 6 new tests; 2 mutations red. Fix 3: PROGRESS live table and RESUME HERE rewritten.
+
+Actions:
+* Committed C7.3 packaging hardening (d84ae0c); runs/s7/c71/noforced-{targets,samples}; case evidence script (read-only)
+* Edited docs/diagnostics/s7/legacy_links.md, DECISIONS A34 rationale, code/ghostaudit/provenance.py, explain.py, viewer/build.py, tests; commit d6f75a2
+* Rewrote the PROGRESS.md live table and RESUME HERE; appended this entry
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=main
+repo_root=/root/hackthon_1
+worktree=main
+parent_agent=none

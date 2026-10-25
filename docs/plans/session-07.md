@@ -512,3 +512,7 @@ changes afterwards without a rebuild and a new checksum. The "re-zip after the e
     - Desktop 1280 and phone 390: no horizontal scroll, 0 console errors, 0 network requests.
     - Search, filters, the empty result and the five case kinds rendered; a hostile excerpt was inert.
     - Screenshots were checked by eye.
+- **Breno's review (03:35:10Z) ✅ 03:40Z.** Inspected HEAD first; the review covered f21a996.
+  1. Backtest summary corrected: variants are not pooled. case_78/case_94 reviewed in `legacy_links.md`. The forced_matching recommendation went to Breno before any configuration change.
+  2. `verify_run` binds output.csv as well; CSV and decisions consistency is checked; legacy and damaged are told apart. 6 new tests; 2 mutations red. `297 passed`.
+  3. PROGRESS resume block refreshed.
