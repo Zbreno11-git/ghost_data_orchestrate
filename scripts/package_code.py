@@ -107,10 +107,41 @@ def replay_check(zip_path: Path, run: Path, skip_venv: bool) -> dict:
             cmd += ["--agent-scope", summary.get("agent_scope", "all")]
             if summary.get("model"):
                 cmd += ["--model", summary["model"]]
+        isolated = shutil.which("unshare") and subprocess.run(["unshare", "-rn", "true"]).returncode == 0
+        if isolated:
+            cmd = ["unshare", "-rn"] + cmd                  # no network interface at all during replay
+        else:
+            env.update({"HTTPS_PROXY": "http://127.0.0.1:9", "HTTP_PROXY": "http://127.0.0.1:9"})
         r = subprocess.run(cmd, cwd=u, env=env, capture_output=True, text=True)
         same = r.returncode == 0 and filecmp.cmp(td / "replay" / "output.csv", run / "output.csv", shallow=False)
         tail = (r.stdout + r.stderr).strip().splitlines()[-4:]
-        return {"returncode": r.returncode, "identical": same, "tail": tail}
+        v = subprocess.run([str(py), "code/main.py", "validate", str(td / "replay" / "output.csv")], cwd=u,
+                           capture_output=True, text=True) if r.returncode == 0 else None
+        return {"returncode": r.returncode, "identical": same, "network": "none (unshare -rn)" if isolated
+                else "dead proxy only", "validate": (v.stdout.strip().splitlines() or ["?"])[-1] if v else None,
+                "scan": scan(u), "tail": tail}
+
+
+def scan(u: Path) -> dict:
+    """Things a clean unpack must not need or carry: developer paths, credentials, undeclared caches."""
+    import re
+    pats = {"developer path": re.compile(re.escape(str(ROOT)) + "|/root/"),
+            "credential": re.compile(r"AIza[0-9A-Za-z_\-]{30,}|gh[opsu]_[0-9A-Za-z]{30,}|-----BEGIN [A-Z ]*PRIVATE KEY")}
+    hits = {k: [] for k in pats}
+    for p in u.rglob("*"):
+        if p.is_file() and not p.is_symlink() and "dataset" not in p.relative_to(u).parts[:1]:
+            t = p.read_text(errors="replace")
+            for k, pat in pats.items():
+                if pat.search(t):
+                    hits[k].append(str(p.relative_to(u)))
+    declared = set()
+    for m in (u / "state" / "vision_cache" / "MANIFEST.json", u / "runs" / "cache" / "llm" / "MANIFEST.json"):
+        if m.exists():
+            declared |= {str((m.parent / k).relative_to(u)) for k in json.loads(m.read_text())} | {str(m.relative_to(u))}
+    undeclared = [str(p.relative_to(u)) for top in ("state", "runs") if (u / top).exists()
+                  for p in (u / top).rglob("*") if p.is_file() and str(p.relative_to(u)) not in declared
+                  and "replay" not in p.relative_to(u).parts]
+    return {**hits, "undeclared_cache_files": undeclared}
 
 
 def main(argv=None) -> int:
@@ -125,8 +156,12 @@ def main(argv=None) -> int:
         print("refusing: forbidden entries or missing reports")
         return 1
     check = replay_check(a.out, a.run, a.skip_venv)
+    import hashlib
+    check["sha256"] = {"code.zip": hashlib.sha256(a.out.read_bytes()).hexdigest(),
+                       "reference output.csv": hashlib.sha256((a.run / "output.csv").read_bytes()).hexdigest()}
     print(json.dumps(check, indent=1))
-    return 0 if check["identical"] else 1
+    clean = not any(check["scan"].values())
+    return 0 if check["identical"] and clean else 1
 
 
 if __name__ == "__main__":
