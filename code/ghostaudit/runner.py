@@ -82,19 +82,16 @@ def run_fingerprint(dataset: Path, cfg: dict, model: str | None, code_dir: Path 
     config files, the effective config and model, and every dataset file the prediction path reads (the tables
     `load_tables` loads, the evidence manifest and the evidence tree; an allowlist, so evaluator files never
     enter it)."""
-    from .config import CODE_DIR
-    code_dir = code_dir or CODE_DIR
-    h = hashlib.sha256()
-    files = sorted(p for sub in ("ghostaudit", "prompts", "config") for p in (code_dir / sub).rglob("*")
-                   if p.is_file() and p.suffix in (".py", ".md", ".toml", ".json") and "__pycache__" not in p.parts)
-    dataset = Path(dataset)
-    files += sorted(p for p in [dataset / n for n in (*TABLES.values(), "evidence_files.csv")] if p.is_file())
-    files += sorted(p for p in (dataset / "evidence").rglob("*") if p.is_file())
-    for p in files:
-        h.update(str(p.relative_to(code_dir if p.is_relative_to(code_dir) else dataset)).encode() + b"\0")
-        h.update(hashlib.sha256(p.read_bytes()).digest())
-    h.update(json.dumps({"cfg": cfg, "model": model}, sort_keys=True, default=str).encode())
-    return h.hexdigest()
+    return run_fingerprints(dataset, cfg, model, code_dir)["run"]
+
+
+def run_fingerprints(dataset: Path, cfg: dict, model: str | None, code_dir: Path | None = None) -> dict:
+    """S7 C7.2: the same inputs hashed per part (code, dataset, extraction = the vision extracts ingest reads,
+    config), so a mismatch says which one changed; `run` combines them."""
+    from .config import CODE_DIR, REPO_ROOT
+    from .provenance import fingerprints
+    vision = REPO_ROOT / (cfg.get("vision") or {}).get("cache_dir", "state/vision_cache")
+    return fingerprints(Path(dataset), cfg, model, code_dir or CODE_DIR, list(TABLES.values()), vision)
 
 
 def case_fingerprint(run_fp: str, row: dict) -> str:
@@ -158,7 +155,8 @@ def run(dataset: Path, split: str, out_dir: Path, mode: str = "strict", engine: 
         selected = [r for r in tables[SPLITS[split]] if not cases or r["case_id"] in cases]
         llm_intents = classify_all(selected, gateway, cfg)
 
-    run_fp = run_fingerprint(dataset, cfg, model)
+    fps = run_fingerprints(dataset, cfg, model)
+    run_fp = fps["run"]
     am = (cfg.get("ownership") or {}).get("asserted_mechanisms")
     if am is not None and set(am) - set(DEDUCTION_MECHANISMS):
         raise ValueError(f"unknown ownership.asserted_mechanisms {sorted(set(am) - set(DEDUCTION_MECHANISMS))}")
@@ -251,6 +249,12 @@ def run(dataset: Path, split: str, out_dir: Path, mode: str = "strict", engine: 
                                  "reasons": p.reasons, "decisions": p.decisions, "steps_json": dumps(p.steps),
                                  "trace": p.trace},
                                 ensure_ascii=False, default=str) + "\n")
+    from .provenance import sha256_file, write_provenance
+    missing = write_provenance(out_dir / "provenance.jsonl",
+                               [json.loads(l) for l in open(out_dir / "decisions.jsonl", encoding="utf-8")], store,
+                               {c.file_id: c.rel_path for c in coverage.files}, run_fp)
+    if missing:   # a decision pointing at an observation the store does not hold: fail loudly, never publish it
+        raise RuntimeError(f"decisions reference {len(missing)} unknown observations, e.g. {missing[:3]}")
     summary = {
         "split": split, "ownership": mode, "engine": engine, "model": model, "gateway_mode": gateway_mode,
         "agent_scope": cfg["agent"].get("scope", "all"),
@@ -263,6 +267,8 @@ def run(dataset: Path, split: str, out_dir: Path, mode: str = "strict", engine: 
         "workflow_assignment": dict(Counter(v for v in how.values() if v != "ambiguous")),
         "workflow_ambiguous_requests": sum(v == "ambiguous" for v in how.values()),
         "ingest_failed_files": failed,
+        "fingerprints": fps,
+        "artifacts": {n: sha256_file(out_dir / n) for n in ("output.csv", "decisions.jsonl", "provenance.jsonl")},
     }
     (out_dir / "summary.json").write_text(json.dumps(summary, indent=1) + "\n")
     if gateway is not None:     # the responses behind this output, live or cached: usage report and package
