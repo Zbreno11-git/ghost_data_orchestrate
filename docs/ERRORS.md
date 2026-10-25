@@ -219,7 +219,7 @@ cache key.
 
 ### 10. A label added before a stage that rebuilds the object was silently dropped
 
-**Incident (S7 C7.4, 2026-10-25 ~04:10 UTC).** A34 labels a row whose account is the nearest-in-time pick as a
+**Incident (S7 C7.4, 2026-10-25, before 03:55:31Z: the fix first appears in the session JSONL :10550 at that time; commit `d578d09` 03:59:01Z; the stamp first written here, "~04:10 UTC", was typed, not read, and was corrected after the compact, an instance of #5).** A34 labels a row whose account is the nearest-in-time pick as a
 HEURISTIC PREDICTION. The label was inserted into the plan's reasons before the agent's review. When the agent
 kept the account, the engine recompiled the plan from the agent's ownership, and the rebuilt plan carried no
 label. On case_63 the CSV row was identical, still asserting the pick, but the trace, the viewer and the reports

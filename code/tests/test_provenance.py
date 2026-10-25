@@ -151,3 +151,23 @@ def test_a_missing_required_artifact_is_damaged_not_legacy(runs, tmp_path, name)
     (r / name).unlink()
     status, _, msg = verify_run(r)
     assert status == "damaged" and f"{name} is missing" in msg
+
+
+@pytest.mark.parametrize("sep", [" ", " ", "\u0085"])
+def test_an_excerpt_holding_a_unicode_line_separator_still_verifies(runs, tmp_path, sep):
+    """JSONL records end at "\\n" only. The writer keeps non-ASCII raw (ensure_ascii=False), so a U+2028 in a record
+    reaches the file unescaped; str.splitlines() would split there and call an intact run damaged."""
+    a, _, _ = runs
+    r = _copy(a, tmp_path, "sep")
+    lines = (r / "provenance.jsonl").read_text(encoding="utf-8").split("\n")
+    rec = json.loads(lines[1])
+    rec["excerpt"] = {**rec["excerpt"], "note": f"line one{sep}line two"}
+    lines[1] = json.dumps(rec, ensure_ascii=False, sort_keys=True, default=str)     # the writer's own settings
+    assert sep in lines[1]                                                        # reachable: written raw
+    (r / "provenance.jsonl").write_text("\n".join(lines), encoding="utf-8")
+    s = _summary(r)
+    s["artifacts"]["provenance.jsonl"] = sha256_file(r / "provenance.jsonl")
+    (r / "summary.json").write_text(json.dumps(s))
+    status, index, msg = verify_run(r)
+    assert status == "verified", msg
+    assert index[rec["obs_id"]]["excerpt"]["note"] == f"line one{sep}line two"

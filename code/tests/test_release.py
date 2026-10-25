@@ -116,3 +116,24 @@ def test_an_unisolated_replay_is_accepted_only_when_the_caller_says_so():
 def test_a_credential_must_start_a_token_not_sit_inside_base64(data, refused):
     got = _reasons(_clean(**{"runs/cache/llm/ab/x.json": data}))
     assert ("runs/cache/llm/ab/x.json" in got) is refused, got
+
+
+def _commands(md: str) -> list[str]:
+    """The command lines of a Markdown file's ```bash blocks, trailing comments included."""
+    out, inside = [], False
+    for line in md.split("\n"):
+        if line.startswith("```"):
+            inside = line.strip() == "```bash"
+            continue
+        if inside and line.strip() and not line.lstrip().startswith("#"):
+            out.append(line.strip())
+    return out
+
+
+def test_the_root_readme_commands_are_exactly_the_code_readme_commands():
+    """code.zip's root README.md is the entry point a reader sees first; its commands are a copy of the ones
+    documented (and executed by the package check) in code/README.md, so the two cannot drift apart."""
+    root = _commands((CODE.parent / "README.md").read_text())
+    full = set(_commands((CODE / "README.md").read_text()))
+    assert len(root) >= 4 and "code/main.py validate runs/replay/output.csv" in " ".join(root)
+    assert [c for c in root if c not in full] == []

@@ -135,7 +135,8 @@ def verify_run(run: Path) -> tuple[str, dict | None, str]:
             return "damaged", None, f"summary.json records no sha256 for {name}"
         if sha256_file(run / name) != arts[name]:
             return "damaged", None, f"{name} does not match the sha256 recorded in summary.json"
-    lines = (run / "provenance.jsonl").read_text(encoding="utf-8").splitlines()
+    # records end at "\n" only: splitlines() also splits at U+2028/U+2029/U+0085, which excerpts keep raw
+    lines = [l for l in (run / "provenance.jsonl").read_text(encoding="utf-8").split("\n") if l]
     head = json.loads(lines[0]).get("_header") if lines else None
     if not head or head.get("run_fingerprint") != fps.get("run") or head.get("records") != len(lines) - 1:
         return "damaged", None, "provenance.jsonl belongs to another run (header fingerprint or count)"

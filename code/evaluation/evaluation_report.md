@@ -1,6 +1,6 @@
 # Evaluation report
 
-Generated 2026-10-25 03:57 UTC by `scripts/make_reports.py` from run artifacts; every number below is read from a file.
+Generated 2026-10-25 04:14 UTC by `scripts/make_reports.py` from run artifacts; every number below is read from a file.
 
 Final configuration: `main.py run --engine agent --agent-scope non_resolved --ownership strict` (agent model `gemini-3.1-flash-lite`). Run directory `runs/s7/final-r2`.
 
