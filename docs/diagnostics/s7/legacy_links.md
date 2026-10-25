@@ -73,7 +73,7 @@ Effect of turning `forced_matching` off, deterministic: targets change only thes
 
 ## The concrete alternatives
 
-| | A: assert all (current release) | B: assert none | C (approved as A34): assert only `only_feasible_row` + `forced_matching` (+ `corroborated_run`, unused) |
+| | A: assert all (current release) | B: assert none | C (approved as A34; A34a then also demoted `forced_matching`): assert only `only_feasible_row` + `forced_matching` (+ `corroborated_run`, unused) |
 |---|---|---|---|
 | sample status | 32/32 | 32/32 | 32/32 |
 | sample whole-case | 12/32 | 10/32 | 11/32 |

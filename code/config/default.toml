@@ -42,9 +42,10 @@ cache_dir = "runs/cache/llm"
 # the listed ones are asserted (become the account, get steps, support ≤ weak); the others are recorded as
 # uncertain investigation candidates. Part of the config, so it enters every checkpoint fingerprint.
 [ownership]
-# A34 (Breno, 2026-10-25, after the masked backtest): only_feasible_request (1/5 correct) is not asserted;
-# nearest_anchor (48/168) only fills a row that would otherwise be empty, flagged as a HEURISTIC PREDICTION.
-asserted_mechanisms = ["corroborated_run", "only_feasible_row", "forced_matching", "nearest_anchor"]
+# A34 (Breno, 2026-10-25, after the masked backtest): only_feasible_request and forced_matching are not asserted
+# (strict cohort variants: 0/1, and 1/2 + 0/1); nearest_anchor only fills a row that would otherwise be empty,
+# flagged as a HEURISTIC PREDICTION. only_feasible_row stays, labelled as a workflow inference.
+asserted_mechanisms = ["corroborated_run", "only_feasible_row", "nearest_anchor"]
 
 # Time (S7 C7.1T). "manifest" = the A26 baseline (an artifact captured after audit_at is never read).
 # "snapshot_capture" = also read a snapshot envelope's records when its own explicit captured_at ≤ audit_at, even

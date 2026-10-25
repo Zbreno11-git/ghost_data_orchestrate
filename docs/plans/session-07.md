@@ -516,3 +516,4 @@ changes afterwards without a rebuild and a new checksum. The "re-zip after the e
   1. Backtest summary corrected: variants are not pooled. case_78/case_94 reviewed in `legacy_links.md`. The forced_matching recommendation went to Breno before any configuration change.
   2. `verify_run` binds output.csv as well; CSV and decisions consistency is checked; legacy and damaged are told apart. 6 new tests; 2 mutations red. `297 passed`.
   3. PROGRESS resume block refreshed.
+- **A34a ✅ 03:43:23Z (Breno).** forced_matching demoted; elimination-based only_feasible_row kept, labelled. Combined deterministic run (`runs/s7/det`, re-run): samples 32/32, whole-case 14/32, P 167/168, R 167/193, F1 0.9252, 0 violations; targets 0 violations. It equals the measured no-forced run.

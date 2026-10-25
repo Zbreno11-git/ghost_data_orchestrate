@@ -12,7 +12,7 @@ Plan and checkpoint log: `docs/plans/session-07.md` (Amendments + "Progress"). S
 |---|---|---|
 | C7.0 roadmap rewrite | ✅ 02:49Z | `439baea`, `c908cf9` (Breno's six amendments recorded) |
 | C7.1 legacy workflow links | ✅ decided: **A34** (03:18:25Z) | `docs/diagnostics/s7/legacy_links.md` (backtest summary corrected 03:38Z: variants never pooled) |
-| C7.1 follow-up: forced_matching | ⏳ **Breno's answer pending** (case_78/case_94 review in legacy_links.md) | config unchanged until he answers |
+| C7.1 follow-up: forced_matching | ✅ decided: **A34a** (03:43:23Z): demoted; elimination-based only_feasible_row kept, labelled | targets case_78, case_94 lose one uncited future step each |
 | C7.1T time policy | ✅ decided: **A36** snapshot_capture v2 | `temporal_interpretation.md` (written first, `8c58d55`), `temporal_experiment.md` |
 | C7.2 provenance + viewer | ✅ 03:33Z; run binding to output.csv ✅ 03:39Z | `f21a996`, `8d83eb2`, `d6f75a2`; browser check: chromium 156, 1280/390 px |
 | C7.3 packaging hardening | ✅ code + tests 03:36Z (`d84ae0c`); dry run on `runs/s7/det/targets` accepted | the release-candidate run is C7.4 |
@@ -24,19 +24,15 @@ Plan and checkpoint log: `docs/plans/session-07.md` (Amendments + "Progress"). S
 ## ▶️ RESUME HERE — 2026-10-25 03:40 UTC — S7 between C7.3 and C7.4
 
 **Settled; do not reopen** (DECISIONS):
-- A34: assert only `only_feasible_row` and `forced_matching` (plus `corroborated_run`); `only_feasible_request` is an
-  uncertain candidate; the nearest-anchor pick only fills an otherwise empty row, flagged HEURISTIC PREDICTION.
+- A34 + A34a: assert only `only_feasible_row` (plus `corroborated_run`); `only_feasible_request` and `forced_matching`
+  are uncertain candidates; the nearest-anchor pick only fills an otherwise empty row, flagged HEURISTIC PREDICTION.
 - A36: time policy `snapshot_capture` v2. Envelope-dated pre-audit snapshots are read and never cited.
 - A35: viewer is a deliverable; freeze is last.
 
-**Open, waiting for Breno:**
-- whether `forced_matching` stays asserted (recommendation in the chat and in `legacy_links.md`). If he says
-  demote, set `asserted_mechanisms = ["corroborated_run", "only_feasible_row", "nearest_anchor"]` in
-  `code/config/default.toml`. Measured: targets case_78 and case_94 each lose one uncited future
-  `VERIFY_RECORD_ABSENT`; samples unchanged.
+**Open, waiting for Breno:** nothing about the configuration. Next owner steps are the Mac acceptance (C7.6) and, at the very end, export and upload.
 
 **Current configuration** (`code/config/default.toml`): strict ownership (A33); `asserted_mechanisms` = corroborated_run,
-only_feasible_row, forced_matching, nearest_anchor; `historical_snapshots = "snapshot_capture"`; agent scope
+only_feasible_row, nearest_anchor (A34a); `historical_snapshots = "snapshot_capture"`; agent scope
 `non_resolved` (A28) via `--agent-scope`; model gemini-3.1-flash-lite.
 
 **Measured combined result, deterministic** (`runs/s7/det`, 03:21Z; agent not yet run on this config):
