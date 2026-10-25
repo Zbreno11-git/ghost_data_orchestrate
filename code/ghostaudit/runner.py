@@ -18,11 +18,26 @@ from .ingest.pipeline import ingest_all
 from .intent import classify
 from .ownership import AssignmentsAsOf, OwnerIndex, build_requests, link_case, request_at
 from .planner import Plan, plan_case
-from .policy import assess, load_rules
+from .policy import assess, heuristic_assess, load_rules
 from .serialize import dumps, write_output_csv
 from .temporal import CaseView
 
 SPLITS = {"targets": "requests", "samples": "sample_requests"}
+
+
+def _heuristic(cid, audit_at, intent, subject, own, assessments, view, rules, times, plan: Plan) -> Plan:
+    """A29 (owner decision): a row with no grounded proposal gets flagged heuristic predictions for its unknown
+    resources, and stays unresolved; if no rule applies, the empty row stays as it is (and fails validation)."""
+    guessed = {r: heuristic_assess(r, own.links[r].system_id, view, rules, subject) if a.verdict == "unknown" else a
+               for r, a in assessments.items()}
+    used = [a for r, a in guessed.items() if a.reason.startswith("heuristic:") and a is not assessments[r]]
+    if not used:
+        return plan
+    out = plan_case(cid, audit_at, intent, subject, own, guessed, times)
+    out.support = "unresolved"
+    out.reasons.insert(0, "HEURISTIC PREDICTION (A29), not a reconstructed state: " + "; ".join(
+        f"{a.resource_id}: {a.reason[len('heuristic: '):]}" for a in used) + " | " + " | ".join(plan.reasons[:3]))
+    return out
 
 
 def run_deterministic(dataset: Path, split: str, out_dir: Path, mode: str = "strict") -> dict:
@@ -165,6 +180,9 @@ def run(dataset: Path, split: str, out_dir: Path, mode: str = "strict", engine: 
                 extra["agent"] = {"status": outcome.status, "model": model, "model_calls": outcome.model_calls,
                                   "cost_usd": outcome.cost_usd, "tool_calls": outcome.tool_calls,
                                   "errors": outcome.errors, "submission": outcome.submission}
+        if isinstance(subject, Subject) and own is not None and not plan.steps and plan.status != "NOT_APPLICABLE":
+            plan = _heuristic(cid, audit_at, intent, subject, own, assessments, view, rules, times, plan)
+        if engine == "agent":
             _save_case(out_dir, plan, extra, fp)
         plans.append(plan)
 

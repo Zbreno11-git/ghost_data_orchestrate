@@ -308,3 +308,70 @@ def test_panels_of_a_table_screen_are_not_merged_across_rows():
     rows, other = replace(rows, source_kind="png"), replace(other, source_kind="png")
     a = _assess_s([rows, other], "support_1", "support_platform")
     assert not [c for c in a.copies if c.copy[1] == "document"]
+
+
+# --- S5 A29: flagged heuristic predictions, only for a resource whose state is otherwise unknown ---
+
+def test_heuristic_flow_shown_healthy_and_continuous_is_predicted_active():
+    from ghostaudit.policy import heuristic_assess
+    screen = _rec("ev_c#panel:2", 3, None, "data_flow_1", {"panel": "data_flow_1", "rows.0.Status": "Healthy",
+                                                          "rows.1.Sync mode": "Continuous sync"}, kind="text",
+                  source="ev_c")
+    store = EvidenceStore(resource_prefixes=["data_flow"])
+    store.add(screen)
+    view = CaseView(store, AUDIT)
+    assert assess("data_flow_1", "integration_service", view, RULES, _subject()).verdict == "unknown"
+    h = heuristic_assess("data_flow_1", "integration_service", view, RULES, _subject())
+    assert h.verdict == "violation" and h.ops[0] == "REPORT_ACTIVE_DATA_FLOW" and h.proof.source_id == "ev_c"
+    assert h.reason.startswith("heuristic:")
+
+
+def test_heuristic_backup_retained_past_the_audit_is_predicted_restorable():
+    from ghostaudit.policy import heuristic_assess
+    later = (AUDIT + timedelta(days=60)).strftime("%d %b %Y")
+    screen = _rec("ev_b#panel:2", 3, None, "backup_1", {"panel": "backup_1", "rows.0.Account": "ana@x.com",
+                                                      "rows.1.Retention end": later}, kind="text", source="ev_b")
+    store = EvidenceStore(resource_prefixes=["backup"])
+    store.add(screen)
+    h = heuristic_assess("backup_1", "backup_service", CaseView(store, AUDIT), RULES, _subject())
+    assert h.verdict == "violation" and h.ops[0] == "REPORT_RESTORE_RISK"
+    expired = _rec("ev_b#panel:2", 3, None, "backup_1", {"panel": "backup_1",
+                                                        "rows.1.Retention end": (AUDIT - timedelta(days=1)).strftime("%d %b %Y")},
+                   kind="text", source="ev_b")
+    store2 = EvidenceStore(resource_prefixes=["backup"])
+    store2.add(expired)
+    assert heuristic_assess("backup_1", "backup_service", CaseView(store2, AUDIT), RULES, _subject()).verdict == "unknown"
+
+
+def test_heuristic_alias_from_a_catalog_row_finds_the_resource_on_a_screen():
+    from ghostaudit.policy import heuristic_assess
+    t = T + timedelta(days=2)
+    catalog = Observation(obs_id="act_1#row", source_id="act_1", source_kind="csv", kind="activity", captured_at=t,
+                          observed_at=t, system_id="object_storage", resource_id="object_1",
+                          record_type="LINK_RESOURCE_IDENTITY", result="SUCCESS", container="system_activity",
+                          fields={"source_system": "data_catalog", "target_system": "object_storage",
+                                  "details": "Attachment catalog confirmed object_1 (receipt_1.pdf) belongs only to ana@x.com"},
+                          locator="row")
+    screen = _rec("ev_o#panel:1", 1, None, None, {"panel": "Objects", "rows.0.row 1: Name": "receipt_1.pdf",
+                                                 "rows.1.row 1: Version": "v3"}, kind="text", source="ev_o")
+    store = EvidenceStore(resource_prefixes=["object"])
+    store.add(catalog)
+    store.add(screen)
+    h = heuristic_assess("object_1", "object_storage", CaseView(store, AUDIT), RULES, _subject())
+    assert h.verdict == "violation" and h.ops[0] == "REPORT_REMAINING_RECORD" and h.proof.source_id == "ev_o"
+
+
+def test_no_heuristic_without_a_screen_or_for_a_user_id_alias():
+    from ghostaudit.policy import heuristic_assess
+    t = T + timedelta(days=2)
+    catalog = Observation(obs_id="act_2#row", source_id="act_2", source_kind="csv", kind="activity", captured_at=t,
+                          observed_at=t, system_id="identity_service", resource_id="tombstone_1",
+                          record_type="LINK_RESOURCE_IDENTITY", result="SUCCESS", container="system_activity",
+                          fields={"source_system": "data_catalog", "details": "Data catalog linked tombstone_1 (user_1) to ana@x.com"},
+                          locator="row")
+    screen = _rec("ev_u#panel:1", 1, None, None, {"panel": "Users", "rows.0.row 1: Ref": "user_1"}, kind="text",
+                  source="ev_u")
+    store = EvidenceStore(resource_prefixes=["tombstone"])
+    store.add(catalog)
+    store.add(screen)
+    assert heuristic_assess("tombstone_1", "identity_service", CaseView(store, AUDIT), RULES, _subject()).verdict == "unknown"

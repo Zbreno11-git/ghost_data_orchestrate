@@ -8,8 +8,10 @@ deletion worker's *action type* is used only as a category hint where content ca
 """
 from __future__ import annotations
 
+import re
 from collections import defaultdict
 from dataclasses import dataclass
+from datetime import datetime, timezone
 
 from .evidence import Observation
 from .identity import Subject
@@ -349,3 +351,71 @@ def assess(resource_id: str, system_id: str | None, view: CaseView, rules: dict[
     proof = max(copies, key=_proof_rank)
     return Assessment(resource_id, system_id, cat, treat, "compliant", copies, proof, ops,
                       f"{len(copies)} copies compliant")
+
+
+# --- Flagged heuristic predictions (A29): used only for a row that would otherwise have no grounded proposal ---
+
+HEALTHY = {"healthy", "active", "running", "connected"}
+ALIAS_RE = re.compile(r"\b([a-z_]+_\d+) \(([^)]+)\)")
+
+
+def _labels(o: Observation) -> dict[str, str]:
+    """Screen labels → values, with the row prefix removed ("rows.1.row 1: Mode" → "mode")."""
+    return {k.rsplit(".", 1)[-1].split(": ", 1)[-1].strip().lower(): str(v).strip()
+            for k, v in o.fields.items() if isinstance(v, str)}
+
+
+def _aliases(resource_id: str, view: CaseView) -> list[tuple[str, Observation]]:
+    """Names a catalog row declares for the resource ("object_19 (delivery_confirmation_19.pdf)"). Identities
+    (user ids, emails) are never aliases: they name a person, not the resource."""
+    out = []
+    for o in view.by_resource(resource_id):
+        if o.kind != "activity" or o.record_type != "LINK_RESOURCE_IDENTITY":
+            continue
+        for rid, alias in ALIAS_RE.findall(o.fields.get("details", "")):
+            alias = alias.strip()
+            if rid == resource_id and alias != resource_id and not re.fullmatch(r"user_\d+|\S+@\S+", alias):
+                out.append((alias, o))
+    return out
+
+
+def heuristic_assess(resource_id: str, system_id: str | None, view: CaseView, rules: dict[str, dict],
+                     subject: Subject | None = None) -> Assessment:
+    """A *prediction*, not a reconstruction, for a resource whose state the evidence leaves unknown. Three generic
+    rules over admissible screens, each a weaker reading than A25 allows for a grounded state:
+    - a flow shown with a healthy status or a continuous mode → predicted active;
+    - a backup shown with a retention end after audit_at → predicted restorable;
+    - a resource shown only under a name its catalog row declares → predicted present.
+    Anything else stays unknown. The caller labels the row as heuristic and keeps it unresolved."""
+    base = assess(resource_id, system_id, view, rules, subject)
+    if base.verdict != "unknown" or base.treatment is None:
+        return base
+    treat, ops = base.treatment, TREATMENT_OPS[base.treatment]
+    names = [(resource_id, None)] + _aliases(resource_id, view)
+    for o in sorted((o for o in view.observations if o.kind == "text"), key=lambda o: (event_time(o), o.obs_id),
+                    reverse=True):
+        text = " | ".join(v for v in o.fields.values() if isinstance(v, str))
+        hit = next(((n, d) for n, d in names if n in text), None)
+        if hit is None:
+            continue
+        lab, why = _labels(o), None
+        if treat == "DISABLE_FLOW" and (lab.get("status", "").lower() in HEALTHY or any(
+                "continuous" in lab.get(k, "").lower() for k in ("mode", "sync mode"))):
+            state, why = "ACTIVE", f"screen shows status {lab.get('status', '?')}, mode {lab.get('sync mode', lab.get('mode', '?'))}"
+        elif treat == "BLOCK_RESTORE" and lab.get("retention end"):
+            try:
+                end = datetime.strptime(" ".join(lab["retention end"].split()[:3]), "%d %b %Y").replace(
+                    tzinfo=timezone.utc)
+            except ValueError:
+                end = None
+            if end and end > view.audit_at:
+                state, why = "RESTORABLE", f"screen shows the backup retained until {lab['retention end']}"
+        elif treat in ("DELETE", "REDACT", "ANONYMIZE") and hit[1] is not None:
+            state = "PRESENT" if treat == "DELETE" else "PRESENT_EXPOSED"
+            why = f"screen lists {hit[0]}, the name catalog row {hit[1].source_id} declares for it"
+        if why and state in VIOLATION[treat]:
+            proof = CopyState((system_id, "screen"), state, o.obs_id, o.source_id, event_time(o),
+                              "heuristic: " + why, "heuristic", time_basis(o))
+            return Assessment(resource_id, system_id, base.category, treat, "violation", (proof,), proof, ops,
+                              "heuristic: " + why)
+    return base

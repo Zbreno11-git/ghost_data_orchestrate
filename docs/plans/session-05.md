@@ -395,3 +395,15 @@ Integrated into C5.3, C5.5, C5.11 and C5.12 above, without new modules:
 
   0 redactions needed; JSONL lines re-parse. The project folder is found by Claude Code's encoding (any
   non-alphanumeric → "-"); an empty trace exits 1.
+- **A29 implemented ✅ 00:44Z (owner decision 2026-10-25 00:41:32 UTC).** `policy.heuristic_assess` plus
+  `runner._heuristic`, applied only to an empty row and after the agent:
+  - a flow shown healthy/continuous → active;
+  - a backup shown retained past audit_at → restorable;
+  - a resource shown under its catalog-declared alias (never a user id or email) → present.
+  - 4 tests red first; 2 mutations red.
+  - **Targets:** `0 violations … 518`; only case_39, case_55 and case_61 changed, each INCOMPLETE,
+    unresolved, with its reason starting "HEURISTIC PREDICTION (A29), not a reconstructed state".
+  - **Samples** unchanged.
+  - **Agent scope (A28, same answer):** non_resolved. The full run `runs/s5/full-1` started at 00:42Z,
+    before this change, so a re-run on the final code is needed: its cache hits make it cheap, and only the
+    changed briefs pay.
