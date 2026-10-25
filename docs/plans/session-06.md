@@ -130,3 +130,17 @@
     - `test_diagnose.py`: 2 tests (support_001, the only id that only a PDF carries; a contrast id and a
       prefix). Red before the fix; mutation "PDFs as raw bytes" red. `227 passed`.
   - No parsing defect in the engine's extraction was found, so there is no engine fix here.
+- **C6.2 ✅ 01:45Z. Trace and minimal explain** (built early, as Breno asked, to drive C6.3).
+  - `Plan.trace` in decisions.jsonl: request times and the workflow claim, intent with its source, the person
+    with every identifier (role at the cutoff, source), the account deduction (tier, how, evidence, remaining
+    candidates), exclusions, ambiguities, the heuristic flag, and the ownership mode.
+  - Each decision carries `rule_id` (or `rule_note` when the category has no deletion_rules row: DATA_FLOW).
+  - `main.py explain <case> --run <dir> [--md]` (`code/ghostaudit/explain.py`): verdict and certainty kept
+    apart → request → person → chain per resource with provenance (source, kind, both clocks, basis) →
+    rejected links and ambiguities → copies and states → rule → recorded reasons → ordered steps.
+  - **Tests** (`test_explain.py`, 4): printed obs_ids ⊆ the trace; the trace keys; a trace-less run prints
+    "not recorded in the trace" line by line; no `ghostaudit.llm`/`google` module loads, with no key and a dead
+    proxy.
+  - **Mutations: 7, all red in the end.** Two survived first, because the missing-trace assert matched MISSING
+    on other lines (ERRORS #4, 6th occurrence); it is now line-specific.
+  - The sample output.csv is byte-identical to base (`cmp`).

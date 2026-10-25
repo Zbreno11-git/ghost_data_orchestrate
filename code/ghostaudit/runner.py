@@ -40,6 +40,38 @@ def _heuristic(cid, audit_at, intent, subject, own, assessments, view, rules, ti
     return out
 
 
+def _trace(row: dict, intent, llm_used: bool, subject, own, workflow, mode: str, rules: dict, plan: Plan,
+           audit_at) -> dict:
+    """The facts behind a row, as the run decided them (S6 C6.2), so an explanation never has to re-derive or
+    guess them: request, intent and its source, the identified person with every identifier used (role and
+    source), the account deduction, exclusions and ambiguities, the heuristic flag, the rule per decision."""
+    t = {"audit_at": audit_at.isoformat() if audit_at else None, "requested_at": row.get("requested_at"),
+         "reported_status": row.get("reported_status"), "reported_at": row.get("reported_at"),
+         "request_email": row.get("email"), "ownership_mode": mode,
+         "intent": {"authorizes_deletion": intent.authorizes_deletion, "confidence": intent.confidence,
+                    "reason": intent.reason, "source": "llm batch cross-checked with the rule" if llm_used else "rule"},
+         "heuristic": any(r.startswith("HEURISTIC PREDICTION") for r in plan.reasons)}
+    if isinstance(subject, Subject):
+        t["subject"] = {"user_id": subject.user_id, "request_email_role": subject.request_email_role,
+                        "identifiers": [{"type": i.type, "value": i.raw, "role": i.role, "source": i.source}
+                                        for i in subject.identifiers]}
+    else:
+        t["subject"] = {"unresolved": repr(subject)}
+    if own is not None:
+        a = own.account
+        t["account"] = ({"resource_id": a.resource_id, "tier": a.tier, "how": a.note, "reasons": list(a.reasons)}
+                        if a else None)
+        t["account_candidates"] = list(workflow.ambiguous.get(plan.case_id, [])) if workflow is not None else []
+        t["excluded"] = dict(own.excluded)
+        t["ambiguities"] = list(own.ambiguities)
+    for d in plan.decisions:
+        rule = rules.get(d.get("category"))
+        d.setdefault("rule_id", rule["rule_id"] if rule else None)
+        if not rule:
+            d.setdefault("rule_note", "no deletion_rules row for this category; the engine's built-in treatment")
+    return t
+
+
 def run_deterministic(dataset: Path, split: str, out_dir: Path, mode: str = "strict") -> dict:
     return run(dataset, split, out_dir, mode)
 
@@ -141,7 +173,7 @@ def run(dataset: Path, split: str, out_dir: Path, mode: str = "strict", engine: 
         intent = llm_intents.get(cid) or classify(row["request_text"])
         subject = resolved.get(cid)
         audit_at = by_case[cid].audit_at if cid in by_case else None
-        own, assessments = None, {}
+        own, assessments, workflow = None, {}, None
         if isinstance(subject, Subject):
             view = CaseView(store, audit_at)
             workflow = workflows.for_case(cid)
@@ -182,6 +214,7 @@ def run(dataset: Path, split: str, out_dir: Path, mode: str = "strict", engine: 
                                   "errors": outcome.errors, "submission": outcome.submission}
         if isinstance(subject, Subject) and own is not None and not plan.steps and plan.status != "NOT_APPLICABLE":
             plan = _heuristic(cid, audit_at, intent, subject, own, assessments, view, rules, times, plan)
+        plan.trace = _trace(row, intent, cid in llm_intents, subject, own, workflow, mode, rules, plan, audit_at)
         if engine == "agent":
             _save_case(out_dir, plan, extra, fp)
         plans.append(plan)
@@ -191,7 +224,8 @@ def run(dataset: Path, split: str, out_dir: Path, mode: str = "strict", engine: 
     with open(out_dir / "decisions.jsonl", "w", encoding="utf-8") as fh:
         for p in sorted(plans, key=lambda p: p.case_id):
             fh.write(json.dumps({"case_id": p.case_id, "status": p.status, "support": p.support,
-                                 "reasons": p.reasons, "decisions": p.decisions, "steps_json": dumps(p.steps)},
+                                 "reasons": p.reasons, "decisions": p.decisions, "steps_json": dumps(p.steps),
+                                 "trace": p.trace},
                                 ensure_ascii=False, default=str) + "\n")
     summary = {
         "split": split, "ownership": mode, "engine": engine, "model": model, "gateway_mode": gateway_mode,

@@ -31,6 +31,7 @@ class Plan:
     support: str                        # resolved | weak | unresolved
     reasons: list[str] = field(default_factory=list)
     decisions: list[dict] = field(default_factory=list)
+    trace: dict = field(default_factory=dict)   # what `main.py explain` prints (S6 C6.2); never read by planning
 
 
 def _step(op: str, system: str, resource: str, evidence: str) -> dict:

@@ -4,6 +4,7 @@
   python code/main.py ingest [--report] [--dataset DIR]
   python code/main.py status
   python code/main.py run --engine deterministic --split samples|targets [--ownership strict|scored] [--out DIR]
+  python code/main.py explain <case_id> --run DIR [--dataset DIR] [--md FILE]   (no model call)
 """
 from __future__ import annotations
 
@@ -85,6 +86,18 @@ def cmd_run(args) -> int:
     return 0
 
 
+def cmd_explain(args) -> int:
+    from ghostaudit.explain import explain
+    text = explain(Path(args.run), args.case_id, Path(args.dataset))
+    if args.md:
+        Path(args.md).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.md).write_text(text, encoding="utf-8")
+        print(f"wrote {args.md}")
+    else:
+        print(text)
+    return 0
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="main.py")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -111,6 +124,12 @@ def main(argv=None) -> int:
     p.add_argument("--dataset", default=str(REPO_ROOT / "dataset"))
     p.add_argument("--out", help="output directory (default runs/<run_id>/)")
     p.set_defaults(fn=cmd_run)
+    p = sub.add_parser("explain", help="explain one case from a run's decision trace; never calls a model")
+    p.add_argument("case_id")
+    p.add_argument("--run", required=True)
+    p.add_argument("--dataset", default=str(REPO_ROOT / "dataset"))
+    p.add_argument("--md", help="write the explanation to this Markdown file")
+    p.set_defaults(fn=cmd_explain)
     p = sub.add_parser("status")
     p.set_defaults(fn=cmd_status)
     args = ap.parse_args(argv)
