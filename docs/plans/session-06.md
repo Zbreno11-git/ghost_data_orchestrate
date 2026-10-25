@@ -232,3 +232,16 @@
     - `gate.py` assembles Breno's gate list per set (P/R/F1, whole, status, citation, sequence; correct
       gained/lost; incorrect added (supported vs unsupported) and removed; flips; support moves; causes
       before/after; row contribution between two runs).
+- **C6.8 (targets part) ✅ 01:59Z. Targeted recompute, hypothesis first.**
+  - **Hypothesis:** rows are unchanged (deterministic samples and targets are byte-identical to base) and the
+    trace does not enter agent briefs, so a **replay** (which can never pay: a changed brief fails loudly) reproduces
+    the published rows at $0.
+  - **Result:**
+    - `runs/s6/final` (agent, replay, scope non_resolved): 1722/1722 cache hits, `cost_usd_x1e6: 0`;
+    - targets `output.csv` byte-identical to `runs/s5/final` (sha256 `ee9504d5…8c4c`, the root file);
+    - samples identical to `runs/s5/final-samples2`; `0 violations`; support 175 / 18 / 325;
+    - ledger unchanged at $1.870528.
+  - **Fingerprints:** every checkpoint was recomputed (the code changed); none was reused stale.
+  - **Explanations** from this run are in `docs/explanations/` (5 classes, first case of each class).
+  - Reports: `make_reports.py` wording updated (decoded search; S6 changed no row; custom count derived), and
+    `failures_and_fixes.md` gains the S6 items.

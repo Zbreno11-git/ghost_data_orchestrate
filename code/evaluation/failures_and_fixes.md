@@ -30,6 +30,30 @@ repository's `docs/DECISIONS.md`.
     audit_at. Same-instant disagreement is a conflict, not "presence wins".
   - Effect: four target cases changed to COMPLETE, each traced to raw records; none of the 32 samples changed.
 
+**Session 6: audits before fixes (no row changed)**
+- **Our diagnostics called a parser blind spot a dataset gap.**
+  - Found by: the extraction audit (C6.1).
+  - Defect: the evaluator decided "absent from supplied evidence" by a raw-byte search, but the four PDFs are
+    compressed, so every identifier in them (10 of 10) is invisible to it.
+  - Fix: the search now runs over decoded text (raw text, two PDF decoders, every vision extract), and the
+    verdict is "no supporting fact found", with the checks listed. The three items it covers still match
+    nothing.
+- **Extraction coverage.** Every decoded line of every source that names a resource (7,338 lines) was compared
+  with the observations built from it: no record was skipped or partly read. Screenshots implicated in the
+  mismatches were also read visually against their extracts.
+- **Rejected association paths, to the break point.** Of the 24 sample steps whose resource is not linked:
+  - 21 rest on records that carry no identifier or reference at all (anonymized analytics profiles, profile
+    lookups);
+  - 3 are linked to the person only by evidence captured after the cutoff.
+  
+  No admissible chain exists, so no link rule was added. A tempting non-timing signal (workflow status vs the
+  run's result) was rejected: a link would still come from a time window plus a one-to-one assumption.
+- **Ownership mode by a criterion fixed beforehand.** Strict stays: the scored mode would gain 2 whole cases
+  but add 13 wrong account steps, so step F1 falls from 0.910 to 0.893.
+- **Robustness tests with controls.** End-to-end metamorphic tests cover input order, duplicated evidence,
+  another person with the same name, and post-cutoff files. Each has a positive control, which caught two
+  first versions whose fixtures the engine never read.
+
 **Temporal isolation and support labels (A24)**
 - **Ownership used information after a case's cutoff.**
   - Defect: an owner index built with a far-future cutoff, and a one-to-one account assignment solved once
@@ -68,8 +92,9 @@ repository's `docs/DECISIONS.md`.
 - **Settlement by error class (A21).** A rejected request is booked at $0, a server failure at its reservation.
 
 **Not fixed, and why**
-- **Accounts named only in deletion-worker rows** stay unattributed. The activity stream has no run
-  identifier, so any choice would be a guess.
+- **Accounts and anonymized records named only in deletion-worker rows** stay unattributed. The activity
+  stream has no run identifier, the records name no one, and timing or position is not evidence. Session 6
+  checked each one to its break point.
 - **Three target rows carry flagged heuristic predictions (A29).** The evidence there shows health,
   retention or an alias, not a state.
 - **Screen aliases are not used for grounded state.** The same object under its alias would add findings to a

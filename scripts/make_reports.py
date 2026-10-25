@@ -144,9 +144,10 @@ def evaluation_report(a) -> str:
         L.append(f"| {label} | {len(rows)} | {t['whole_base']} → {t['whole_cand']} | {t['correct_removed']} | "
                  f"{t['added_in_gold']} / {t['added_supported_not_in_gold']} / {t['added_unsupported']} | "
                  f"{t['flip_to_complete']} | ${t['cost']:.4f} |")
-    L += ["", "On the target split (no answers), the deterministic changes of this session moved rows only where "
-          "the per-case diffs were traced to raw evidence; every INCOMPLETE→COMPLETE flip was investigated "
-          "(`docs/plans/session-05.md`, C5.2–C5.6).", ""]
+    L += ["", "On the target split (no answers), engine changes moved rows only where the per-case diffs were traced "
+          "to raw evidence, and every INCOMPLETE→COMPLETE flip was investigated (`docs/plans/session-05.md`, "
+          "C5.2–C5.6). Session 6 changed no row: its audits found no evidence-backed link or parsing defect to fix "
+          "(`docs/plans/session-06.md`).", ""]
     diag = ROOT / "code" / "evaluation" / "diagnostics.md"
     if diag.exists():
         t = diag.read_text().splitlines()
@@ -154,15 +155,18 @@ def evaluation_report(a) -> str:
         j = next(k for k in range(i, len(t)) if not t[k].startswith("|"))
         L += ["## 5b. Mismatch diagnostics by earliest responsible stage", "",
               "Every sample mismatch of the final run, with one cause each (`code/evaluation/diagnose.py`; the full "
-              "list with examples is in `code/evaluation/diagnostics.md`). \"Absent from supplied evidence\" is "
-              "decided by a raw byte search, so a parser miss is never called a dataset gap.", ""] + t[i:j] + [
+              "list with examples is in `code/evaluation/diagnostics.md`). \"No supporting fact found\" means the id "
+              "occurs in no decoded source (raw text, PDF text from two decoders, every vision extract, the activity "
+              "and audit CSVs); it lists the checks made and is not proof that the evidence is absent.", ""] + t[i:j] + [
               "", t[j + 1] if j + 1 < len(t) and t[j + 1].startswith("Before") else "", ""]
     L += [(ROOT / "code" / "evaluation" / "failures_and_fixes.md").read_text()]
     L += ["", "## Tuning exposure", "",
           "Ownership, citation and screen-reading rules were measured on the 32 public samples, so these scores "
           "are optimistic for the hidden targets. No case id, evidence id, label or case family appears in code "
-          "(a test greps the prediction path for the sample answers file); the three custom cases were written "
-          "independently. No hidden-target accuracy is claimed.", ""]
+          "(a test greps the prediction path for the sample answers file); the "
+          f"{len(list((ROOT / 'code' / 'evaluation' / 'custom_cases').glob('*/expected_output.csv')))} custom cases "
+          "were specified independently of the engine. The samples have been inspected since the first session, so "
+          "they are not a held-out set. No hidden-target accuracy is claimed.", ""]
     return "\n".join(L)
 
 
