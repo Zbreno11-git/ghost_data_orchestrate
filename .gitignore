@@ -23,3 +23,5 @@ state/*.lock
 # S7: the built evidence viewer is generated (package_code.py / main.py viewer), never committed
 code/viewer/*.html
 code/viewer/*.meta.json
+# Claude Code /export transcripts (traces are never committed; stage_traces.py moves them out)
+/20??-??-??-*.txt

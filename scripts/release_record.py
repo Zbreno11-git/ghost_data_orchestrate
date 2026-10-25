@@ -8,7 +8,9 @@ release directory holding the four upload files. Writes:
 
 Usage: python3 scripts/release_record.py --run runs/s7/final --samples runs/s7/final-samples
          --package-report runs/s7/package_report.json --release-dir ~/ghost-release [--mac docs/release/mac_acceptance.md]
-Exit 1 if an upload file is missing.
+         [--docs-dir docs/release]
+Exit 1, writing nothing, if an upload file is missing, if the release code.zip is not the archive the package check
+accepted, or if the release output.csv is not the final run's output: the record describes only the files uploaded.
 """
 from __future__ import annotations
 
@@ -36,17 +38,26 @@ def main(argv=None) -> int:
     ap.add_argument("--package-report", type=Path, required=True)
     ap.add_argument("--release-dir", type=Path, required=True)
     ap.add_argument("--mac", type=Path)
+    ap.add_argument("--docs-dir", type=Path, default=ROOT / "docs" / "release")
     a = ap.parse_args(argv)
     from evaluation.metrics import evaluate, load_output
     missing = [f for f in FILES if not (a.release_dir / f).exists()]
     if missing:
         print(f"missing upload files in {a.release_dir}: {missing}")
         return 1
-    sums = "".join(f"{sha(a.release_dir / f)}  {f}\n" for f in FILES)
-    (a.release_dir / "SHA256SUMS").write_text(sums)
-    (ROOT / "docs" / "release" / "SHA256SUMS").write_text(sums)
-    s = json.loads((a.run / "summary.json").read_text())
     pk = json.loads(a.package_report.read_text())
+    accepted = (pk.get("check") or {})
+    if accepted.get("not_accepted_because") != [] or (accepted.get("sha256") or {}).get("code.zip") != sha(a.release_dir / "code.zip"):
+        print("refusing: the release code.zip is not the archive the package check accepted")
+        return 1
+    if sha(a.release_dir / "output.csv") != sha(a.run / "output.csv"):
+        print(f"refusing: the release output.csv is not {a.run / 'output.csv'}")
+        return 1
+    sums = "".join(f"{sha(a.release_dir / f)}  {f}\n" for f in FILES)
+    a.docs_dir.mkdir(parents=True, exist_ok=True)
+    (a.release_dir / "SHA256SUMS").write_text(sums)
+    (a.docs_dir / "SHA256SUMS").write_text(sums)
+    s = json.loads((a.run / "summary.json").read_text())
     m = evaluate(load_output(a.samples / "output.csv"), load_output(ROOT / "dataset" / "sample_output.csv"))
     head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
@@ -76,9 +87,9 @@ def main(argv=None) -> int:
     L += [f"| {f} | {(a.release_dir / f).stat().st_size} | `{sha(a.release_dir / f)}` |" for f in FILES]
     L += ["", "`SHA256SUMS` sits beside them and in `docs/release/`, outside every archive it hashes. After the freeze, "
           "any change to one of these files reopens the affected checks and produces a new record.", ""]
-    (ROOT / "docs" / "release" / "RELEASE_RECORD.md").write_text("\n".join(L))
+    (a.docs_dir / "RELEASE_RECORD.md").write_text("\n".join(L))
     print(sums, end="")
-    print(f"wrote docs/release/RELEASE_RECORD.md and {a.release_dir / 'SHA256SUMS'}")
+    print(f"wrote {a.docs_dir / 'RELEASE_RECORD.md'}, {a.docs_dir / 'SHA256SUMS'} and {a.release_dir / 'SHA256SUMS'}")
     return 0
 
 
