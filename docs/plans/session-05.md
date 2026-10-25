@@ -407,3 +407,33 @@ Integrated into C5.3, C5.5, C5.11 and C5.12 above, without new modules:
   - **Agent scope (A28, same answer):** non_resolved. The full run `runs/s5/full-1` started at 00:42Z,
     before this change, so a re-run on the final code is needed: its cache hits make it cheap, and only the
     changed briefs pay.
+
+## Release kit (C5.13; written 00:51Z; collected at closure; Breno uploads)
+
+| Slot | File | Built by | Where | State now |
+|---|---|---|---|---|
+| `output.csv` | root `output.csv` | copied atomically from the validated final run (`runs/s5/final/output.csv`) after Breno's go | repo root | not yet published: the final run is pending |
+| `code.zip` | `code.zip` (README.md, code/, declared replay artifacts) | `python3 -I scripts/package_code.py --run runs/s5/final` (clean unpack, fresh venv, offline replay, `cmp`) | repo root (gitignored, `*.zip`) | tool ready |
+| `chat_transcript` | `log.txt` | appended every turn; audited by `scripts/analysis/log_audit.py` (exit 0 = every human message logged literally) | repo root | 18/18 literal at 22:23Z, corrections appended |
+| optional trace | `agent-trace.zip` | `python3 -I scripts/stage_traces.py --zip` → `~/agent-trace/` → `~/agent-trace.zip` | **outside** the repo and never inside code.zip | dry run OK: 8 files, 0 redactions |
+| reports | `code/evaluation/evaluation_report.md`, `usage_report.md` | `scripts/make_reports.py` from the final run | inside code.zip | generator ready |
+
+**At closure, in this order:**
+1. Agent: final run → validate → regenerate reports → `package_code.py` (must exit 0) → `log_audit.py` (exit 0).
+   Publish root `output.csv` atomically.
+2. Agent: `stage_traces.py --dry-run`, then stage (redacting copies only), inspect `~/agent-trace/`.
+3. **Breno:** run `/export` in this Claude Code session and save the file into `~/agent-trace/claude-code/`.
+   Then quit the session, so the JSONL is complete.
+4. **Breno, or the agent in a new session:** re-run `stage_traces.py --zip` so the final JSONL replaces the
+   staged copy. Open `agent-trace.zip` once to confirm its contents.
+5. **Breno:** add any hosted ChatGPT planning or review exports under `~/agent-trace/chatgpt/`, labelled as
+   text transcriptions when they are not native exports. The pre-Claude transcription is already staged with
+   its own "text transcription" header.
+6. **Breno uploads** `output.csv`, `code.zip`, `log.txt` and, optionally, `agent-trace.zip` at
+   https://www.hackerrank.com/contests/hackerrank-orchestrate-october26/challenges/ghost-data-still-exists.
+   The agent submits nothing.
+
+**Rules:**
+- Originals are never edited.
+- Redaction applies to staged copies only, and JSONL lines must still parse.
+- Excluded: memory notes, settings, credentials, `.env`, Codex sessions (none belong to this challenge).
