@@ -37,6 +37,13 @@ max_attempts = 3            # total attempts for retryable errors (429, 5xx, tra
 backoff_s = 2.0             # doubled after each failed attempt
 cache_dir = "runs/cache/llm"
 
+# Ownership (S7 C7.1). Accounts deduced without explicit evidence come from these existing mechanisms of the
+# one-to-one workflow solve (ownership.DEDUCTION_MECHANISMS) and the strict→scored nearest-anchor fallback. Only
+# the listed ones are asserted (become the account, get steps, support ≤ weak); the others are recorded as
+# uncertain investigation candidates. Part of the config, so it enters every checkpoint fingerprint.
+[ownership]
+asserted_mechanisms = ["corroborated_run", "only_feasible_row", "only_feasible_request", "forced_matching", "nearest_anchor"]
+
 # Investigator agent (C4.3). The model reviews the deterministic proposal; the engine recompiles its decisions.
 [agent]
 model = "gemini-3.1-flash-lite"   # A7 default; C4.6 benchmarks it against 3.8-flash

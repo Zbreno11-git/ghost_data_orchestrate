@@ -16,7 +16,7 @@ from .ingest.csv_tables import TABLES, load_tables
 from .ingest.manifest import evidence_times
 from .ingest.pipeline import ingest_all
 from .intent import classify
-from .ownership import AssignmentsAsOf, OwnerIndex, build_requests, link_case, request_at
+from .ownership import DEDUCTION_MECHANISMS, AssignmentsAsOf, OwnerIndex, build_requests, link_case, request_at
 from .planner import Plan, plan_case
 from .policy import assess, heuristic_assess, load_rules
 from .serialize import dumps, write_output_csv
@@ -64,6 +64,7 @@ def _trace(row: dict, intent, llm_used: bool, subject, own, workflow, mode: str,
         t["account_candidates"] = list(workflow.ambiguous.get(plan.case_id, [])) if workflow is not None else []
         t["excluded"] = dict(own.excluded)
         t["ambiguities"] = list(own.ambiguities)
+        t["uncertain_candidates"] = dict(own.uncertain)
     for d in plan.decisions:
         rule = rules.get(d.get("category"))
         d.setdefault("rule_id", rule["rule_id"] if rule else None)
@@ -157,6 +158,10 @@ def run(dataset: Path, split: str, out_dir: Path, mode: str = "strict", engine: 
         llm_intents = classify_all(selected, gateway, cfg)
 
     run_fp = run_fingerprint(dataset, cfg, model)
+    am = (cfg.get("ownership") or {}).get("asserted_mechanisms")
+    if am is not None and set(am) - set(DEDUCTION_MECHANISMS):
+        raise ValueError(f"unknown ownership.asserted_mechanisms {sorted(set(am) - set(DEDUCTION_MECHANISMS))}")
+    asserted = None if am is None or set(am) >= set(DEDUCTION_MECHANISMS) else frozenset(am)
     plans: list[Plan] = []
     how: dict[str, str] = {}                    # case → how its as-of assignment was decided
     for row in tables[SPLITS[split]]:
@@ -178,21 +183,26 @@ def run(dataset: Path, split: str, out_dir: Path, mode: str = "strict", engine: 
             view = CaseView(store, audit_at)
             workflow = workflows.for_case(cid)
             how[cid] = workflow.assigned[cid][1] if cid in workflow.assigned else "ambiguous"
-            own = link_case(by_case[cid], view, workflow, owners, mode)
+            own = link_case(by_case[cid], view, workflow, owners, mode, asserted)
             assessments = {r: assess(r, l.system_id, view, rules, subject) for r, l in own.links.items()}
         if audit_at is None:
             from .timeutil import parse_ts
             audit_at = parse_ts(row["audit_at"])
         plan = plan_case(cid, audit_at, intent, subject, own, assessments, times)
-        if mode == "strict" and plan.status != "NOT_APPLICABLE" and not plan.steps and isinstance(subject, Subject):
+        if (mode == "strict" and plan.status != "NOT_APPLICABLE" and not plan.steps and isinstance(subject, Subject)
+                and (asserted is None or "nearest_anchor" in asserted)):
             # Nothing attributable by deduction: fall back to the scored (weak) candidates for this case only,
             # so the row carries the best grounded proposal; it is reported weak/unresolved, never resolved.
-            own = link_case(by_case[cid], view, workflow, owners, "scored")
+            own = link_case(by_case[cid], view, workflow, owners, "scored", asserted)
             assessments = {r: assess(r, l.system_id, view, rules, subject) for r, l in own.links.items()}
             plan = plan_case(cid, audit_at, intent, subject, own, assessments, times)
             plan.reasons.insert(0, "strict ownership attributed nothing; scored candidates used")
             if plan.support == "resolved":
                 plan.support = "weak"
+        elif (mode == "strict" and plan.status != "NOT_APPLICABLE" and not plan.steps and isinstance(subject, Subject)
+                and cid in workflow.ranked and workflow.ranked[cid][0].record_type != "CLASSIFY_REQUEST"):
+            row_, gap = workflow.ranked[cid]          # the fallback is not asserted: keep its pick visible only
+            own.uncertain[row_.resource_id] = f"nearest_anchor ({gap / 60:.0f} min): not asserted (asserted_mechanisms)"
         if engine == "agent":
             extra = {"agent": None}
             in_scope = cfg["agent"].get("scope", "all") == "all" or plan.support != "resolved"
@@ -237,6 +247,7 @@ def run(dataset: Path, split: str, out_dir: Path, mode: str = "strict", engine: 
     summary = {
         "split": split, "ownership": mode, "engine": engine, "model": model, "gateway_mode": gateway_mode,
         "agent_scope": cfg["agent"].get("scope", "all"),
+        "asserted_mechanisms": sorted(asserted) if asserted is not None else "all",
         "rows": len(plans), "agent": dict(agent_stats), "tool_use": dict(tool_use),
         "status": dict(Counter(p.status for p in plans)),
         "support": dict(Counter(p.support for p in plans)),

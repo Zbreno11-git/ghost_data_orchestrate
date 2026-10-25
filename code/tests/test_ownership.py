@@ -233,3 +233,44 @@ def test_a_subject_record_that_names_another_resource_links_it_too():
     links = explicit_links(idx.resolve("j@x.com", T), CaseView(store, T), store.resource_re, OwnerIndex(idx))
     assert links.get("account_1") == ["ev#1"]
     assert "account_2" not in links          # the record also names another subject: it links nothing extra
+
+
+# --- S7 C7.1: which deduction mechanisms are asserted is configuration ----------------------------------------
+
+def _deduced_pair():
+    """case_A is fixed by its explicit account; case_B gets the only row left (only_feasible_row)."""
+    rows = [_row("r1", 0, "account_A"), _row("r2", 10, "account_B")]
+    a = _req("case_A", "user_a", -60, 50, explicit={"account_A": ["ev#a"]})
+    b = _req("case_B", "user_b", -60, 50)
+    return WorkflowAssignment(rows, [a, b]), a, b
+
+
+def test_an_unasserted_mechanism_leaves_its_pick_as_an_uncertain_candidate_only():
+    from ghostaudit.evidence import EvidenceStore
+    wf, a, b = _deduced_pair()
+    assert wf.assigned["case_B"][1] == "only_feasible_row"
+    owners = OwnerIndex(IdentityIndex([], []))
+    own = link_case(b, CaseView(EvidenceStore(), FAR), wf, owners, "strict", frozenset({"forced_matching"}))
+    assert own.account is None and "account_B" not in own.links
+    assert own.uncertain == {"account_B": own.uncertain["account_B"]} and "only_feasible_row" in own.uncertain["account_B"]
+    # close positive: the same deduction is asserted when its mechanism is listed, and by default
+    for asserted in (frozenset({"only_feasible_row"}), None):
+        own = link_case(b, CaseView(EvidenceStore(), FAR), wf, owners, "strict", asserted)
+        assert own.account.resource_id == "account_B" and own.account.tier == "workflow" and not own.uncertain
+
+
+def test_an_explicit_account_is_asserted_whatever_the_mechanism_list():
+    from ghostaudit.evidence import EvidenceStore
+    wf, a, _ = _deduced_pair()
+    own = link_case(a, CaseView(EvidenceStore(), FAR), wf, OwnerIndex(IdentityIndex([], [])), "strict", frozenset())
+    assert own.account.resource_id == "account_A" and own.account.tier == "explicit" and not own.uncertain
+
+
+def test_the_runner_rejects_an_unknown_mechanism_name(tmp_path):
+    from conftest import CODE
+    from ghostaudit.config import load_config
+    from ghostaudit.runner import run
+    cfg = load_config()
+    cfg["ownership"] = {"asserted_mechanisms": ["only_feasible_row", "cadence_guess"]}
+    with pytest.raises(ValueError, match="cadence_guess"):
+        run(CODE / "evaluation" / "custom_cases" / "historical_email_replica" / "dataset", "targets", tmp_path, config=cfg)

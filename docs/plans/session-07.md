@@ -483,3 +483,11 @@ The automatic rule ("recommend candidate unless … loses more correct sample st
 
 `scripts/finalize_release.sh` is prepared beforehand and runs steps 3–5. Nothing inside a checksummed archive
 changes afterwards without a rebuild and a new checksum. The "re-zip after the export" step is removed.
+- **C7.1 (measured, decision pending) 03:03Z.**
+  - The `[ownership] asserted_mechanisms` switch (default: all, byte-identical to S6 on samples and targets).
+  - 3 tests; 2 mutations red.
+  - Masked backtest: `docs/diagnostics/s7/masked_backtest.md`. Control passed. Cohort-masked: only_feasible_row 4/4, forced 1/2,
+    only_feasible_request 0/1, nearest-anchor 48/168.
+  - Comparison A/B/C: `docs/diagnostics/s7/legacy_links.md`. B and C leave case_63 (targets) as an invalid empty COMPLETE; A29 finds nothing.
+  - Deviation: the agent pass on the alternatives is deferred to C7.4 on the chosen config. A27 means it cannot re-assert a workflow-only account, so the deterministic comparison decides. $0 spent.
+  - Decision to Breno together with C7.1T.

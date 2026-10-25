@@ -93,6 +93,8 @@ def explain(run: Path, case_id: str, dataset: Path, index: dict | None = None) -
     else:
         L += [f"- excluded `{r}`: {why}" for r, why in sorted((t.get("excluded") or {}).items())] or ["- no exclusions recorded"]
         L += [f"- ambiguity: {a}" for a in t.get("ambiguities") or []] or ["- no ownership ambiguity recorded"]
+        L += [f"- uncertain investigation candidate `{r}`: {why} (no step generated)"
+              for r, why in sorted((t.get("uncertain_candidates") or {}).items())]
     L += ["", "## Each copy and its state at the cutoff", ""]
     for dec in d.get("decisions", []):
         L.append(f"- `{dec['resource_id']}`: verdict **{dec.get('verdict')}** ({dec.get('reason')}); proof {_prov(dec.get('proof'), index)}")

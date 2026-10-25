@@ -73,6 +73,9 @@ def cmd_run(args) -> int:
     cfg = load_config()
     if args.agent_scope:
         cfg["agent"] = {**cfg["agent"], "scope": args.agent_scope}
+    if getattr(args, "asserted_mechanisms", None) is not None:
+        cfg["ownership"] = {**cfg.get("ownership", {}), "asserted_mechanisms":
+                            [m for m in args.asserted_mechanisms.split(",") if m and m != "none"]}
     summary = run(Path(args.dataset), args.split, out, args.ownership, engine=args.engine, gateway_mode=args.mode,
                   model=args.model, cases=cases, run_id=run_id, config=cfg)
     print(f"{summary['rows']} rows → {out / 'output.csv'}")
@@ -121,6 +124,8 @@ def main(argv=None) -> int:
     p.add_argument("--cases", help="comma-separated case_ids to run (default: every case of the split)")
     p.add_argument("--split", choices=sorted(REQUEST_FILES), default="targets")
     p.add_argument("--ownership", choices=["strict", "scored"], default="strict")
+    p.add_argument("--asserted-mechanisms", help="comma list of deduction mechanisms whose accounts are asserted "
+                   "(default: [ownership] in config; 'none' asserts none, S7 C7.1)")
     p.add_argument("--dataset", default=str(REPO_ROOT / "dataset"))
     p.add_argument("--out", help="output directory (default runs/<run_id>/)")
     p.set_defaults(fn=cmd_run)

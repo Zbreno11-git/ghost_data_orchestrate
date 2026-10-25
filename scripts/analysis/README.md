@@ -21,3 +21,12 @@ derivable. They are evaluation-side tools only.
 
 `extraction_audit.py` compares every decoded line that names a mismatch resource (raw text, two PDF decoders,
 vision extracts; `code/evaluation/corpus.py`) with the observations built from that source.
+
+**S7 (2026-10-25), evaluator side:**
+
+```bash
+.venv/bin/python scripts/analysis/masked_backtest.py --out <md> --json <json>   # C7.1 masked-identity backtest
+```
+
+`masked_backtest.py` hides explicitly proven accounts by cohort and re-runs the existing workflow-account
+mechanisms; the truth mapping lives only in the script. It does not read `sample_output.csv`.

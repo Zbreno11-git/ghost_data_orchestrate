@@ -47,6 +47,7 @@ class Ownership:
     account: Link | None = None
     excluded: dict[str, str] = field(default_factory=dict)      # resource → why it is not the subject's
     ambiguities: list[str] = field(default_factory=list)
+    uncertain: dict[str, str] = field(default_factory=dict)     # deduced account not asserted (S7 C7.1) → how
 
     @property
     def weak(self) -> bool:
@@ -321,7 +322,19 @@ def _max_matching(adj: dict[str, list[str]], banned: tuple[str, str] | None = No
     return size, match
 
 
-def link_case(q: _Req, view: CaseView, wf: WorkflowAssignment, owners: OwnerIndex, mode: str = "strict") -> Ownership:
+# The deduction mechanisms that can attribute an account without explicit evidence (S7 C7.1). Which of them are
+# *asserted* (become the account and get steps) is configuration: `[ownership] asserted_mechanisms`. A mechanism
+# left out still runs, so the one-to-one solve is unchanged; its pick is recorded as an uncertain candidate.
+DEDUCTION_MECHANISMS = ("corroborated_run", "only_feasible_row", "only_feasible_request", "forced_matching",
+                        "nearest_anchor")
+
+
+def link_case(q: _Req, view: CaseView, wf: WorkflowAssignment, owners: OwnerIndex, mode: str = "strict",
+              asserted: frozenset[str] | None = None) -> Ownership:
+    """`asserted` = the deduction mechanisms whose account picks are asserted; None = all of them."""
+    def ok(how: str) -> bool:
+        return how == "explicit_account" or asserted is None or how in asserted
+
     own = Ownership(q.case_id)
     for r, reasons in sorted(q.explicit.items()):
         obs = view.by_resource(r)
@@ -331,12 +344,18 @@ def link_case(q: _Req, view: CaseView, wf: WorkflowAssignment, owners: OwnerInde
     mine = wf.assigned.get(q.case_id)
     for r in list(own.links):
         if r.startswith("account_") or own.links[r].system_id == ACCOUNT_SYSTEM:
-            other = [c for c, (row, _, _) in wf.assigned.items() if row.resource_id == r and c != q.case_id]
+            other = [c for c, (row, how, _) in wf.assigned.items()
+                     if row.resource_id == r and c != q.case_id and ok(how)]
             if other and not (mine and mine[0].resource_id == r):
                 own.excluded[r] = f"primary profile of {other[0]}'s workflow run"
                 del own.links[r]
     if mine and mine[0].record_type == "CLASSIFY_REQUEST":
         own.ambiguities.append(f"anchored to intake row {mine[0].obs_id} (non-deletion classification claim)")
+        mine = None
+    elif mine and not ok(mine[1]):
+        row, how, _ = mine
+        own.uncertain[row.resource_id] = f"{how}: a timing/one-to-one deduction, not asserted (asserted_mechanisms)"
+        own.ambiguities.append(f"primary profile unasserted: {row.resource_id} deduced only by {how}")
         mine = None
     elif mine:
         row, how, reasons = mine
@@ -345,10 +364,14 @@ def link_case(q: _Req, view: CaseView, wf: WorkflowAssignment, owners: OwnerInde
         own.links[row.resource_id] = own.account
     elif mode == "scored" and q.case_id in wf.ranked and wf.ranked[q.case_id][0].record_type != "CLASSIFY_REQUEST":
         row, gap = wf.ranked[q.case_id]
-        own.account = Link(row.resource_id, ACCOUNT_SYSTEM, "workflow", (row.obs_id,),
-                           note=f"nearest anchor to reported_at ({gap / 60:.0f} min); weak")
-        own.links[row.resource_id] = own.account
-        own.ambiguities.append(f"primary profile is a weak candidate among {wf.ambiguous.get(q.case_id, [])}")
+        if ok("nearest_anchor"):
+            own.account = Link(row.resource_id, ACCOUNT_SYSTEM, "workflow", (row.obs_id,),
+                               note=f"nearest anchor to reported_at ({gap / 60:.0f} min); weak")
+            own.links[row.resource_id] = own.account
+            own.ambiguities.append(f"primary profile is a weak candidate among {wf.ambiguous.get(q.case_id, [])}")
+        else:
+            own.uncertain[row.resource_id] = f"nearest_anchor ({gap / 60:.0f} min): not asserted (asserted_mechanisms)"
+            own.ambiguities.append(f"primary profile unassigned; candidates {wf.ambiguous.get(q.case_id, [])}")
     else:
         own.ambiguities.append(f"primary profile unassigned; candidates {wf.ambiguous.get(q.case_id, [])}")
     # Workflow candidates for resources with no subject link (already-clean records): scored mode only, and only
