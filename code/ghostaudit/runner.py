@@ -220,7 +220,7 @@ def run(dataset: Path, split: str, out_dir: Path, mode: str = "strict", engine: 
         # plan is published, else the deterministic one (the heuristic path is built from the deterministic).
         traced = agent_own if agent_own is not None and plan is published else own
         plan.trace = _trace(row, intent, cid in llm_intents, subject, traced, workflow, mode, rules, plan, audit_at)
-        if traced is agent_own and agent_own is not None:
+        if traced is agent_own and agent_own is not None and agent_own.account and agent_own.account.note == "agent":
             plan.trace["account_source"] = "agent submission (lineage-checked, A27)"
         if engine == "agent":
             _save_case(out_dir, plan, extra, fp)

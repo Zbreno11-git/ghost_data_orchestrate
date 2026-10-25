@@ -3,6 +3,29 @@
 > One entry per session, newest on top. Narrative: what was done, what was decided and **why**, and what was
 > learned. State does not live here (see PROGRESS.md).
 
+## 2026-10-25 — S6: audits before fixes; one engine defect found by an independent case; rows unchanged; $0.006
+
+**Done.** Breno strengthened S6 mid-turn: recover evidence-backed missing steps without losing precision, never
+link from timing, naming, labels or one-to-one assumptions, and measure everything against a frozen S5 baseline.
+- **Extraction audit:** every decoded line naming a resource matches an observation; screenshots read by eye.
+  Our evaluator's "absent" verdict was a raw-byte search blind to compressed PDFs (ERRORS #8); fixed.
+- **Association paths to the break point:** the 24 sample misses rest on anonymous records (21) or on lineage
+  captured after the cutoff (3). The honest conclusion was "no link", so no rule was written.
+- **Trace + explain** built early, then used to read the misses; metamorphic tests added (each with a control —
+  which caught two hollow first versions).
+- **Ownership mode** chosen by a criterion written before measuring: strict stays (A33). A tempting non-timing signal,
+  status compatibility, was rejected under Breno's rule (A32).
+- **Two independent custom cases**, written blind by a subagent: the deterministic engine passed both on first run;
+  the agent failed one by naming a tombstone as the account, which would have planned deleting a kept record. Fixed
+  (ERRORS #9); replay then showed that rewording a rejection breaks cached repairs, and the check order was fixed.
+- **Final:** replay reproduces the published output byte for byte at $0; gate shows no change on samples, 5/5 custom.
+
+**Decided, and why.** A32 rejected and A33 kept, each with its numbers. The rule: a session that finds nothing
+fixable says so with the checks that prove it, instead of shipping a rule the evidence does not support.
+
+**Learned.** Independent cases find what tuned samples cannot (the tombstone defect had no sample). Positive controls
+are cheap and catch fixtures that never reach the engine.
+
 ## 2026-10-25 — S5: accuracy before spend, owner decisions, final run, reports, proven package, $1.53
 
 **Done.** The six additions Breno sent at the start (plus five amendments, a temporal check and a roadmap

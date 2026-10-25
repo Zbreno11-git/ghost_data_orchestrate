@@ -1,0 +1,1222 @@
+{
+ "samples": {
+  "base": {
+   "cases": 32,
+   "predicted_rows_missing": 0,
+   "predicted_rows_unparsed": 0,
+   "status_accuracy": {
+    "num": 32,
+    "den": 32,
+    "value": 1.0
+   },
+   "whole_case_exact": {
+    "num": 12,
+    "den": 32,
+    "value": 0.375
+   },
+   "step_precision": {
+    "num": 162,
+    "den": 163,
+    "value": 0.9938650306748467
+   },
+   "step_recall": {
+    "num": 162,
+    "den": 193,
+    "value": 0.8393782383419689
+   },
+   "step_f1": 0.9101123595505619,
+   "evidence_accuracy_on_matched": {
+    "num": 162,
+    "den": 162,
+    "value": 1.0
+   },
+   "cited_evidence_recall": {
+    "num": 61,
+    "den": 75,
+    "value": 0.8133333333333334
+   },
+   "field_accuracy": {
+    "step_no": {
+     "num": 163,
+     "den": 163,
+     "value": 1.0
+    },
+    "phase": {
+     "num": 163,
+     "den": 163,
+     "value": 1.0
+    },
+    "system_id": {
+     "num": 123,
+     "den": 163,
+     "value": 0.754601226993865
+    },
+    "resource_id": {
+     "num": 122,
+     "den": 163,
+     "value": 0.7484662576687117
+    },
+    "operation": {
+     "num": 132,
+     "den": 163,
+     "value": 0.8098159509202454
+    },
+    "state": {
+     "num": 132,
+     "den": 163,
+     "value": 0.8098159509202454
+    },
+    "evidence_id": {
+     "num": 163,
+     "den": 163,
+     "value": 1.0
+    }
+   },
+   "aligned_steps": 163,
+   "missing_steps": 30,
+   "extra_steps": 0,
+   "sequence_accuracy": {
+    "num": 12,
+    "den": 32,
+    "value": 0.375
+   },
+   "ordered_operations_accuracy": {
+    "num": 12,
+    "den": 32,
+    "value": 0.375
+   },
+   "status_confusion": {
+    "COMPLETE->COMPLETE": 10,
+    "INCOMPLETE->INCOMPLETE": 22
+   }
+  },
+  "cand": {
+   "cases": 32,
+   "predicted_rows_missing": 0,
+   "predicted_rows_unparsed": 0,
+   "status_accuracy": {
+    "num": 32,
+    "den": 32,
+    "value": 1.0
+   },
+   "whole_case_exact": {
+    "num": 12,
+    "den": 32,
+    "value": 0.375
+   },
+   "step_precision": {
+    "num": 162,
+    "den": 163,
+    "value": 0.9938650306748467
+   },
+   "step_recall": {
+    "num": 162,
+    "den": 193,
+    "value": 0.8393782383419689
+   },
+   "step_f1": 0.9101123595505619,
+   "evidence_accuracy_on_matched": {
+    "num": 162,
+    "den": 162,
+    "value": 1.0
+   },
+   "cited_evidence_recall": {
+    "num": 61,
+    "den": 75,
+    "value": 0.8133333333333334
+   },
+   "field_accuracy": {
+    "step_no": {
+     "num": 163,
+     "den": 163,
+     "value": 1.0
+    },
+    "phase": {
+     "num": 163,
+     "den": 163,
+     "value": 1.0
+    },
+    "system_id": {
+     "num": 123,
+     "den": 163,
+     "value": 0.754601226993865
+    },
+    "resource_id": {
+     "num": 122,
+     "den": 163,
+     "value": 0.7484662576687117
+    },
+    "operation": {
+     "num": 132,
+     "den": 163,
+     "value": 0.8098159509202454
+    },
+    "state": {
+     "num": 132,
+     "den": 163,
+     "value": 0.8098159509202454
+    },
+    "evidence_id": {
+     "num": 163,
+     "den": 163,
+     "value": 1.0
+    }
+   },
+   "aligned_steps": 163,
+   "missing_steps": 30,
+   "extra_steps": 0,
+   "sequence_accuracy": {
+    "num": 12,
+    "den": 32,
+    "value": 0.375
+   },
+   "ordered_operations_accuracy": {
+    "num": 12,
+    "den": 32,
+    "value": 0.375
+   },
+   "status_confusion": {
+    "COMPLETE->COMPLETE": 10,
+    "INCOMPLETE->INCOMPLETE": 22
+   }
+  },
+  "compare": {
+   "cases": 32,
+   "gold_steps": 193,
+   "predicted_steps_base": 163,
+   "predicted_steps_cand": 163,
+   "correct_kept": 162,
+   "correct_removed": 0,
+   "incorrect_removed": 0,
+   "added_in_gold": 0,
+   "added_supported_not_in_gold": 0,
+   "added_unsupported": 0,
+   "matched_cand": 162,
+   "citation_ok_cand": 162,
+   "whole_base": 12,
+   "whole_cand": 12,
+   "flips": 0,
+   "flips_to_complete": 0,
+   "cost_usd_x1e6": 0,
+   "whole_gained": 0,
+   "whole_lost": 0,
+   "cost_usd": 0.0,
+   "cost_per_whole_gained": null
+  }
+ },
+ "historical_email_replica": {
+  "base": {
+   "cases": 1,
+   "predicted_rows_missing": 0,
+   "predicted_rows_unparsed": 0,
+   "status_accuracy": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "whole_case_exact": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "step_precision": {
+    "num": 3,
+    "den": 3,
+    "value": 1.0
+   },
+   "step_recall": {
+    "num": 3,
+    "den": 3,
+    "value": 1.0
+   },
+   "step_f1": 1.0,
+   "evidence_accuracy_on_matched": {
+    "num": 3,
+    "den": 3,
+    "value": 1.0
+   },
+   "cited_evidence_recall": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "field_accuracy": {
+    "step_no": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "phase": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "system_id": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "resource_id": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "operation": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "state": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "evidence_id": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    }
+   },
+   "aligned_steps": 3,
+   "missing_steps": 0,
+   "extra_steps": 0,
+   "sequence_accuracy": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "ordered_operations_accuracy": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "status_confusion": {
+    "INCOMPLETE->INCOMPLETE": 1
+   }
+  },
+  "cand": {
+   "cases": 1,
+   "predicted_rows_missing": 0,
+   "predicted_rows_unparsed": 0,
+   "status_accuracy": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "whole_case_exact": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "step_precision": {
+    "num": 3,
+    "den": 3,
+    "value": 1.0
+   },
+   "step_recall": {
+    "num": 3,
+    "den": 3,
+    "value": 1.0
+   },
+   "step_f1": 1.0,
+   "evidence_accuracy_on_matched": {
+    "num": 3,
+    "den": 3,
+    "value": 1.0
+   },
+   "cited_evidence_recall": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "field_accuracy": {
+    "step_no": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "phase": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "system_id": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "resource_id": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "operation": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "state": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "evidence_id": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    }
+   },
+   "aligned_steps": 3,
+   "missing_steps": 0,
+   "extra_steps": 0,
+   "sequence_accuracy": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "ordered_operations_accuracy": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "status_confusion": {
+    "INCOMPLETE->INCOMPLETE": 1
+   }
+  },
+  "compare": {
+   "cases": 1,
+   "gold_steps": 3,
+   "predicted_steps_base": 3,
+   "predicted_steps_cand": 3,
+   "correct_kept": 3,
+   "correct_removed": 0,
+   "incorrect_removed": 0,
+   "added_in_gold": 0,
+   "added_supported_not_in_gold": 0,
+   "added_unsupported": 0,
+   "matched_cand": 3,
+   "citation_ok_cand": 3,
+   "whole_base": 1,
+   "whole_cand": 1,
+   "flips": 0,
+   "flips_to_complete": 0,
+   "cost_usd_x1e6": 0,
+   "whole_gained": 0,
+   "whole_lost": 0,
+   "cost_usd": 0.0,
+   "cost_per_whole_gained": null
+  }
+ },
+ "post_cutoff_evidence_ignored": {
+  "base": {
+   "cases": 1,
+   "predicted_rows_missing": 0,
+   "predicted_rows_unparsed": 0,
+   "status_accuracy": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "whole_case_exact": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "step_precision": {
+    "num": 3,
+    "den": 3,
+    "value": 1.0
+   },
+   "step_recall": {
+    "num": 3,
+    "den": 3,
+    "value": 1.0
+   },
+   "step_f1": 1.0,
+   "evidence_accuracy_on_matched": {
+    "num": 3,
+    "den": 3,
+    "value": 1.0
+   },
+   "cited_evidence_recall": {
+    "num": 3,
+    "den": 3,
+    "value": 1.0
+   },
+   "field_accuracy": {
+    "step_no": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "phase": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "system_id": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "resource_id": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "operation": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "state": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "evidence_id": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    }
+   },
+   "aligned_steps": 3,
+   "missing_steps": 0,
+   "extra_steps": 0,
+   "sequence_accuracy": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "ordered_operations_accuracy": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "status_confusion": {
+    "COMPLETE->COMPLETE": 1
+   }
+  },
+  "cand": {
+   "cases": 1,
+   "predicted_rows_missing": 0,
+   "predicted_rows_unparsed": 0,
+   "status_accuracy": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "whole_case_exact": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "step_precision": {
+    "num": 3,
+    "den": 3,
+    "value": 1.0
+   },
+   "step_recall": {
+    "num": 3,
+    "den": 3,
+    "value": 1.0
+   },
+   "step_f1": 1.0,
+   "evidence_accuracy_on_matched": {
+    "num": 3,
+    "den": 3,
+    "value": 1.0
+   },
+   "cited_evidence_recall": {
+    "num": 3,
+    "den": 3,
+    "value": 1.0
+   },
+   "field_accuracy": {
+    "step_no": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "phase": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "system_id": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "resource_id": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "operation": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "state": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "evidence_id": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    }
+   },
+   "aligned_steps": 3,
+   "missing_steps": 0,
+   "extra_steps": 0,
+   "sequence_accuracy": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "ordered_operations_accuracy": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "status_confusion": {
+    "COMPLETE->COMPLETE": 1
+   }
+  },
+  "compare": {
+   "cases": 1,
+   "gold_steps": 3,
+   "predicted_steps_base": 3,
+   "predicted_steps_cand": 3,
+   "correct_kept": 3,
+   "correct_removed": 0,
+   "incorrect_removed": 0,
+   "added_in_gold": 0,
+   "added_supported_not_in_gold": 0,
+   "added_unsupported": 0,
+   "matched_cand": 3,
+   "citation_ok_cand": 3,
+   "whole_base": 1,
+   "whole_cand": 1,
+   "flips": 0,
+   "flips_to_complete": 0,
+   "cost_usd_x1e6": 0,
+   "whole_gained": 0,
+   "whole_lost": 0,
+   "cost_usd": 0.0,
+   "cost_per_whole_gained": null
+  }
+ },
+ "success_claim_contradicted": {
+  "base": {
+   "cases": 1,
+   "predicted_rows_missing": 0,
+   "predicted_rows_unparsed": 0,
+   "status_accuracy": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "whole_case_exact": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "step_precision": {
+    "num": 3,
+    "den": 3,
+    "value": 1.0
+   },
+   "step_recall": {
+    "num": 3,
+    "den": 3,
+    "value": 1.0
+   },
+   "step_f1": 1.0,
+   "evidence_accuracy_on_matched": {
+    "num": 3,
+    "den": 3,
+    "value": 1.0
+   },
+   "cited_evidence_recall": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "field_accuracy": {
+    "step_no": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "phase": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "system_id": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "resource_id": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "operation": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "state": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "evidence_id": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    }
+   },
+   "aligned_steps": 3,
+   "missing_steps": 0,
+   "extra_steps": 0,
+   "sequence_accuracy": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "ordered_operations_accuracy": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "status_confusion": {
+    "INCOMPLETE->INCOMPLETE": 1
+   }
+  },
+  "cand": {
+   "cases": 1,
+   "predicted_rows_missing": 0,
+   "predicted_rows_unparsed": 0,
+   "status_accuracy": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "whole_case_exact": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "step_precision": {
+    "num": 3,
+    "den": 3,
+    "value": 1.0
+   },
+   "step_recall": {
+    "num": 3,
+    "den": 3,
+    "value": 1.0
+   },
+   "step_f1": 1.0,
+   "evidence_accuracy_on_matched": {
+    "num": 3,
+    "den": 3,
+    "value": 1.0
+   },
+   "cited_evidence_recall": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "field_accuracy": {
+    "step_no": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "phase": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "system_id": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "resource_id": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "operation": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "state": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "evidence_id": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    }
+   },
+   "aligned_steps": 3,
+   "missing_steps": 0,
+   "extra_steps": 0,
+   "sequence_accuracy": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "ordered_operations_accuracy": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "status_confusion": {
+    "INCOMPLETE->INCOMPLETE": 1
+   }
+  },
+  "compare": {
+   "cases": 1,
+   "gold_steps": 3,
+   "predicted_steps_base": 3,
+   "predicted_steps_cand": 3,
+   "correct_kept": 3,
+   "correct_removed": 0,
+   "incorrect_removed": 0,
+   "added_in_gold": 0,
+   "added_supported_not_in_gold": 0,
+   "added_unsupported": 0,
+   "matched_cand": 3,
+   "citation_ok_cand": 3,
+   "whole_base": 1,
+   "whole_cand": 1,
+   "flips": 0,
+   "flips_to_complete": 0,
+   "cost_usd_x1e6": 0,
+   "whole_gained": 0,
+   "whole_lost": 0,
+   "cost_usd": 0.0,
+   "cost_per_whole_gained": null
+  }
+ },
+ "tombstone_pair": {
+  "base": {
+   "cases": 1,
+   "predicted_rows_missing": 0,
+   "predicted_rows_unparsed": 0,
+   "status_accuracy": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "whole_case_exact": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "step_precision": {
+    "num": 3,
+    "den": 3,
+    "value": 1.0
+   },
+   "step_recall": {
+    "num": 3,
+    "den": 3,
+    "value": 1.0
+   },
+   "step_f1": 1.0,
+   "evidence_accuracy_on_matched": {
+    "num": 3,
+    "den": 3,
+    "value": 1.0
+   },
+   "cited_evidence_recall": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "field_accuracy": {
+    "step_no": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "phase": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "system_id": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "resource_id": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "operation": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "state": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "evidence_id": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    }
+   },
+   "aligned_steps": 3,
+   "missing_steps": 0,
+   "extra_steps": 0,
+   "sequence_accuracy": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "ordered_operations_accuracy": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "status_confusion": {
+    "INCOMPLETE->INCOMPLETE": 1
+   }
+  },
+  "cand": {
+   "cases": 1,
+   "predicted_rows_missing": 0,
+   "predicted_rows_unparsed": 0,
+   "status_accuracy": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "whole_case_exact": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "step_precision": {
+    "num": 3,
+    "den": 3,
+    "value": 1.0
+   },
+   "step_recall": {
+    "num": 3,
+    "den": 3,
+    "value": 1.0
+   },
+   "step_f1": 1.0,
+   "evidence_accuracy_on_matched": {
+    "num": 3,
+    "den": 3,
+    "value": 1.0
+   },
+   "cited_evidence_recall": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "field_accuracy": {
+    "step_no": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "phase": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "system_id": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "resource_id": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "operation": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "state": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "evidence_id": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    }
+   },
+   "aligned_steps": 3,
+   "missing_steps": 0,
+   "extra_steps": 0,
+   "sequence_accuracy": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "ordered_operations_accuracy": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "status_confusion": {
+    "INCOMPLETE->INCOMPLETE": 1
+   }
+  },
+  "compare": {
+   "cases": 1,
+   "gold_steps": 3,
+   "predicted_steps_base": 3,
+   "predicted_steps_cand": 3,
+   "correct_kept": 3,
+   "correct_removed": 0,
+   "incorrect_removed": 0,
+   "added_in_gold": 0,
+   "added_supported_not_in_gold": 0,
+   "added_unsupported": 0,
+   "matched_cand": 3,
+   "citation_ok_cand": 3,
+   "whole_base": 1,
+   "whole_cand": 1,
+   "flips": 0,
+   "flips_to_complete": 0,
+   "cost_usd_x1e6": 0,
+   "whole_gained": 0,
+   "whole_lost": 0,
+   "cost_usd": 0.0,
+   "cost_per_whole_gained": null
+  }
+ },
+ "clean_primary_dirty_replica": {
+  "base": {
+   "cases": 1,
+   "predicted_rows_missing": 0,
+   "predicted_rows_unparsed": 0,
+   "status_accuracy": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "whole_case_exact": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "step_precision": {
+    "num": 3,
+    "den": 3,
+    "value": 1.0
+   },
+   "step_recall": {
+    "num": 3,
+    "den": 3,
+    "value": 1.0
+   },
+   "step_f1": 1.0,
+   "evidence_accuracy_on_matched": {
+    "num": 3,
+    "den": 3,
+    "value": 1.0
+   },
+   "cited_evidence_recall": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "field_accuracy": {
+    "step_no": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "phase": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "system_id": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "resource_id": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "operation": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "state": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "evidence_id": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    }
+   },
+   "aligned_steps": 3,
+   "missing_steps": 0,
+   "extra_steps": 0,
+   "sequence_accuracy": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "ordered_operations_accuracy": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "status_confusion": {
+    "INCOMPLETE->INCOMPLETE": 1
+   }
+  },
+  "cand": {
+   "cases": 1,
+   "predicted_rows_missing": 0,
+   "predicted_rows_unparsed": 0,
+   "status_accuracy": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "whole_case_exact": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "step_precision": {
+    "num": 3,
+    "den": 3,
+    "value": 1.0
+   },
+   "step_recall": {
+    "num": 3,
+    "den": 3,
+    "value": 1.0
+   },
+   "step_f1": 1.0,
+   "evidence_accuracy_on_matched": {
+    "num": 3,
+    "den": 3,
+    "value": 1.0
+   },
+   "cited_evidence_recall": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "field_accuracy": {
+    "step_no": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "phase": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "system_id": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "resource_id": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "operation": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "state": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    },
+    "evidence_id": {
+     "num": 3,
+     "den": 3,
+     "value": 1.0
+    }
+   },
+   "aligned_steps": 3,
+   "missing_steps": 0,
+   "extra_steps": 0,
+   "sequence_accuracy": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "ordered_operations_accuracy": {
+    "num": 1,
+    "den": 1,
+    "value": 1.0
+   },
+   "status_confusion": {
+    "INCOMPLETE->INCOMPLETE": 1
+   }
+  },
+  "compare": {
+   "cases": 1,
+   "gold_steps": 3,
+   "predicted_steps_base": 3,
+   "predicted_steps_cand": 3,
+   "correct_kept": 3,
+   "correct_removed": 0,
+   "incorrect_removed": 0,
+   "added_in_gold": 0,
+   "added_supported_not_in_gold": 0,
+   "added_unsupported": 0,
+   "matched_cand": 3,
+   "citation_ok_cand": 3,
+   "whole_base": 1,
+   "whole_cand": 1,
+   "flips": 0,
+   "flips_to_complete": 0,
+   "cost_usd_x1e6": 0,
+   "whole_gained": 0,
+   "whole_lost": 0,
+   "cost_usd": 0.0,
+   "cost_per_whole_gained": null
+  }
+ }
+}

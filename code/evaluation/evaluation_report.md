@@ -1,8 +1,8 @@
 # Evaluation report
 
-Generated 2026-10-25 01:10 UTC by `scripts/make_reports.py` from run artifacts; every number below is read from a file.
+Generated 2026-10-25 02:08 UTC by `scripts/make_reports.py` from run artifacts; every number below is read from a file.
 
-Final configuration: `main.py run --engine agent --agent-scope non_resolved --ownership strict` (agent model `gemini-3.1-flash-lite`). Run directory `runs/s5/final`.
+Final configuration: `main.py run --engine agent --agent-scope non_resolved --ownership strict` (agent model `gemini-3.1-flash-lite`). Run directory `runs/s6/final`.
 
 Three questions are kept apart below, because a row can pass one and fail another: is the output **structurally valid**, is each verdict **supported by evidence**, and how close are the predictions to the **public sample answers**.
 
@@ -30,7 +30,7 @@ Most unresolved rows lack an account: the candidate accounts appear only in dele
 
 ## 3. Public samples (32 cases, full official denominators)
 
-Final configuration on `dataset/sample_deletion_requests.csv` (run `runs/s5/final-samples2`):
+Final configuration on `dataset/sample_deletion_requests.csv` (run `runs/s6/final-samples`):
 
 | metric | value |
 |---|---|
@@ -76,31 +76,35 @@ Written by a subagent that did not see the engine code (A13); each has its own d
 | historical_email_replica | Historical identity resolution; Replication drift; Claims are not proof | 1.0000 (1/1) | 1.0000 (1/1) | 1.0000 (3/3) | 1.0000 (3/3) |
 | post_cutoff_evidence_ignored | The audit_at cutoff; COMPLETE verifications must cite proof; Records that policy retains; Request in another language | 1.0000 (1/1) | 1.0000 (1/1) | 1.0000 (3/3) | 1.0000 (3/3) |
 | success_claim_contradicted | An operation result is a claim; Later admissible evidence overrides the claim; Request in another language | 1.0000 (1/1) | 1.0000 (1/1) | 1.0000 (3/3) | 1.0000 (3/3) |
+| tombstone_pair | Tombstones are redacted, not deleted; Tombstone pair: one copy is compliant, one is not; The finding is EXPOSED_PII, not REMAINING_RECORD; Claims are not proof; Request in another language | 1.0000 (1/1) | 1.0000 (1/1) | 1.0000 (3/3) | 1.0000 (3/3) |
+| clean_primary_dirty_replica | Copy-level state; The audit_at cutoff; Claims are not proof | 1.0000 (1/1) | 1.0000 (1/1) | 1.0000 (3/3) | 1.0000 (3/3) |
 
 ## 5. Case-by-case comparisons
 
 Each line compares two runs on the same cases against the answers. *Not in the answer but supported* means the added step cites evidence that names the resource; *unsupported* means it does not. A status flip from INCOMPLETE to COMPLETE is listed separately because it can hide a violation.
 
-| comparison | cases | whole-case base → cand | correct steps removed | added: in answer / supported / unsupported | INCOMPLETE→COMPLETE | agent cost |
+| comparison | cases | whole-case base → cand | correct steps removed | added: in answer / supported / unsupported | INCOMPLETE→COMPLETE | agent cost paid in that run (replays: $0) |
 |---|---|---|---|---|---|---|
-| S3 baseline → final configuration (samples) | 32 | 11 → 12 | 0 | 1 / 0 / 0 | 0 | $0.0085 |
-| final deterministic → final with agent (samples) | 32 | 12 → 12 | 0 | 0 / 0 / 0 | 0 | $0.0085 |
+| S3 baseline → S6 final (samples) | 32 | 11 → 12 | 0 | 1 / 0 / 0 | 0 | $0.0000 |
+| S5 final → S6 final (samples) | 32 | 12 → 12 | 0 | 0 / 0 / 0 | 0 | $0.0000 |
+| S6 deterministic → S6 final with agent (samples) | 32 | 12 → 12 | 0 | 0 / 0 / 0 | 0 | $0.0000 |
+| strict → scored ownership, measured, not adopted (samples) | 32 | 12 → 14 | 0 | 5 / 7 / 6 | 0 | $0.0000 |
 | deterministic → agent, 10-case bench (pre-A30) | 10 | 2 → 2 | 0 | 0 / 0 / 0 | 0 | $0.0410 |
 
-On the target split (no answers), the deterministic changes of this session moved rows only where the per-case diffs were traced to raw evidence; every INCOMPLETE→COMPLETE flip was investigated (`docs/plans/session-05.md`, C5.2–C5.6).
+On the target split (no answers), engine changes moved rows only where the per-case diffs were traced to raw evidence, and every INCOMPLETE→COMPLETE flip was investigated (`docs/plans/session-05.md`, C5.2–C5.6). Session 6 changed no row: its audits found no evidence-backed link or parsing defect to fix (`docs/plans/session-06.md`).
 
 ## 5b. Mismatch diagnostics by earliest responsible stage
 
-Every sample mismatch of the final run, with one cause each (`code/evaluation/diagnose.py`; the full list with examples is in `code/evaluation/diagnostics.md`). "Absent from supplied evidence" is decided by a raw byte search, so a parser miss is never called a dataset gap.
+Every sample mismatch of the final run, with one cause each (`code/evaluation/diagnose.py`; the full list with examples is in `code/evaluation/diagnostics.md`). "No supporting fact found" means the id occurs in no decoded source (raw text, PDF text from two decoders, every vision extract, the activity and audit CSVs); it lists the checks made and is not proof that the evidence is absent.
 
 | cause | before | now |
 |---|---|---|
-| absent from supplied evidence | 3 | 3 |
+| no supporting fact found | 3 | 3 |
 | temporal state | 5 | 5 |
 | identity/resource association | 25 | 24 |
 | **total** | **33** | **32** |
 
-Before = `runs/s3/samples-strict` (session 3 baseline); now = `runs/s5/final-samples2`.
+Before = `runs/s3/samples-strict` (session 3 baseline); now = `runs/s6/final-samples`.
 
 ## 6. Failures found and improvements made
 
@@ -133,6 +137,30 @@ repository's `docs/DECISIONS.md`.
   - Fix: both clocks are kept and documented per format, and admissibility needs both to be at or before
     audit_at. Same-instant disagreement is a conflict, not "presence wins".
   - Effect: four target cases changed to COMPLETE, each traced to raw records; none of the 32 samples changed.
+
+**Session 6: audits before fixes (no row changed)**
+- **Our diagnostics called a parser blind spot a dataset gap.**
+  - Found by: the extraction audit (C6.1).
+  - Defect: the evaluator decided "absent from supplied evidence" by a raw-byte search, but the four PDFs are
+    compressed, so every identifier in them (10 of 10) is invisible to it.
+  - Fix: the search now runs over decoded text (raw text, two PDF decoders, every vision extract), and the
+    verdict is "no supporting fact found", with the checks listed. The three items it covers still match
+    nothing.
+- **Extraction coverage.** Every decoded line of every source that names a resource (7,338 lines) was compared
+  with the observations built from it: no record was skipped or partly read. Screenshots implicated in the
+  mismatches were also read visually against their extracts.
+- **Rejected association paths, to the break point.** Of the 24 sample steps whose resource is not linked:
+  - 21 rest on records that carry no identifier or reference at all (anonymized analytics profiles, profile
+    lookups);
+  - 3 are linked to the person only by evidence captured after the cutoff.
+  
+  No admissible chain exists, so no link rule was added. A tempting non-timing signal (workflow status vs the
+  run's result) was rejected: a link would still come from a time window plus a one-to-one assumption.
+- **Ownership mode by a criterion fixed beforehand.** Strict stays: the scored mode would gain 2 whole cases
+  but add 13 wrong account steps, so step F1 falls from 0.910 to 0.893.
+- **Robustness tests with controls.** End-to-end metamorphic tests cover input order, duplicated evidence,
+  another person with the same name, and post-cutoff files. Each has a positive control, which caught two
+  first versions whose fixtures the engine never read.
 
 **Temporal isolation and support labels (A24)**
 - **Ownership used information after a case's cutoff.**
@@ -172,8 +200,9 @@ repository's `docs/DECISIONS.md`.
 - **Settlement by error class (A21).** A rejected request is booked at $0, a server failure at its reservation.
 
 **Not fixed, and why**
-- **Accounts named only in deletion-worker rows** stay unattributed. The activity stream has no run
-  identifier, so any choice would be a guess.
+- **Accounts and anonymized records named only in deletion-worker rows** stay unattributed. The activity
+  stream has no run identifier, the records name no one, and timing or position is not evidence. Session 6
+  checked each one to its break point.
 - **Three target rows carry flagged heuristic predictions (A29).** The evidence there shows health,
   retention or an alias, not a state.
 - **Screen aliases are not used for grounded state.** The same object under its alias would add findings to a
@@ -182,4 +211,4 @@ repository's `docs/DECISIONS.md`.
 
 ## Tuning exposure
 
-Ownership, citation and screen-reading rules were measured on the 32 public samples, so these scores are optimistic for the hidden targets. No case id, evidence id, label or case family appears in code (a test greps the prediction path for the sample answers file); the three custom cases were written independently. No hidden-target accuracy is claimed.
+Ownership, citation and screen-reading rules were measured on the 32 public samples, so these scores are optimistic for the hidden targets. No case id, evidence id, label or case family appears in code (a test greps the prediction path for the sample answers file); the 5 custom cases were specified independently of the engine. The samples have been inspected since the first session, so they are not a held-out set. No hidden-target accuracy is claimed.

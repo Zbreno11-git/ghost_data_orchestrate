@@ -13,7 +13,7 @@
 A local Python CLI holding a bounded, tool-using deletion-audit agent for HackerRank Orchestrate Oct 2026,
 "Ghost Data Still Exists". For each of the 518 requests in `dataset/deletion_requests.csv` it writes one row of
 `output.csv`: `COMPLETE` / `INCOMPLETE` / `NOT_APPLICABLE` plus canonically ordered steps grounded in
-participant evidence available at `audit_at`. Owner: Breno. State on 2026-10-25 01:13 UTC: S5 closed (final run published, package proven on the VPS); S6 next.
+participant evidence available at `audit_at`. Owner: Breno. State on 2026-10-25 02:08 UTC: S6 closed (engine frozen; published rows reproduced by replay); S7 next.
 
 ## The requirement that breaks ties
 
@@ -40,24 +40,18 @@ participant evidence available at `audit_at`. Owner: Breno. State on 2026-10-25 
 
 ## Current session
 
-✅ **S5 closed 2026-10-25 (plan `docs/plans/session-05.md`).**
-- **Accuracy work before spend:**
-  - as-of ownership (A24);
-  - explicit state and row-bound screens (A25);
-  - two clocks (A26);
-  - agent decisions gated by lineage (A27);
-  - subject records link their named sources (A30).
-- **Owner decisions:** agent on weak/unresolved only (A28); flagged heuristic rows (A29).
-- **Final run `runs/s5/final`:**
-  - 518 rows, 0 violations; support 175 resolved / 18 weak / 325 unresolved;
-  - samples whole-case 12/32, steps P 162/163, R 162/193.
-- **Published:** root `output.csv` (sha256 `ee9504d5…`) and `code.zip` (VPS check passed). Both are untracked:
-  the repo is public.
-- **Next:** S6 (fixes driven by `code/evaluation/diagnostics.md`; C6.5 explain-a-case), then S7 (release record,
-  Mac runbook, cheat sheet; the Mac check stays pending until it is run).
+✅ **S6 closed 2026-10-25 02:08 UTC (plan `docs/plans/session-06.md`).** Audits first, fixes only where evidence shows a defect.
+- Extraction coverage complete; the evaluator's "absent" verdict now searches decoded text (ERRORS #8).
+- The 24 sample association misses have no admissible link (21 anonymous records, 3 post-cutoff lineage): no rule added.
+- Strict ownership kept by a pre-written criterion (A33); status-compatibility run matching rejected (A32, Breno's rule).
+- Engine fix found by an independent custom case: a non-account can never be the account (ERRORS #9).
+- Trace + `main.py explain` (no model call); metamorphic tests; 5 custom cases (5/5).
+- `runs/s6/final` (replay, $0) reproduces root `output.csv` (sha256 `ee9504d5…`); samples unchanged (12/32, P 162/163, R 162/193).
+- **Next:** S7 release freeze (session-07.md); C7.7 Mac check pending.
 
-Previous (S3+S4 merged, 2026-10-24, A19): deterministic baseline (status 32/32, steps P 161/162, R 161/193); agent,
-gateway, cache, resume and replay proven; flash-lite kept (A23).
+Previous (S5, 2026-10-25): as-of ownership (A24), explicit state and row-bound screens (A25), two clocks (A26), agent
+lineage (A27), scope non_resolved (A28), flagged heuristic rows (A29); final run 518 rows, 0 violations; package
+proven from a clean unpack.
 
 ## Boundaries and triggers in force
 
@@ -67,7 +61,8 @@ gateway, cache, resume and replay proven; flash-lite kept (A23).
 | Step order | phase → operation rank → system_id → resource_id, then step_no (D6). Dependencies stay internal. |
 | Admissibility | Two clocks (A26): an observation is admissible only if its artifact's `captured_at ≤ audit_at` **and** its own event time (`observed_at`, else capture) `≤ audit_at`, inclusive. An artifact captured later is never admitted by an older timestamp. Enforced in `CaseView`, which every engine and tool read goes through. |
 | Ownership | `--ownership strict|scored` (S6 decides by measured metrics). Owner index and one-to-one account assignment are evaluated **as of each case's cutoff** (A24). A table row belongs to one entity, for links, state and decoy checks (A25). |
-| Agent | The model cites only tool-returned obs_ids, and a decision is accepted only with a **lineage** of cited units to the subject; an exclusion needs evidence (of another owner if the link was explicit) (A27). No case_id in the brief. Policy and serialization are deterministic. Final runs review only weak/unresolved proposals (A28). Checkpoints are reused only with an equal input fingerprint. |
+| New links (Breno, S6) | No new link from timing alone, naming patterns, sample labels or assumed one-to-one assignments; ambiguities stay unresolved; strict mode stays (A33), status-compatibility matching rejected (A32). Pre-S6 workflow-tier accounts (19 target rows, weak) are kept until Breno decides. Reopen: Breno's answer, or a run/trace id in the stream. |
+| Agent | The model cites only tool-returned obs_ids, and a decision is accepted only with a **lineage** of cited units to the subject; an exclusion needs evidence (of another owner if the link was explicit) (A27). No case_id in the brief. Policy and serialization are deterministic. Final runs review only weak/unresolved proposals (A28). Checkpoints are reused only with an equal input fingerprint. An account choice must belong to the account system (ERRORS #9); a rejection message is part of the replay cache key. |
 | Model fallback | Never silent. A model change is a config change, recorded in DECISIONS. |
 | Wrapper vs fields | Lookup keys and ledger `subject_reference` live in `Observation.wrapper`; only `fields` is record content (FR-11). An identifier only in the wrapper never makes a record "exposed". |
 | Absence proof | An ABSENT verification may cite a snapshot that covers the system (table or bundle scope) and lacks the row: 4/75 sample citations do exactly that (C2.6). |

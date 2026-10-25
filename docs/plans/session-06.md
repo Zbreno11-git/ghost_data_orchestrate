@@ -276,3 +276,39 @@
   - Custom-case floor raised to 5 (`test_custom_cases.py`).
   - The sub-agent's own log.txt entry has a placeholder time. A CORRECTION with its JSONL-measured times was
     appended (append-only).
+- **C6.8 (gate) ✅ 02:09Z. Final accuracy gate vs the frozen S5 baseline** (`docs/diagnostics/s6/final_gate.md`,
+  `code/evaluation/gate.py`).
+  - **Samples (32):** every metric equal to S5:
+
+    | Metric | Value |
+    |---|---|
+    | status | 32/32 |
+    | whole-case | 12/32 |
+    | P | 162/163 |
+    | R | 162/193 |
+    | F1 | 0.9101 |
+    | citation on matched | 162/162 |
+    | cited recall | 61/75 |
+    | sequence | 12/32 |
+
+    Correct steps: 0 gained, 0 lost. Incorrect steps: 0 added, 0 removed. 0 flips; 0 support moves.
+  - **Custom:** 3/3 unchanged from S5. The 2 new cases are 1/1 each (the deterministic run stands in for their S5
+    baseline: S6 changed no deterministic row, by the samples and targets `cmp` checks).
+  - **Mismatch causes before/after:** 24 association, 3 no supporting fact found, 5 temporal; identical.
+  - **Deterministic vs agent contribution:**
+    - targets: 0 rows differ; support moves unresolved→resolved 1 and weak→resolved 2, each from a lineage-checked
+      agent account;
+    - samples: 0 rows, 0 moves.
+  - **Supported disagreements with the samples:** none added. The one pre-existing extra (case_04 account_3865) is
+    classified *undetermined* (C6.3).
+- **C6.9 ✅ 02:09Z. Close.**
+  - Reports regenerated from `runs/s6/final`; the cost column is labelled "paid in that run".
+  - `docs/explanations/` regenerated from the final trace; `code/README.md` documents `explain`, the trace and
+    the gate.
+  - **No republication needed:** the root `output.csv` already equals `runs/s6/final/output.csv` (sha256
+    `ee9504d5…`). `code.zip` is rebuilt and VPS-checked in S7 C7.2 from the S6 code.
+  - **What improved:** an engine defect fixed (ERRORS #9); an evaluator defect fixed (ERRORS #8); traceability
+    (explain); robustness tests; 5 independent cases.
+  - **Still uncertain:** the 24 sample misses (no admissible evidence); the 19 weak workflow accounts in the targets
+    (Breno's call).
+  - S6 spend $0.005969 (ledger $1.870528 → $1.876497).

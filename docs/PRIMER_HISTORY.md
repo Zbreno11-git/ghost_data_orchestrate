@@ -16,3 +16,9 @@ Previous (S1+S2 merged, 2026-10-24, A15): contract/serializer/validator/evaluato
 cases. Project spend $0.1074. Earlier (S0): repo, venv, Gemini smoke (keep `thought_signature`).
 
 The S0 rule ("keep `thought_signature`") is enforced in code: `agent.py` appends the model Content unchanged.
+
+## S3+S4 (moved from the PRIMER at the S6 close, 2026-10-25)
+
+S3+S4 merged (2026-10-24, A19): deterministic baseline (status 32/32, steps P 161/162, R 161/193); agent, gateway,
+cache, resume and replay proven; flash-lite kept (A23).
+

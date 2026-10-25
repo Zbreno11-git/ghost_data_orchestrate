@@ -4,115 +4,70 @@
 > handoff moves to `docs/HANDOFFS.md`, after relocating what lives only here (open decision → SESSIONS,
 > lesson → ERRORS, constraint → PRIMER).
 
-## ⏱ Live — S5 closed 2026-10-25 01:14 UTC
+## ⏱ Live — S6 closed 2026-10-25 02:08 UTC
 
-The checkpoint log, with every number and its time, is in `docs/plans/session-05.md` ("Progress"). This file
-only points to it, so each fact has one source.
+The checkpoint log, with every number and its time, is in `docs/plans/session-06.md` ("Progress").
 
-- **What S5 did:**
-  - accuracy fixes before spend: A24, as-of ownership; A25, explicit state and row-bound screens; A26, two
-    clocks; A27, agent lineage; A30, subject records link their sources;
-  - the case-by-case harness (`compare.py`) and the diagnostics (`diagnose.py`);
-  - the pilot;
-  - Breno's decisions: A28, agent scope non_resolved; A29, flagged heuristic rows;
-  - the final run, the reports, the package with the VPS check, the log corrections, the trace stager and the
-    release kit.
-- **Published locally, not committed (the repo is public):**
-  - root `output.csv` = `runs/s5/final/output.csv` (sha256 `ee9504d517fb…`);
-  - `code.zip` (sha256 `f58aaefe3c17…`).
+- **What S6 did:** audits before fixes (Breno's mid-turn rule: evidence-backed recall at preserved precision; no
+  link from timing, naming, labels or one-to-one assumptions).
+  - extraction coverage audit and decoded-content search (ERRORS #8);
+  - decision trace and `main.py explain`;
+  - rejected association paths to their break points (no admissible link exists for the 24 sample misses);
+  - metamorphic robustness tests;
+  - ownership mode by a pre-written criterion (A33; A32 rejected);
+  - +2 independent custom cases, one of which exposed and fixed an engine defect (ERRORS #9);
+  - final gate vs the frozen S5 baseline.
+- **Published locally, unchanged:** root `output.csv` (sha256 `ee9504d517fb…`) = `runs/s5/final/output.csv` =
+  `runs/s6/final/output.csv` (byte-identical). `code.zip` is still the S5 build; S7 rebuilds it from the S6 code.
 
-## ▶️ RESUME HERE — 2026-10-25 01:22 UTC — before a compact; S5 closed; S6 next
+## ▶️ RESUME HERE — 2026-10-25 02:08 UTC — S6 closed; S7 next
 
-**Repository state:** HEAD = the "Checkpoint before compact (S6" commit, pushed; the tree is clean. Root
-`output.csv` is gitignored on purpose (A31), and `code.zip` is gitignored (`*.zip`). Background runs: none.
-Locks: none held. `state/usage_ledger.lock` is the ledger's persistent, gitignored lock file, not a held lock.
+**Repository state:** HEAD = the "Close S6" commit, pushed; tree clean. Root `output.csv` gitignored (A31); `code.zip`
+gitignored. Background runs: none. Locks: none (`state/usage_ledger.lock` is the ledger's persistent lock file).
 
-**State of the world (measured 2026-10-25 01:22 UTC):**
-- **Ledger:** settled $1.870528, outstanding $0.004447 (the S4 C4.5 kill), ceiling $4.50, $2.63 of headroom.
-- **Tests:** `225 passed`. CI green on `a61b4a8` ("Close S5", 01:16:19Z).
-- **Published locally** (A31: not uploaded, not committed):
-  - `output.csv` (sha256 `ee9504d517fb36f0af3c361bba833bf8129a5ae4a8a78d4efce448925b398c4c`) = `runs/s5/final/output.csv`;
-  - `code.zip` (sha256 `f58aaefe3c174a9ea1919aeb62f5fd07089f6d57d0913d27b9618a512c56ecff`).
-- **Deadline** 12:00 UTC (≈10.6 h at 2026-10-25 01:22 UTC). MASTER_PLAN: freeze 09:00 UTC; Breno uploads ≈10:00 UTC.
+**State of the world (measured 2026-10-25 02:08 UTC):**
+- **Ledger:** settled $1.876497, outstanding $0.004447, ceiling $4.50.
+- **Tests:** see the close commit message (pytest count read there); CI checked by head_sha.
+- **Final runs (S6 code):**
+  - `runs/s6/final` (agent, replay, scope non_resolved, strict): 518 rows, 0 violations, support 175 / 18 / 325,
+    output byte-identical to the published file;
+  - `runs/s6/final-samples`: 12/32 whole-case, P 162/163, R 162/193;
+  - `runs/s6/final-custom-*`: 5/5.
+- **Deadline** 12:00 UTC; freeze 09:00 UTC (MASTER_PLAN); Breno uploads ≈10:00 UTC.
 
-**Current goal: S6 — measured improvement** (`docs/SESSIONS.md` § S6: C6.1–C6.5). Owner instruction
-(A31, 01:21:40 UTC): finish all the sessions and solve the full problem first. The export and upload come only at
-the very end.
+**Current goal: S7 — release freeze** (`docs/SESSIONS.md` § S7: C7.1–C7.7).
 
 **Exact next step:**
-1. Write `docs/plans/session-06.md` (skill format: checkpoint map, then Does / ✅ / 🐞 per checkpoint) from
-   SESSIONS § S6.
-2. C6.1 starts from `code/evaluation/diagnostics.md`. 32 sample mismatches:
-   - 24 identity/resource association: 17 account steps (16 missing accounts named only by deletion-worker rows,
-     plus 1 extra, account_3865 in case_04) and 7 missing anonymized analytics records (counted from the file at
-     01:23Z);
-   - 5 post-audit only (D12);
-   - 3 absent from the supplied evidence (D10/D13).
-
-   Measure for each association miss whether *any* admissible observation names the resource together with
-   something already tied to the subject (an account id, an order, a ticket, a hash), using
-   `diagnose.py`'s World plus the store.
-3. Fix only a generic lineage the evidence shows. Each fix needs:
-   - a failing test first, and a mutation red;
-   - `compare.py` with no unexplained regression;
-   - `diagnose.py` before/after.
-4. C6.3: choose the ownership mode by metrics. Strict vs scored are both measurable now with `compare.py`.
-5. C6.5: `main.py explain <case> --run <dir> [--md]` from `decisions.jsonl` + provenance, with no LLM call.
-   Examples: COMPLETE, INCOMPLETE, NOT_APPLICABLE, unresolved, heuristic.
-6. Then S7 (`SESSIONS` § S7: C7.1–C7.7): release record, replay vs paid instructions, Mac runbook, interview
-   cheat sheet. The Mac check (C7.7) stays pending until it is run on the Mac.
-
-**Re-publication recipe after any engine change** (all from the repo root, with `.venv/bin/python`):
-1. `code/main.py run --engine agent --mode live --agent-scope non_resolved --split targets --out runs/s6/final`
-   (cache hits make it cheap; a changed brief pays about $0.0035).
-2. `code/main.py validate runs/s6/final/output.csv` → `0 violations`.
-3. Samples and custom cases, same flags, into `runs/s6/final-samples` and
-   `runs/s6/final-custom-<name>` (`--dataset code/evaluation/custom_cases/<name>/dataset --split targets`).
-4. `code/evaluation/diagnose.py --run runs/s6/final-samples --before runs/s3/samples-strict`.
-5. `scripts/make_reports.py --final runs/s6/final --samples runs/s6/final-samples --custom runs/s6/final-custom-* --compare "<base>:<cand>:<label>" …`
-6. `scripts/package_code.py --run runs/s6/final` (must exit 0).
-7. Atomic copy to root `output.csv`.
-
-**S5 numbers to beat (2026-10-25 01:08Z):**
-- samples: status 32/32, whole-case 12/32, steps P 162/163, R 162/193, cited recall 61/75;
-- custom: 3/3;
-- targets: 175 resolved / 18 weak / 325 unresolved, 0 violations.
+1. Write `docs/plans/session-07.md` (skill format) from SESSIONS § S7.
+2. C7.1: the engine is unchanged since `runs/s6/final`, so the final output is that replay; validate it; root
+   `output.csv` already equals it (`cmp`).
+3. C7.2: `scripts/package_code.py --run runs/s6/final` (exit 0, `cmp` identical, clean scan); then
+   `docs/release/RELEASE_RECORD.md` (SHA, config, fingerprints, MANIFEST sha256s, sha256 of code.zip/output.csv/log.txt)
+   and replay vs paid instructions, labelled apart.
+4. C7.3: `stage_traces.py --dry-run` → 0 redactions. C7.4: STATUS upload checklist. C7.5 Mac runbook. C7.6 interview
+   cheat sheet (one worked case from `docs/explanations/`). C7.7 stays PENDING.
 
 **Don't forget:**
-- Times only through `$(date)` or the JSONL (ERRORS #5, 9 occurrences).
-- `pytest -q && git commit`, never after a pipe (ERRORS #6).
-- An empty result is a failure (ERRORS #7).
-- `.venv/bin/python` for every script (the system python has no deps).
-- Kill by PID.
-- CI through `gh api repos/Zbreno11-git/ghost_data_orchestrate/actions/runs?head_sha=<sha>`.
-- Never commit `output.csv` or `code.zip` (public repo, A31).
-- The prediction path never reads `sample_output.csv` (grep gate). Evaluator scripts may.
-- Agent decisions need a lineage (A27). Heuristic rows stay labelled and unresolved (A29).
+- Times only from `$(date)` or the JSONL (ERRORS #5, 10 occurrences).
+- `pytest -q && git commit` (ERRORS #6).
+- An empty result is a failure (ERRORS #7). A fixture the engine never read proves nothing: every metamorphic test
+  has a control, and the harness asserts no ingest failure (ERRORS #4).
+- "Not found" over a representation is not absence (ERRORS #8). A typed slot needs "what", not only "whose" (ERRORS #9).
+- A rejection message is part of the replay cache key (ERRORS #9 note).
+- Never commit `output.csv` or `code.zip` (A31). Stage explicit paths only.
 
 **Depends on Breno:**
-- at the very end only (A31): `/export` this session into `~/agent-trace/claude-code/` and quit, then
-  `stage_traces.py --zip`, then the upload;
-- the Mac check (C7.7), run on his Mac;
-- whether `output.csv`/`code.zip` should ever be committed (default: no).
+- whether the existing timing/one-to-one workflow accounts stay (19 target rows and 4 sample steps, all labelled weak;
+  default: kept — session-06.md C6.3);
+- at the very end only (A31): `/export`, quit, `stage_traces.py --zip`, upload; the Mac check (C7.7).
 
-**Re-read, in this order:**
-1. `AGENTS.md`
-2. `docs/PRIMER.md`
-3. this block
-4. `docs/SESSIONS.md` § S6 and § S7
-5. `docs/plans/MASTER_PLAN.md` § S6, § S7
-6. `docs/plans/session-05.md` (Progress, Release kit, Amendments 2)
-7. `docs/DECISIONS.md` A24–A31
-8. `code/evaluation/diagnostics.md`
-9. `docs/ERRORS.md` #4–#7
-10. skills `software-build`, `testes-que-provam`, `falha-ruidosa`
+**Re-read, in this order:** `AGENTS.md` → `docs/PRIMER.md` → this block → `docs/SESSIONS.md` § S7 →
+`docs/plans/MASTER_PLAN.md` § S7 → `docs/plans/session-06.md` (Progress) → DECISIONS A31–A33 → ERRORS #4–#9 →
+skills `software-build`, `testes-que-provam`, `falha-ruidosa`.
 
-**Before trusting this block, check:**
-- `git status --short` → empty; `git rev-parse HEAD origin/main` → equal; the subject starts
-  "Checkpoint before compact (S6"; CI green on that SHA;
-- `.venv/bin/python code/main.py status` → settled $1.870528, outstanding $0.004447;
-- `.venv/bin/python -m pytest code/tests -q` → `225 passed`;
-- `sha256sum output.csv` → `ee9504d5…8c4c` (above); `ls docs/plans/session-06.md` → not there yet.
+**Before trusting this block, check:** `git status --short` empty; HEAD = origin/main; CI green on that SHA;
+`main.py status` → settled $1.876497 / outstanding $0.004447; `sha256sum output.csv` → `ee9504d5…8c4c`;
+`ls docs/plans/session-07.md` → not there yet.
 
 ## Proofs from S5
 

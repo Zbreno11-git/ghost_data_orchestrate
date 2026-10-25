@@ -1088,3 +1088,87 @@ branch=main
 repo_root=/root/hackthon_1
 worktree=main
 parent_agent=none
+
+## [2026-10-25T02:11:04Z] S6 strengthened mid-turn by Breno; S6 executed and closed
+
+User Prompt (verbatim, secrets redacted):
+[event time 2026-10-25T01:35:21.497Z, session JSONL 3f2c5c59…:6935 (queued_command attachment), uuid c62dca0c-bc8e-4fb1-ada5-086eb456a9c3; pasted block inside the running turn, wrapper tags omitted]
+Please strengthen the S6 plan with the following checkpoints, integrating them into the existing roadmap rather than creating another session. Inspect the current implementation first and avoid duplicating completed work.
+
+**Goal:** recover evidence-backed missing steps while preserving precision. S5 reached 162/163 step precision, 162/193 recall, 12/32 whole-case accuracy, and 32/32 status accuracy. These are public-sample results, not hidden-target accuracy or proof of production readiness.
+
+**1. Audit semantic extraction coverage for the remaining mismatches.**
+
+“94/94 files processed” does not establish that every relevant fact was extracted.
+
+For sources implicated in remaining mismatches, compare the original content against normalized observations: identifiers, relationships, states, timestamps, retention fields, and row/column boundaries. Record skipped or partially interpreted records explicitly.
+
+For PDFs and screenshots, inspect rendered content where text extraction is insufficient. A negative raw-byte search must not be presented as proof that evidence is absent. Distinguish:
+- fact present but missed/misinterpreted;
+- no supporting fact found after documented checks;
+- still undetermined.
+
+Fix generic parsing defects only, with a regression test and a contrasting example.
+
+**2. Diagnose rejected association paths.**
+
+Expand “not linked to the person” into an actionable explanation: resource found or not; admissible or excluded; direct identifiers; explicit intermediate references; conflicting owners; and the exact point where the evidence chain breaks.
+
+Start with the seven missing anonymized-analytics steps, then the account mismatches. Examine explicit historical identifiers, source references, and transformation lineage already present in the supplied evidence. An anonymized record can be attributable through documented lineage without exposing current PII.
+
+Do not create links from timing alone, naming patterns, sample labels, or assumed one-to-one assignments. Keep ambiguities unresolved. Put a bounded investigation checkpoint around paths that produce no new evidence.
+
+Review the single extra predicted step separately. Determine whether it is an engine defect, a supported disagreement with the sample, or undetermined; do not delete it solely to improve the score.
+
+**3. Build a minimal case explanation early.**
+
+Use the planned C6.5 explanation command to support this investigation. Show the actual person → evidence chain → resource/copy → temporal state → policy → decision path, including rejected links and uncertainty.
+
+Use recorded provenance only, with no additional LLM call or invented retrospective explanation. Complete the representative-case examples after the fixes.
+
+**4. Add focused robustness tests.**
+
+For applicable synthetic fixtures, verify that:
+- shuffling input order preserves the answer;
+- duplicating identical evidence does not increase confidence or duplicate steps;
+- adding another person’s record does not contaminate the case;
+- adding post-cutoff evidence does not change the historical answer.
+
+For each new association rule, include a positive case and a close negative case. Confirm important regressions fail when their safeguard is disabled.
+
+**Final S6 accuracy gate**
+
+Freeze the S5 baseline and compare the final candidate on all 32 public samples and the custom cases. Report:
+- step precision, recall and F1;
+- whole-case and status accuracy;
+- citation and sequence accuracy;
+- correct steps gained/lost and incorrect steps added/removed;
+- status flips and support-tier changes;
+- mismatch causes before/after.
+
+Use full official denominators. Investigate every regression and every new unsupported association. A supported disagreement with the sample must be documented separately, not automatically called a false positive.
+
+Add independently specified synthetic cases for the new rules; do not describe previously inspected samples as a held-out set. Keep expected answers strictly outside runtime inference.
+
+Recompute affected cases with valid fingerprints, rerun structural validation, and report deterministic versus agent contribution separately. Do not launch another full paid run without a concrete hypothesis and cost estimate.
+
+Close S6 with a concise account of what improved, what remains uncertain, and the measured evidence. Update SESSIONS, progress, and relevant plans. Preserve the S5 safety package; final export and upload remain after the remaining sessions and release checks.
+
+Agent Response Summary:
+Integrated the checkpoints into session-06.md (no new session) and ran them: extraction coverage audit (0 present-but-missed; fixed our evaluator's raw-byte search blind to compressed PDFs), trace + main.py explain built early, rejected association paths to the break point (21 anonymous records, 3 post-cutoff lineage: no admissible link, so no rule), metamorphic tests with controls, strict ownership kept by a pre-written criterion (A33; status compatibility rejected under the new rule, A32), and 2 independent custom cases, one of which exposed an engine defect (a linked tombstone accepted as the account, planning a DELETE) that was fixed. A replay at $0 reproduces the published output byte for byte; the final gate shows samples unchanged (12/32, P 162/163, R 162/193) and custom 5/5. S6 spend $0.005969; the existing weak workflow accounts are left for Breno's decision.
+
+Actions:
+* Wrote docs/plans/session-06.md; scripts/analysis/extraction_audit.py, association_paths.py; code/evaluation/corpus.py, gate.py; code/ghostaudit/explain.py
+* Fixed code/evaluation/diagnose.py (decoded search), code/ghostaudit/agent.py (account must be in the account system), runner.py (trace)
+* Tests: test_diagnose, test_explain, test_robustness, test_compare, test_agent additions; mutations run per safeguard
+* Subagent authored code/evaluation/custom_cases/tombstone_pair and clean_primary_dirty_replica
+* Replays runs/s6/final*, gate, diagnostics, reports; DECISIONS A32/A33; ERRORS #8/#9; SESSIONS, PRIMER, PROGRESS, STATUS, DIARY, REQUIREMENTS_MAP
+* Commits 9396876, d90f624, ab32bd6, 27fae6c, ec458d8, efd6624, 668934a and the S6 close
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=main
+repo_root=/root/hackthon_1
+worktree=main
+parent_agent=none

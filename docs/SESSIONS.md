@@ -4,7 +4,7 @@ Each session is a 1–2.5 h package that ends in something verifiable, plus a di
 (command → expected number, 🐞 predicted defect) lives in `docs/plans/MASTER_PLAN.md`. This file holds the
 **state**, and any change to a checkpoint is noted here with a date and reason.
 
-**Progress: 6 of 8 sessions fully closed** (✅: S0, S1, S2, S3, S4, S5; measured 2026-10-25 01:13 UTC). Partial (🔄) counts as partial.
+**Progress: 7 of 8 sessions fully closed** (✅: S0, S1, S2, S3, S4, S5, S6; measured 2026-10-25 02:08 UTC). Partial (🔄) counts as partial.
 
 > **Order notes.** The order follows data dependency, not showcase value. The contract/evaluator (S1) comes before
 > ingestion because every later step is measured with it. The deterministic baseline (S3) comes before the agent (S4)
@@ -19,13 +19,13 @@ Each session is a 1–2.5 h package that ends in something verifiable, plus a di
 
 ## ▶️ Start the next session here
 
-- Session: **S6 — measured improvement** — first step: write `docs/plans/session-06.md` from this roadmap. Start
-  from `code/evaluation/diagnostics.md`: 24 association mismatches = 17 account steps (16 missing accounts named
-  only by worker rows + 1 extra) and 7 anonymized analytics records. Then C6.5 (explain a case). S7 follows:
-  release record, Mac runbook, cheat sheet; the Mac check stays pending until it is run there. **Export and
-  upload only after all sessions are finished (Breno, A31).**
-- Read first: `docs/PRIMER.md`, `PROGRESS.md`, `docs/plans/session-03-04.md` (outcomes), DECISIONS A20–A23
-- Depends on Breno: before leaving, keep the session running with unattended permissions (Bash/Edit)
+- Session: **S7 — release freeze** — first step: write `docs/plans/session-07.md` from § S7 (C7.1–C7.7). The
+  engine is frozen after S6: `runs/s6/final` reproduces the published `output.csv` byte for byte; C7.1 is a
+  replay plus the package rebuild (code changed in S6: trace, explain, account rule). C7.7 (Mac) stays pending.
+  **Export and upload only after all sessions are finished (Breno, A31).**
+- Read first: `docs/PRIMER.md`, `PROGRESS.md`, `docs/plans/session-06.md` (Progress), DECISIONS A31–A33, ERRORS #8–#9
+- Depends on Breno: the existing timing/one-to-one workflow accounts (19 target rows, labelled weak) stay unless he
+  says otherwise (session-06.md C6.3)
 
 Timeline as approved (UTC; CDT = UTC−5): S0 16:50–18:00 · S1 18:00–19:00 · S2 19:00–21:00 · S3 21:00–23:00 ·
 S4 23:00–01:30 · S5 01:30–04:00 **safety package** · S6 04:00–07:30 · S7 07:30–09:00 **freeze** ·
@@ -135,29 +135,21 @@ re-timed 05:30 UTC as the fallback. **Breno, 20:20 UTC (A18): no fixed time targ
 
 ## Block C — Improve and release
 
-### ⬜ S6 — Measured improvement · ≈$1.00
-- [ ] C6.1 mismatch table by error class — **produced by C5.15 in S5 (moved 2026-10-25, Breno)**; S6 starts from `code/evaluation/diagnostics.md` and fixes the largest fixable cause first
-- [ ] C6.2 each fix: failing-then-passing test (+ ERRORS.md when ours)
-- [ ] C6.3 ownership mode chosen by metrics
-- [ ] C6.4 targeted rerun only of invalidated cases (checkpoint fingerprints, C5.5a, make this exact)
-- [ ] +2 custom cases if few sample fixes remain
-- [ ] **C6.5 (added 2026-10-25, Breno): explain one case from its decision trace,** after the correctness
-  fixes. **Depends on** the final `decisions.jsonl` schema (C5.8) and the provenance in the observations.
-  - **Command:** `main.py explain <case_id> --run runs/<id> [--md out.md]`.
-  - **It prints, from structured decisions and provenance only:**
-    - request intent and the identified person, with the relevant historical identifiers;
-    - the evidence chain from the person to each resource (obs_ids, source locators);
-    - each physical copy and its state at the cutoff (event time and time basis);
-    - the policy rule behind each action or retention;
-    - conflicts, unresolved links and confidence limits;
-    - the final status and the ordered steps.
-  - **It never makes an LLM call.** A reason missing from the trace is printed as **"not recorded in the
-    trace"**, never inferred.
-  - **Best-effort status and evidential certainty are shown separately:** support level, plus the
-    HEURISTIC PREDICTION label (A29) when present.
-  - ✅ **Acceptance:** explanations saved for one COMPLETE, one INCOMPLETE, one NOT_APPLICABLE and one unresolved
-    case (and one heuristic row), under `docs/explanations/`. A test runs the command on a fixture run and
-    asserts that every printed obs_id exists in that run's decisions.
+### ✅ S6 — Measured improvement · spent $0.005969 (ledger) · closed 2026-10-25 02:08 UTC
+Plan `docs/plans/session-06.md`, amended mid-session by Breno (evidence-backed recall at preserved precision;
+no links from timing, naming, labels or one-to-one assumptions).
+- [x] C6.1 extraction coverage audit (`scripts/analysis/extraction_audit.py`): 0 present-but-missed; evaluator
+  defect fixed (raw-byte search blind to compressed PDFs, ERRORS #8, `code/evaluation/corpus.py`)
+- [x] C6.2/C6.5 decision trace + `main.py explain` (no model call); examples in `docs/explanations/`
+- [x] C6.3 rejected association paths to the break point: 21 anonymous records, 3 lineage only after the cutoff;
+  no admissible link → no association rule
+- [x] C6.4 no generic fix warranted (whole-dataset line coverage, 7338 lines)
+- [x] C6.5 metamorphic robustness tests with controls (shuffle, duplicate, other person, post-cutoff)
+- [x] C6.6 ownership mode by a pre-written criterion: strict kept (A33), status compatibility rejected (A32)
+- [x] C6.7 +2 independent custom cases; one exposed an engine defect (a linked tombstone accepted as the account →
+  DELETE planned; ERRORS #9), fixed
+- [x] C6.8 targeted recompute by replay ($0, 1722/1722 cache hits): published rows unchanged; final gate
+  `docs/diagnostics/s6/final_gate.md`
 
 ### ⬜ S7 — Release freeze · ≤$0.80 · freeze 09:00 UTC
 - [ ] C7.1 final run or replay; validator; atomic output.csv

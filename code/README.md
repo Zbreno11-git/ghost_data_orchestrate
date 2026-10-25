@@ -30,13 +30,16 @@ The key is read from the environment, or from an uncommitted `.env`. It is never
 .venv/bin/python code/main.py run --split targets --out runs/det
 
 .venv/bin/python code/main.py validate runs/final/output.csv               # contract invariants, 518 rows
+.venv/bin/python code/main.py explain case_105 --run runs/final            # one case, from its trace; no model call
 .venv/bin/python code/evaluation/main.py --pred runs/s/output.csv          # metrics vs the public samples
 .venv/bin/python -m pytest code/tests -q                                    # the test suite
 ```
 
 A run writes into its own directory, never over the root `output.csv`:
 - `output.csv`;
-- `decisions.jsonl`: per case, every resource with its tier, category, treatment, verdict, copies and proof;
+- `decisions.jsonl`: per case, every resource with its tier, category, rule, treatment, verdict, copies and proof,
+  plus a `trace` (intent and its source, the person's identifiers, the account deduction, exclusions,
+  ambiguities, heuristic flag) that `main.py explain` prints;
 - `unresolved.md`;
 - `summary.json`;
 - `llm_keys.jsonl`: every model response used;
@@ -94,8 +97,9 @@ labelled as such.
 
 - `evaluation/evaluation_report.md` covers:
   - status, step, field and sequence accuracy on the 32 public samples, with full denominators;
-  - three independently written custom cases;
-  - case-by-case comparisons (`evaluation/compare.py`);
+  - five independently written custom cases;
+  - case-by-case comparisons (`evaluation/compare.py`) and the baseline-vs-candidate gate (`evaluation/gate.py`);
+  - mismatch causes by earliest stage (`evaluation/diagnose.py`, searching decoded content of every source);
   - failures found and fixed.
 - `evaluation/usage_report.md` gives providers, models, calls, tokens and cost for the run that produced the
   submitted `output.csv`.

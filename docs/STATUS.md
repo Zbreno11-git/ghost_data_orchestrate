@@ -3,9 +3,37 @@
 > **For:** Breno, and anyone who needs the state without reading code. No jargon. **Updated at the end of each
 > session, with the date.** Numbers are re-checked at the source when written, never copied from the previous version.
 
-**Last update: 2026-10-25 01:14 UTC.**
+**Last update: 2026-10-25 02:09 UTC.**
 
-`████████████░░░░ 6 of 8 sessions closed`
+`██████████████░░ 7 of 8 sessions closed`
+
+## 2026-10-25 02:09 UTC — session 6: checked every remaining gap; one real bug found and fixed; answers unchanged
+
+**What changed:**
+- **We hunted for missing answers backed by evidence.** For each of the 24 steps we still miss on the examples,
+  we followed the evidence to where it stops:
+  - 21 point at records that name nobody (anonymized profiles, blank lookups);
+  - 3 can be tied to the person only by files captured after the audit date, which the rules forbid.
+
+  So no new link is allowed, and we added none. Guessing from timing would add more wrong steps than right ones;
+  we measured it (13 wrong for 5 right) and kept the stricter mode.
+- **We checked that nothing was lost while reading the files:** every line that mentions a record was matched to
+  what the engine extracted, and the screenshots were checked by eye. Nothing was missed. One of our *checking
+  tools* had a blind spot (it could not read compressed PDFs); it is fixed.
+- **Two new test cases, written independently, caught a real bug:** the AI reviewer could have marked a
+  "deleted-account reference" (which must be kept) as the person's account, which would have planned its deletion.
+  That can no longer happen. It never affected the answers file.
+- **New:** `main.py explain <case>` explains any answer step by step from the recorded evidence, without calling
+  the AI. Examples are in `docs/explanations/`.
+- **The answers file did not change** (re-produced byte for byte by the new code, for $0). Score on the 32
+  examples is the same: every status right, 12 fully right, 162 of 193 steps found, 162 of 163 listed steps right.
+  The 5 test cases are all fully right.
+
+**Spending:** $1.88 of your $4.50 (this session $0.006).
+
+**Needs your decision (no rush; default is to keep):** 19 answers use an account picked by timing and elimination
+(labelled "weak"). Your new rule forbids *new* links of that kind; these existed before. Keep them (default) or remove
+them?
 
 ## 2026-10-25 01:14 UTC — the answer file and the code package are ready to upload (safety package done)
 

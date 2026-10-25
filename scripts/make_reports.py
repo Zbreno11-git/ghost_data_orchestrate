@@ -127,7 +127,7 @@ def evaluation_report(a) -> str:
           "Each line compares two runs on the same cases against the answers. *Not in the answer but supported* "
           "means the added step cites evidence that names the resource; *unsupported* means it does not. A status "
           "flip from INCOMPLETE to COMPLETE is listed separately because it can hide a violation.", "",
-          "| comparison | cases | whole-case base → cand | correct steps removed | added: in answer / supported / unsupported | INCOMPLETE→COMPLETE | agent cost |",
+          "| comparison | cases | whole-case base → cand | correct steps removed | added: in answer / supported / unsupported | INCOMPLETE→COMPLETE | agent cost paid in that run (replays: $0) |",
           "|---|---|---|---|---|---|---|"]
     for spec in a.compare:
         base, cand, label = spec.split(":", 2)
