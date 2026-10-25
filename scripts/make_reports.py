@@ -50,7 +50,9 @@ def metrics_block(m: dict) -> list[str]:
 def evaluation_report(a) -> str:
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     summ = json.loads((a.final / "summary.json").read_text())
-    vio = validate_file(a.final / "output.csv", "targets")
+    from ghostaudit.ingest.manifest import evidence_times, read_csv
+    requests = {r["case_id"]: r for r in read_csv(DATASET / "deletion_requests.csv")}
+    vio = validate_file(a.final / "output.csv", requests, evidence_times(DATASET))
     dec = _decisions(a.final)
     heur = [d for d in dec if any(r.startswith("HEURISTIC PREDICTION") for r in d["reasons"])]
     gold = load_output(DATASET / "sample_output.csv")
@@ -109,8 +111,16 @@ def evaluation_report(a) -> str:
     for run in a.custom:
         name = run.name.split("custom-", 1)[1]
         m = evaluate(load_output(run / "output.csv"), load_output(CUSTOM / name / "expected_output.csv"))
-        why = (CUSTOM / name / "RATIONALE.md").read_text().strip().splitlines()
-        what = next((l.strip("# ").strip() for l in why if l.strip() and not l.startswith("#")), name)[:110]
+        why = (CUSTOM / name / "RATIONALE.md").read_text().splitlines()
+        # the "What it tests" list: its bold item titles, e.g. "Historical identity resolution; Replication drift"
+        import re as _re
+        start = next((i for i, l in enumerate(why) if l.strip().lower() == "## what it tests"), None)
+        items = []
+        for l in why[start + 1:] if start is not None else []:
+            if l.startswith("## "):
+                break
+            items += _re.findall(r"^\d+\. \*\*(.+?)\*\*", l)
+        what = "; ".join(i.rstrip(".") for i in items) or name
         L.append(f"| {name} | {what} | {_r(m['status_accuracy'])} | {_r(m['whole_case_exact'])} | "
                  f"{_r(m['step_precision'])} | {_r(m['step_recall'])} |")
     L += ["", "## 5. Case-by-case comparisons", "",
@@ -137,6 +147,16 @@ def evaluation_report(a) -> str:
     L += ["", "On the target split (no answers), the deterministic changes of this session moved rows only where "
           "the per-case diffs were traced to raw evidence; every INCOMPLETE→COMPLETE flip was investigated "
           "(`docs/plans/session-05.md`, C5.2–C5.6).", ""]
+    diag = ROOT / "code" / "evaluation" / "diagnostics.md"
+    if diag.exists():
+        t = diag.read_text().splitlines()
+        i = next(k for k, l in enumerate(t) if l.startswith("| cause |"))
+        j = next(k for k in range(i, len(t)) if not t[k].startswith("|"))
+        L += ["## 5b. Mismatch diagnostics by earliest responsible stage", "",
+              "Every sample mismatch of the final run, with one cause each (`code/evaluation/diagnose.py`; the full "
+              "list with examples is in `code/evaluation/diagnostics.md`). \"Absent from supplied evidence\" is "
+              "decided by a raw byte search, so a parser miss is never called a dataset gap.", ""] + t[i:j] + [
+              "", t[j + 1] if j + 1 < len(t) and t[j + 1].startswith("Before") else "", ""]
     L += [(ROOT / "code" / "evaluation" / "failures_and_fixes.md").read_text()]
     L += ["", "## Tuning exposure", "",
           "Ownership, citation and screen-reading rules were measured on the 32 public samples, so these scores "
@@ -180,8 +200,11 @@ def usage_report(a) -> str:
     for (model, purpose), c in sorted(per.items()):
         L.append(f"| {model} | {purpose} | {c['calls']} | {c['live']} | {c['input']:,} | {c['output']:,} | "
                  f"{c['cost_x1e6'] / 1e6:.6f} |")
+    live_cost = sum(round(((u.get("usage") or {}).get("cost_usd", 0) or 0) * 1e6) for u in used if not u["cache"])
     L += [f"| **all** | | **{tot['calls']}** | {tot['live']} | **{tot['input']:,}** | **{tot['output']:,}** | "
           f"**{tot['cost_x1e6'] / 1e6:.6f}** |", "",
+          f"The cost column is what the responses behind this output cost when they were generated (the full price "
+          f"of the run); of it, ${live_cost / 1e6:.6f} was paid in this run and the rest earlier (provenance below).", "",
           f"Per request ({n}): {tot['calls'] / n:.2f} calls, {(tot['input'] + tot['output']) / n:,.0f} tokens, "
           f"${tot['cost_x1e6'] / 1e6 / n:.6f}. Total tokens {tot['input'] + tot['output']:,}.", "",
           f"Agent scope `{summ.get('agent_scope')}`: {summ['agent'].get('skipped_resolved', 0)} resolved proposals "
@@ -206,7 +229,7 @@ def usage_report(a) -> str:
     L += [f"| **settled total** | | {sum(calls.values())} | **{sum(cum.values()) / 1e6:.6f}** |", "",
           f"Open reservations: {len(open_res)}, ${sum(r['est_usd'] for r in open_res):.6f}, counted against the budget "
           "because they may have been billed (an in-flight call of a run killed on purpose to prove resume). "
-          + "".join(f"A {r.get('error')} ({r.get('code')}) on {res.get(r['res_id'], {}).get('purpose')} was booked at "
+          + "".join(f"A {r.get('error')} (HTTP {r.get('code') or '4xx, code not recorded'}) on {res.get(r['res_id'], {}).get('purpose')} was booked at "
                     f"its reservation, ${r.get('cost_usd') or 0:.6f}, before rejected requests were settled at $0 "
                     "(A21); the append-only ledger keeps it. "
                     for r in rows if r["kind"] == "settle" and r.get("status") == "error"
