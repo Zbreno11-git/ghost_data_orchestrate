@@ -215,3 +215,21 @@ def test_the_decoy_check_reads_only_the_table_row_that_names_the_resource():
     own = link_case(reqs[0], CaseView(store, T), WorkflowAssignment([], reqs), owners)
     assert "data_flow_1" in own.links and "data_flow_2" not in own.links
     assert not [a for a in own.ambiguities if "data_flow_1" in a]     # row 2's customer is not this row's
+
+
+def test_a_subject_record_that_names_another_resource_links_it_too():
+    # case_06's shape (found by the agent, S5): the subject's search document names the account it was built from.
+    from ghostaudit.evidence import EvidenceStore
+    from ghostaudit.ownership import explicit_links
+    ids = [{"user_id": "user_1", "name": "J", "email": "j@x.com", "phone": "", "email_hash": "", "updated_at": ""},
+           {"user_id": "user_2", "name": "K", "email": "k@x.com", "phone": "", "email_hash": "", "updated_at": ""}]
+    idx = IdentityIndex(ids, [])
+    store = EvidenceStore(resource_prefixes=["search", "account"])
+    t = T - timedelta(days=1)
+    for oid, res, f in (("ev#1", "search_1", {"email": "j@x.com", "source_resource_id": "account_1"}),
+                        ("ev#2", "search_2", {"email": "j@x.com", "cc": "k@x.com", "source_resource_id": "account_2"})):
+        store.add(Observation(obs_id=oid, source_id="ev", source_kind="json", kind="record", captured_at=t,
+                              observed_at=t, system_id="search_service", resource_id=res, fields=f, locator=oid))
+    links = explicit_links(idx.resolve("j@x.com", T), CaseView(store, T), store.resource_re, OwnerIndex(idx))
+    assert links.get("account_1") == ["ev#1"]
+    assert "account_2" not in links          # the record also names another subject: it links nothing extra

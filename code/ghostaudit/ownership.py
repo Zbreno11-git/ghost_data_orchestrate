@@ -163,6 +163,13 @@ def explicit_links(subject: Subject, view: CaseView, resource_re, owners: "Owner
             if obs.kind != "text":
                 if obs.resource_id:
                     out[obs.resource_id].add(obs.obs_id)
+                # A record of the subject that names another resource in its fields (a search document's
+                # source_resource_id) links that resource too, unless it also names someone else (S5, case_06).
+                if obs.kind in ("record", "lookup") and not owners.others(obs, subject.user_id, view.audit_at):
+                    for v in obs.fields.values():
+                        if isinstance(v, str):
+                            for r in resource_re.findall(v):
+                                out[r].add(obs.obs_id)
                 continue
             whole = _whole_text(obs)
             # A table row belongs to one entity, whoever the other rows name (S5 C5.3: an exports table of four

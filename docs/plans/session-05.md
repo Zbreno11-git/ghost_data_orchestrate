@@ -437,3 +437,12 @@ Integrated into C5.3, C5.5, C5.11 and C5.12 above, without new modules:
 - Originals are never edited.
 - Redaction applies to staged copies only, and JSONL lines must still parse.
 - Excluded: memory notes, settings, credentials, `.env`, Codex sessions (none belong to this challenge).
+- **A30 ✅ 00:54Z.** On the full 32 samples, the final configuration's agent gained case_06 by choosing
+  account_006. The choice is grounded: `evidence_57`'s search document carries the subject's email and
+  `source_resource_id: account_006`, so the id mirroring the case number is a coincidence here.
+  - The deterministic engine now applies the same rule: a subject record links the other resources it names,
+    unless it names someone else. Test red first; the mutation on the guard is red. `225 passed`.
+  - **Deterministic:** samples 11/32 → 12/32, steps 162/163 P and 162/193 R; targets 0 rows changed.
+  - **Final-config runs:** samples (`runs/s5/final-samples`, before A30) whole-case 12/32, agent $0.049089.
+    Custom cases each run with the agent (3 cases, $0.007729), whole-case 3/3 to be re-checked on the final
+    code.
