@@ -21,31 +21,59 @@ Each such account contributes exactly one asserted step (`VERIFY_RECORD_ABSENT` 
 and verification). **The CSV schema has no confidence field: in the submission, a "weak" account is an asserted
 step like any other.**
 
-## How reliable the mechanisms are: masked-identity backtest
+## How reliable the mechanisms are: masked-identity backtest (corrected 2026-10-25 03:38 UTC, after Breno's review)
 
-177 requests whose account is proven by explicit admissible evidence had that evidence hidden, cohort by cohort,
-and the existing mechanisms were re-run. Control passed: no hidden account remained reachable by the explicit path.
+177 requests whose account is proven by explicit admissible evidence had that evidence hidden, and the existing
+mechanisms were re-run. Control passed in every variant: no hidden account stayed reachable by the explicit path.
+**The three variants are repeated runs over the same 177 requests, not independent observations. Their counts
+must not be added or pooled.** Only the two cohort variants test the mechanisms; the one-at-a-time variant leaves
+every neighbour's explicit account visible, which makes elimination artificially easy, and is a reference only.
 
-| mechanism | cohort-masked (competitors together) | one at a time (artificially easy, reference only) |
+| mechanism | Variant 1 (strict): request + its competitors masked | Variant 2 (strict): whole connected cohort masked | reference only: one request masked at a time |
+|---|---|---|---|
+| only_feasible_row | 4 correct / 4, **all four from windows with a single feasible row** | 4 / 4, the same four | 18 / 18 (4 single-row, 14 by elimination) |
+| forced_matching | **1 correct, 1 wrong** (n = 2) | **0 correct, 1 wrong** (n = 1) | 9 / 9 |
+| only_feasible_request | 0 correct, 1 wrong | 0 correct, 1 wrong | 1 correct, 3 wrong |
+| nearest-anchor fallback (on abstentions) | 48 correct, 120 wrong | 48 correct, 121 wrong | 38 correct, 106 wrong |
+| solver abstains | 170 / 177 | 171 / 177 | 146 / 177 |
+
+What the strict variants support, and what they do not:
+- **Window-unique `only_feasible_row`** (one feasible row in the window): 4 / 4, a small n.
+- **Elimination-based `only_feasible_row`** (several rows, the others taken by neighbours' explicit accounts):
+  **never exercised by the strict variants** (0 observations); its only support is the reference variant. 9 of
+  the 17 legacy `only_feasible_row` links are of this kind (targets case_200, 234, 236, 253, 260, 373, 377, 500;
+  samples case_30).
+- **`forced_matching`**: 1 of 3 correct across the two strict variants, which overlap. That is small and mixed, and
+  no reliability estimate follows from it.
+- **`only_feasible_request`** and the **nearest-anchor fallback**: wrong more often than right in every variant.
+- **Selection bias:** these accounts were identifiable, and genuinely anonymous accounts may sit in different
+  windows and neighbourhoods. This is supporting evidence about the mechanisms, not hidden-target accuracy.
+
+## The two forced-matching rows (case_78, case_94), reviewed
+
+Both accounts are the deletion worker's account_service activity row inside the request's window, a **claim**
+row, not a record naming the person. The pair is present in every maximum one-to-one matching of the remaining
+rows and requests. It assumes:
+1. exactly one worker account row per authorized request (measured globally: 539 rows for 540 requests);
+2. the neighbours' explicit assignments are right;
+3. no request outside this dataset owns one of these rows.
+
+| | case_78 (user_76) | case_94 (user_92) |
 |---|---|---|
-| only_feasible_row | **4 / 4 correct** | 18 / 18 |
-| forced_matching | 1 correct, 1 wrong | 9 / 9 |
-| only_feasible_request | 0 correct, 1 wrong | 1 correct, 3 wrong |
-| nearest-anchor fallback (on abstentions) | **48 correct, 120 wrong** | 38 correct, 106 wrong |
-| solver abstains | 170 of 177 | 146 of 177 |
+| window | 08-16 08:00 → report 08-18 08:00 (+15 min); audit 09-11 | 08-10 06:00 → report 08-13 06:00 (+15 min); audit 09-01 |
+| feasible rows | 7: three on 08-16 (one taken by case_105, explicit), four on 08-18 (three taken by case_92, case_77, case_79, explicit) | 5: three on 08-10 (none taken), two on 08-13 (one taken by case_93, explicit) |
+| forced pick | account_8754 (`activity_3302`, 08-18 06:45, SUCCESS claim) | account_4037 (`activity_3227`, 08-13 04:55, PARTIAL claim) |
+| independently grounded findings (kept either way) | search_8295 REMAINING and support_9652 EXPOSED_PII (evidence_91), with remediation and verification; audit_record_6593 VERIFY_PRESENT | search_7631 REMAINING and support_7691 EXPOSED_PII (evidence_89), with remediation and verification |
+| step that rests on the forced pick | `VERIFY_RECORD_ABSENT account_8754`, uncited (a future check) | `VERIFY_RECORD_ABSENT account_4037`, uncited (a future check) |
+| with forced_matching off | that one step removed; 7 steps remain; status INCOMPLETE; support unresolved | that one step removed; 6 steps remain; status INCOMPLETE; support weak→unresolved |
+| empty-row fallback | not involved (rows keep their findings) | not involved |
 
-Reading:
-- The solver mostly **abstains**, and that is its honest behaviour.
-- When it does assert by `only_feasible_row`, it was right every time measured (22/22 across both variants).
-- `forced_matching` was right 10 of 11.
-- `only_feasible_request` was right 1 of 5.
-- The nearest-anchor fallback was right ≈29% of the time.
-- **Selection bias:** these accounts were identifiable, and the genuinely anonymous accounts may sit in different
-  windows. This is supporting evidence about the mechanisms, not hidden-target accuracy.
+Effect of turning `forced_matching` off, deterministic: targets change only these 2 rows; samples are unchanged
+(no sample uses it); 0 status flips; 0 cited steps lost. Nothing replaces the removed steps.
 
 ## The concrete alternatives
 
-| | A: assert all (current release) | B: assert none | C: assert only `only_feasible_row` + `forced_matching` (+ `corroborated_run`, unused) |
+| | A: assert all (current release) | B: assert none | C (approved as A34): assert only `only_feasible_row` + `forced_matching` (+ `corroborated_run`, unused) |
 |---|---|---|---|
 | sample status | 32/32 | 32/32 | 32/32 |
 | sample whole-case | 12/32 | 10/32 | 11/32 |
@@ -76,10 +104,10 @@ person. Breno's S6 rule forbids *new* links of this kind; these predate it.
 
 | mechanism | basis |
 |---|---|
-| `only_feasible_row` | The single row in the request's window, after rows that explicit evidence ties to other requests are removed. Most consistent in the backtest. |
-| `forced_matching` | The pair present in every maximum one-to-one matching. Consistent unless a neighbour's account is itself unknown. |
-| `only_feasible_request` | A row that only this request could still claim. In the backtest it failed 4 of 5 times. |
-| nearest-anchor fallback | The closest row to `reported_at`. A ranking, not a deduction. Wrong about 7 times in 10 in the backtest. |
+| `only_feasible_row` | The single row in the request's window, after rows that explicit evidence ties to other requests are removed. Strict variants: 4/4, all window-unique; elimination-based picks untested. |
+| `forced_matching` | The pair present in every maximum one-to-one matching. Strict variants: 1/2 and 0/1 (small, mixed); depends on the neighbours' assignments. |
+| `only_feasible_request` | A row that only this request could still claim. Strict variants: 0/1 and 0/1; reference variant 1/4. |
+| nearest-anchor fallback | The closest row to `reported_at`. A ranking, not a deduction. Strict variants: 48 right of 168–169 picks. |
 
 ## What the agent adds
 

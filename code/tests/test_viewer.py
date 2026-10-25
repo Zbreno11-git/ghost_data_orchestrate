@@ -65,7 +65,7 @@ def test_a_run_without_trace_or_provenance_is_labelled_not_verified(run, tmp_pat
     d.pop("trace")
     (r / "decisions.jsonl").write_text(json.dumps(d) + "\n")
     data = build_data(r)
-    assert data["run"]["provenance"]["status"] == "integrity_failed"   # decisions.jsonl no longer matches its hash
+    assert data["run"]["provenance"]["status"] == "damaged"   # decisions.jsonl no longer matches its hash
     assert data["cases"][0]["has_trace"] is False and data["prov"] == {}
 
 

@@ -124,7 +124,7 @@ def explain(run: Path, case_id: str, dataset: Path | None = None, index: dict | 
         L.append("- **HEURISTIC PREDICTION**: part of this row is not a reconstructed state; see the limits below")
     elif not v["has_trace"]:
         L.append(f"- Heuristic flag: {MISSING}")
-    L.append(f"- Provenance: {v['provenance']['status']} ({v['provenance']['message']})")
+    L.append(f"- Run integrity: {v['provenance']['status']} ({v['provenance']['message']})")
     r = v["request"]
     L += ["", "## Request", "",
           f"- Requested {g(r, 'requested_at')}; the workflow claimed **{g(r, 'reported_status')}** at {g(r, 'reported_at')} (a claim, never proof)",

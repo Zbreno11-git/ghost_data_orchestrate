@@ -177,7 +177,7 @@ function show(c){
   m.append(h("h2",{},c.case_id+" ",sbadge(c.status)," ",pbadge(c.support)));
   m.append(h("div",{class:"note"},certainty(c)," Status and support are separate: status is the answer written to output.csv; support is how well the evidence establishes it (the CSV cannot carry it)."));
   if(c.heuristic) m.append(h("div",{class:"heur"},"HEURISTIC PREDICTION — part of this row is a rule-of-thumb guess, not a reconstructed state. It is marked on the steps below."));
-  m.append(h("div",{class:"muted"},"Provenance: "+c.provenance.status+" — "+c.provenance.message));
+  m.append(h("div",{class:"muted"},"Run integrity: "+c.provenance.status+" — "+c.provenance.message));
   const r=c.request; m.append(h("h3",{},"Request"));
   m.append(r?h("div",{},"Requested "+r.requested_at+"; the workflow claimed "+r.reported_status+" at "+r.reported_at+" (a claim, not proof). Cutoff (audit_at) "+r.audit_at+". Email ",h("code",{},r.request_email)):h("div",{},MISSING));
   const it=c.intent; m.append(h("div",{},it?("Intent: authorizes deletion = "+it.authorizes_deletion+", confidence "+it.confidence+", source "+it.source+". "+(it.reason||"")):"Intent: "+MISSING));
@@ -230,7 +230,7 @@ const R=D.run; const sup=R.support||{}, st=R.status||{}, art=R.artifacts||{};
 document.getElementById("runinfo").append(
   "Result: output.csv sha256 ",h("code",{},(art["output.csv"]||"?").slice(0,16)),"… · content ",h("code",{},D.content_sha256.slice(0,16)),"… · ",
   (R.rows||D.cases.length)+" cases · engine "+(R.engine||"?")+(R.model?" ("+R.model+")":"")+" · ownership "+(R.ownership||"?")+" · time policy "+(R.time_policy||"?"),
-  h("br",{}),"Status: "+Object.entries(st).map(([k,v])=>k+" "+v).join(", ")+" · Support: "+Object.entries(sup).map(([k,v])=>k+" "+v).join(", ")+" · heuristic rows "+R.heuristic_rows+" · provenance "+R.provenance.status);
+  h("br",{}),"Status: "+Object.entries(st).map(([k,v])=>k+" "+v).join(", ")+" · Support: "+Object.entries(sup).map(([k,v])=>k+" "+v).join(", ")+" · heuristic rows "+R.heuristic_rows+" · run integrity "+R.provenance.status+(R.provenance.status==="verified"?"":" — "+R.provenance.message));
 for(const id of ["q","fs","fp","fh"]) document.getElementById(id).addEventListener("input",refresh);
 refresh();
 const start=D.cases.find(c=>c.case_id===decodeURIComponent(location.hash.slice(1)));

@@ -59,9 +59,9 @@ def test_a_modified_provenance_file_is_never_shown_as_verified(runs, tmp_path):
     lines[1] = json.dumps(rec, sort_keys=True)
     (r / "provenance.jsonl").write_text("\n".join(lines) + "\n")
     status, _, msg = verify_run(r)
-    assert status == "integrity_failed" and "sha256" in msg
+    assert status == "damaged" and "sha256" in msg
     text = explain(r, cid)
-    assert "1999-01-01" not in text and "provenance not attached" in text and "integrity_failed" in text
+    assert "1999-01-01" not in text and "provenance not attached" in text and "damaged" in text
 
 
 def test_a_provenance_file_from_another_run_is_rejected_even_with_a_matching_hash(runs, tmp_path):
@@ -72,7 +72,7 @@ def test_a_provenance_file_from_another_run_is_rejected_even_with_a_matching_has
     s["artifacts"]["provenance.jsonl"] = sha256_file(r / "provenance.jsonl")     # the hash alone would pass
     (r / "summary.json").write_text(json.dumps(s))
     status, _, msg = verify_run(r)
-    assert status == "integrity_failed" and "another run" in msg
+    assert status == "damaged" and "another run" in msg
     assert all("unavailable" in o for x in case_view(r, cid)["resources"] for o in x["links"])
 
 
@@ -95,3 +95,59 @@ def test_explain_reads_no_dataset_and_imports_no_ingest_model_or_provider(runs):
             "assert not bad, bad")
     r = subprocess.run([sys.executable, "-c", code], env={"PATH": "/usr/bin:/bin"}, capture_output=True, text=True)
     assert r.returncode == 0, r.stderr[-800:]
+
+
+# --- Breno's review (S7): the explanation must describe the submitted CSV, not just its own decisions ---------
+
+def _summary(r):
+    return json.loads((r / "summary.json").read_text())
+
+
+def _rewrite_csv(r, fn):
+    import csv
+    with open(r / "output.csv", newline="", encoding="utf-8") as fh:
+        rows = list(csv.DictReader(fh))
+    fn(rows)
+    with open(r / "output.csv", "w", newline="", encoding="utf-8") as fh:
+        w = csv.DictWriter(fh, fieldnames=["case_id", "deletion_status", "steps_json"])
+        w.writeheader()
+        w.writerows(rows)
+
+
+def test_an_intact_run_is_verified_with_all_three_artifacts(runs):
+    a, _, _ = runs
+    status, index, msg = verify_run(a)
+    assert status == "verified" and index and all(n in msg for n in ("output.csv", "decisions.jsonl", "provenance.jsonl"))
+
+
+def test_changing_only_the_csv_breaks_verification(runs, tmp_path):
+    a, _, cid = runs
+    r = _copy(a, tmp_path, "csv_only")
+    _rewrite_csv(r, lambda rows: rows[0].update(deletion_status="COMPLETE" if rows[0]["deletion_status"] != "COMPLETE" else "INCOMPLETE"))
+    status, _, msg = verify_run(r)
+    assert status == "damaged" and "output.csv does not match the sha256" in msg
+    assert "provenance not attached" in explain(r, cid)
+
+
+def test_a_csv_whose_hash_was_updated_but_disagrees_with_the_decisions_is_damaged(runs, tmp_path):
+    a, _, _ = runs
+    r = _copy(a, tmp_path, "csv_rehashed")
+
+    def drop_last_step(rows):
+        steps = json.loads(rows[0]["steps_json"])
+        rows[0]["steps_json"] = json.dumps(steps[:-1])
+    _rewrite_csv(r, drop_last_step)
+    s = _summary(r)
+    s["artifacts"]["output.csv"] = sha256_file(r / "output.csv")          # the hash alone would now pass
+    (r / "summary.json").write_text(json.dumps(s))
+    status, _, msg = verify_run(r)
+    assert status == "damaged" and "disagree" in msg and "steps differ" in msg
+
+
+@pytest.mark.parametrize("name", ["output.csv", "decisions.jsonl", "provenance.jsonl"])
+def test_a_missing_required_artifact_is_damaged_not_legacy(runs, tmp_path, name):
+    a, _, _ = runs
+    r = _copy(a, tmp_path, f"missing_{name}")
+    (r / name).unlink()
+    status, _, msg = verify_run(r)
+    assert status == "damaged" and f"{name} is missing" in msg

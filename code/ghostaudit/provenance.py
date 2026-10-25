@@ -93,22 +93,54 @@ def write_provenance(path: Path, decisions: list[dict], store, paths: dict[str, 
     return missing
 
 
+REQUIRED_ARTIFACTS = ("output.csv", "decisions.jsonl", "provenance.jsonl")
+
+
+def csv_matches_decisions(run: Path) -> str | None:
+    """None when output.csv carries exactly the decisions' case ids, statuses and ordered steps; else the first
+    difference (the viewer explains decisions.jsonl, so it must describe the submitted CSV)."""
+    import csv
+    with open(run / "output.csv", newline="", encoding="utf-8") as fh:
+        rows = {r["case_id"]: r for r in csv.DictReader(fh)}
+    decs = {d["case_id"]: d for d in map(json.loads, open(run / "decisions.jsonl", encoding="utf-8"))}
+    if set(rows) != set(decs):
+        return f"case ids differ: {sorted(set(rows) ^ set(decs))[:3]}"
+    for cid in sorted(rows):
+        r, d = rows[cid], decs[cid]
+        if r["deletion_status"] != d["status"]:
+            return f"{cid}: output.csv says {r['deletion_status']}, decisions.jsonl says {d['status']}"
+        if json.loads(r["steps_json"] or "[]") != json.loads(d.get("steps_json") or "[]"):
+            return f"{cid}: output.csv steps differ from decisions.jsonl"
+    return None
+
+
 def verify_run(run: Path) -> tuple[str, dict | None, str]:
-    """(status, provenance index or None, message). status: verified | integrity_failed | legacy."""
+    """(status, provenance index or None, message). status:
+    - verified: output.csv, decisions.jsonl and provenance.jsonl exist, match the sha256s in summary.json, the
+      provenance header names this run's fingerprint, and the CSV carries the decisions' ids, statuses and steps;
+    - damaged: a run that recorded integrity metadata but fails any of those checks (or lacks an artifact);
+    - legacy: a run that recorded no integrity metadata (pre-S7), so nothing can be verified.
+    Protection against accidental mixing of versions, not proof of authenticity."""
     summ = run / "summary.json"
-    prov = run / "provenance.jsonl"
     if not summ.exists():
-        return "legacy", None, "the run has no summary.json, so nothing ties provenance to it"
+        return "legacy", None, "the run has no summary.json: no integrity metadata to verify against"
     s = json.loads(summ.read_text())
     arts, fps = s.get("artifacts") or {}, s.get("fingerprints") or {}
-    if not prov.exists() or "provenance.jsonl" not in arts:
-        return "legacy", None, "the run saved no provenance (pre-S7 run)"
-    for name in ("provenance.jsonl", "decisions.jsonl"):
-        if (run / name).exists() and sha256_file(run / name) != arts.get(name):
-            return "integrity_failed", None, f"{name} does not match the sha256 recorded in summary.json"
-    lines = prov.read_text(encoding="utf-8").splitlines()
+    if not arts:
+        return "legacy", None, "the run recorded no integrity metadata (pre-S7 run)"
+    for name in REQUIRED_ARTIFACTS:
+        if not (run / name).exists():
+            return "damaged", None, f"required artifact {name} is missing"
+        if name not in arts:
+            return "damaged", None, f"summary.json records no sha256 for {name}"
+        if sha256_file(run / name) != arts[name]:
+            return "damaged", None, f"{name} does not match the sha256 recorded in summary.json"
+    lines = (run / "provenance.jsonl").read_text(encoding="utf-8").splitlines()
     head = json.loads(lines[0]).get("_header") if lines else None
     if not head or head.get("run_fingerprint") != fps.get("run") or head.get("records") != len(lines) - 1:
-        return "integrity_failed", None, "provenance.jsonl belongs to another run (header fingerprint or count)"
+        return "damaged", None, "provenance.jsonl belongs to another run (header fingerprint or count)"
+    if (why := csv_matches_decisions(run)) is not None:
+        return "damaged", None, f"output.csv and decisions.jsonl disagree: {why}"
     index = {r["obs_id"]: r for r in map(json.loads, lines[1:])}
-    return "verified", index, f"saved with the run; sha256 and run fingerprint {fps.get('run', '')[:12]} verified"
+    return "verified", index, (f"output.csv, decisions.jsonl and provenance.jsonl match their recorded sha256 and "
+                               f"each other; run fingerprint {fps.get('run', '')[:12]}")
