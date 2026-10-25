@@ -144,3 +144,40 @@
   - **Mutations: 7, all red in the end.** Two survived first, because the missing-trace assert matched MISSING
     on other lines (ERRORS #4, 6th occurrence); it is now line-specific.
   - The sample output.csv is byte-identical to base (`cmp`).
+- **C6.3 ✅ 01:48Z. Rejected association paths** (`scripts/analysis/association_paths.py --run runs/s6/c62-samples`
+  → `docs/diagnostics/s6/association_paths.md`; explanations in `docs/diagnostics/s6/explain_case_{28,27,04}.md`).
+  - **Checks per resource, in order:** found → admissible (both clocks) → direct identifiers and whose they are
+    at the cutoff → reference-like fields (`*reference*`, `source_resource_id`, `user_id`, `*_key`) and
+    whether they reach the subject or a linked resource → decoded co-mention on any source line (post-cutoff
+    sources reported, never used). The analytics rows come first in the reading. No timing, naming, list
+    position or one-to-one assumption is used.
+  - **Break points for the 24:**
+
+    | Break point | Count | Resources |
+    |---|---|---|
+    | the record names no identifier or reference; no supporting fact found after documented checks | 21 | all 7 analytics and 14 accounts |
+    | lineage to the subject exists only in post-cutoff evidence | 3 | account_3960: lookup_key with the subject's email in evidence_06, observed 09-16 > audit 09-07; account_5684 and account_3866: customer_reference user_26 / user_27 in evidence_02, captured 09-17 |
+
+  - **The analytics profiles** (evidence_56, evidence_92, evidence_94) carry `customer_reference`, email, phone
+    and hash all null, and only an audience cohort. The only rows that name them are the deletion worker's
+    "Policy action completed for analytics_N", batched about 11:31 each day with no run id.
+    - evidence_92 is a per-service export of many people's records. List position is not shared across
+      services, and position is not evidence anyway.
+    - No transformation or lineage record names an analytics id together with an account, a user or a hash.
+      The `analytics_identity_bridge` connector names its customer but no profile.
+  - **The extra step, case_04 `VERIFY_RECORD_ABSENT account_3865`.** Classification: **undetermined ownership,
+    produced by a timing-only engine path**. It is not a supported disagreement (no evidence ties account_3865
+    to user_04) and not proven wrong (the answer's account_004 occurs in no decoded source).
+    - It comes from the S3 strict→scored fallback (A20): "strict ownership attributed nothing; scored
+      candidates used", nearest anchor 1447 min from reported_at, among 3 candidates.
+    - It is labelled weak. It was not deleted to raise the score.
+  - **Scope of the existing timing / one-to-one paths** (measured on base runs):
+    - samples: 4 steps rest on workflow-tier accounts (3 match the answer, 1 is the extra above);
+    - targets: 19 rows, one workflow-tier account step each, all weak. Their deductions: only_feasible_row 16,
+      forced_matching 2, only_feasible_request 1 (summary.json; the fallback path accounts for 4 rows:
+      case_39/55/61/63).
+    - These predate S6 (A20/A24) and contradict the letter of Breno's new rule if it applies to existing paths.
+      → **Depends on Breno** (close list). Default: kept and labelled weak.
+  - **Conclusion:** the evidence supports **no new association** among the sample misses. C6.4 therefore has no
+    association fix to make. A link rule written now would rest on timing or position, which the owner rule
+    forbids.
