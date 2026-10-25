@@ -30,7 +30,7 @@ only when its proving checkpoint is ✅ in `docs/SESSIONS.md`. The proving comma
 | NFR-03 | Honest uncertainty | C3.5 (unresolved list), A10; S5 `support_of` caps (A24), heuristic rows labelled (A29) |
 | NFR-04 | Budget discipline | C4.1 |
 | NFR-05 | Interrupted-run recovery | C4.5 |
-| NFR-06 | Portable local execution | S5 C5.11 VPS check (passed 2026-10-25 01:12 UTC); S7 C7.4 VPS check on the rebuilt package; Mac acceptance C7.6 pending (Breno, `docs/release/MAC_RUNBOOK.md`) |
+| NFR-06 | Portable local execution | S5 C5.11 VPS check (passed 2026-10-25 01:12 UTC); S7 C7.4 VPS check on the rebuilt package; Mac acceptance C7.6 **passed** 2026-10-25 (macOS 13.7.8 Intel, Python 3.13.5; `docs/release/mac_acceptance.md`) |
 | NFR-07 | Input isolation | C3.2, C4.2; S5 C5.2 as-of owner index and solver (A24); S6 C6.5 metamorphic tests (shuffle, duplicate, other person, post-cutoff) |
 | NFR-08 | Reusable internals | package layout (S1–S4) |
 | NFR-09 | Deadline awareness | timeline in SESSIONS |

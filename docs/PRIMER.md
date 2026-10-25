@@ -13,7 +13,7 @@
 A local Python CLI holding a bounded, tool-using deletion-audit agent for HackerRank Orchestrate Oct 2026,
 "Ghost Data Still Exists". For each of the 518 requests in `dataset/deletion_requests.csv` it writes one row of
 `output.csv`: `COMPLETE` / `INCOMPLETE` / `NOT_APPLICABLE` plus canonically ordered steps grounded in
-participant evidence available at `audit_at`. Owner: Breno. State on 2026-10-25 04:01 UTC: S7 in progress (C7.0–C7.4 closed; C7.5–C7.7 left); S6 closed.
+participant evidence available at `audit_at`. Owner: Breno. State on 2026-10-25 04:52 UTC: S7 C7.0–C7.6 closed (Mac accepted); C7.7 = Breno's finalize script, freeze and upload; S6 closed.
 
 ## The requirement that breaks ties
 
@@ -43,7 +43,8 @@ participant evidence available at `audit_at`. Owner: Breno. State on 2026-10-25 
 🔄 **S7 opened 2026-10-25 02:45 UTC (plan `docs/plans/session-07.md`): final integration, evidence viewer,
 hardening, Mac acceptance and release.** S7 and S8 merged by Breno (A35); the viewer is a deliverable; freeze is
 the **last** checkpoint, after Mac acceptance and the final trace. Pauses only for the C7.1 legacy-link decision
-(A34), missing information, or the Mac acceptance. `code.zip` on disk is the S5 build and is rebuilt in C7.4.
+(A34), missing information, or the Mac acceptance. Release candidate `code.zip` `0c4dfef1…` + `output.csv`
+`0e04ffe2…` accepted on the VPS and on Breno's Mac; `scripts/finalize_release.sh` freezes them with the traces.
 
 Previous (S6, closed 02:08 UTC): audits before fixes; extraction coverage complete (ERRORS #8); the 24 sample
 association misses have no admissible link; strict kept (A33), A32 rejected; engine fix from an independent custom

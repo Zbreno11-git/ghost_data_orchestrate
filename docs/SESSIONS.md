@@ -161,7 +161,7 @@ no links from timing, naming, labels or one-to-one assumptions).
 - [x] C7.3 focused review + packaging hardening (explicit validation, exact report paths, truthful isolation, inventory) [old C7.2 part]
 - [x] C7.4 final integration on the approved config; release candidate; clean-unpack VPS check; viewer in a browser [old C7.1, C7.2]
 - [x] C7.5 submission documentation: README entry point, REQUIREMENTS_MAP, reports [old C7.2 docs, C7.4]
-- [ ] C7.6 Mac runbook, walkthrough, interview cheat sheet → **Mac acceptance by Breno (PENDING until run on the Mac)** — docs done, file set handed over 04:31Z [old C7.5–C7.7]
+- [x] C7.6 Mac runbook, walkthrough, interview cheat sheet → **Mac acceptance by Breno: ACCEPTED** (results 2026-10-25T04:50:57Z; macOS 13.7.8 Intel) [old C7.5–C7.7]
 - [ ] C7.7 final artifacts, trace closure, RELEASE_RECORD, checksums, upload checklist, **freeze** [old C7.3, C7.4]
 
 ### ⤴ S8 — merged into S7 (Breno, 2026-10-25 02:25 UTC, A35); the viewer is C7.2

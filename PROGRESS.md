@@ -17,10 +17,10 @@ Plan and checkpoint log: `docs/plans/session-07.md` (Amendments + "Progress"). S
 | C7.3 packaging hardening | ✅ | `d84ae0c` (+ token-boundary credential rule in `d578d09`) |
 | C7.4 final integration + release candidate | ✅ ~03:58Z | `d578d09`; `docs/diagnostics/s7/final_gate.md`, `target_changes.md`; CI green 03:59:51Z |
 | C7.5 submission docs | ✅ 04:21Z: root README is the solution entry point (commands pinned by a test); package guard (refused build never replaces code.zip) | `57c6be1`, `b6c8136` |
-| C7.6 Mac handoff + **Mac acceptance (Breno)** | 🔄 handed over 04:31Z (`/root/ghost-mac/`); WALKTHROUGH written; ERRORS #10 2nd occurrence fixed; **acceptance PENDING** | `23f14a3` |
-| C7.7 traces, checksums, release record, freeze | ⬜ `release_record.py` written but **untested**; `finalize_release.sh` not written | amendment 6 order |
+| C7.6 Mac handoff + **Mac acceptance (Breno)** | ✅ ACCEPTED (results 04:50:57Z; macOS 13.7.8 Intel, Python 3.13.5): 2× OK, replay lines identical, IDENTICAL, 0 violations, 310 passed, VIEWER-IDENTICAL | `docs/release/mac_acceptance.md` |
+| C7.7 traces, checksums, release record, freeze | 🔄 prepared and rehearsed; closing turn logged 04:52Z; **Breno runs** `/export`, closes, `finalize_release.sh`, uploads | STATUS final steps |
 
-## ▶️ RESUME HERE — 2026-10-25 04:31 UTC — S7: C7.5 done, Mac acceptance handed over (PENDING); C7.7 next
+## ▶️ RESUME HERE — 2026-10-25 04:52 UTC — S7: Mac ACCEPTED; closing turn logged; Breno runs the finalize script and uploads
 
 **Settled; do not reopen** (DECISIONS):
 - A33: strict ownership.
@@ -62,18 +62,13 @@ only_feasible_row, nearest_anchor]`, `historical_snapshots = "snapshot_capture"`
   (`pytest code/tests scripts/tests`; 310 shipped + 12 repo-only in `scripts/tests/`; CI runs both).
 
 **Exact next steps, in order:**
-1. **C7.6, waiting on Breno:** he runs `/root/ghost-mac/MAC_RUNBOOK.md` on his Mac and sends the outputs of
-   steps 1, 4, 5, 6, macOS version and chip, browser. Record them in `docs/release/mac_acceptance.md` (literal);
-   any failure → fix, rebuild, new file set, re-run. Expected: 2× OK, the four replay lines, IDENTICAL, `0
-   violations … against 518`, `310 passed`, VIEWER-IDENTICAL.
-2. **C7.7 preparation ✅ 04:44Z** (`b65eb24`, `0454ce6`): `scripts/finalize_release.sh` written and rehearsed
-   end to end in a sandbox clone (bare local origin, fake HOME, real runs and traces read-only): exit 0, FROZEN,
-   `sha256sum -c` 4× OK. The rehearsal found one defect (an export alone passed the no-session guard), fixed.
-   `stage_traces.py` and `release_record.py` hardened, 9 tests in `scripts/tests/`. STATUS has Breno's final
-   steps 1-7 (04:44 entry).
-3. **Close (after the Mac results):** write `docs/release/mac_acceptance.md` (literal outputs), commit and push it,
-   append the closing log entry (that turn's message), commit and push; tell Breno: no further messages, then
-   `/export` (default name, or `--no-export`), close Claude Code, `bash scripts/finalize_release.sh`, upload.
+1. ✅ C7.6 Mac acceptance recorded (04:52Z, `docs/release/mac_acceptance.md`); closing log entry written.
+2. **Breno (STATUS final steps 2-7):** `/export` (default name in the repo root, or `--no-export`), close Claude
+   Code, `cd /root/hackthon_1 && bash scripts/finalize_release.sh`, `scp` the four files from `~/ghost-release/`,
+   upload, AI interview, then tell the agent it is submitted.
+3. **If a new session is opened before the upload** (e.g. the script printed `STOP`): read this block, run the
+   script's failing check by hand, fix, and re-run; every message in that session must be logged before the script
+   is re-run (its log audit refuses otherwise). Nothing is reported as submitted until Breno confirms.
 
 **Don't forget:**
 - JSONL is split at "\n" only, never `splitlines()` (log_audit.py, stage_traces.py, provenance.py: all fixed).

@@ -3,6 +3,32 @@
 > One entry per session, newest on top. Narrative: what was done, what was decided and **why**, and what was
 > learned. State does not live here (see PROGRESS.md).
 
+## 2026-10-25 — S7 (S7+S8 merged): owner-decided accuracy, provenance and viewer, hardening, two-machine acceptance; $0.39
+
+**Done.** Breno merged S7 and S8 (A35) and amended the plan with six safeguards before any measuring.
+- **Two bounded accuracy investigations, decided by Breno on measured alternatives:**
+  - legacy workflow accounts, via a masked-identity backtest whose variants are never pooled (A34, A34a);
+  - a snapshot time policy whose interpretation was written before measuring; v1 was rejected by its own numbers,
+    and v2 adopted (A36).
+  - Samples: whole-case 12→14, F1 0.9101→0.9252, 0 correct steps lost, 0 flips.
+- **Provenance saved with the run, bound to `output.csv`,** verified before anything is shown. An offline
+  single-file viewer shares one representation with `explain`.
+- **Packaging hardened.** It checks exact report paths, isolation stated truthfully, a pinned fixture allowlist,
+  a token-boundary credential rule, and that a refused build never replaces the release.
+- **Final run paid exactly the 82 predicted cases ($0.353).** Every later re-run was free and byte-identical.
+- **Mac acceptance passed** on a different OS, CPU and Python.
+- **The finalize script was rehearsed end to end** before Breno runs it.
+
+**Decided, and why.** A34/A34a/A36 are owner decisions on presented numbers, each with its selection bias or
+contract ambiguity stated. No aggregate score was used to recommend them.
+
+**Learned.**
+- ERRORS #10 struck twice in one session: a stage that rebuilds an object drops whatever it does not copy. The
+  second fix is a test derived from the dataclass fields, not one more re-applied label.
+- A rehearsal finds what unit tests miss: the trace guard counted an export as a session, and the test that
+  should have caught it read the real home folder.
+- Typed times were wrong three more times; every one was caught by reading the commit or the JSONL.
+
 ## 2026-10-25 — S6: audits before fixes; one engine defect found by an independent case; rows unchanged; $0.006
 
 **Done.** Breno strengthened S6 mid-turn: recover evidence-backed missing steps without losing precision, never

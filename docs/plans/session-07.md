@@ -548,3 +548,5 @@ changes afterwards without a rebuild and a new checksum. The "re-zip after the e
   - `finalize_release.sh` (amendment 6 steps 3–5) rehearsed end to end in a sandbox: exit 0. The rehearsal caught that an export alone passed the no-session guard, and that the test read the real HOME; both fixed.
   - Real dry run: 6 redactions, all `sk-` inside longer tokens; no .env value in any trace.
   - STATUS: Breno's final steps.
+- **C7.6 ✅ Mac acceptance (Breno, results 2026-10-25T04:50:57Z; recorded 04:52Z).** macOS 13.7.8 Intel x86_64, Python 3.13.5: 2× OK, the four replay lines identical to the VPS, IDENTICAL, `0 violations … against 518`, `310 passed`, VIEWER-IDENTICAL. Network state and browser notes were not reported; recorded as such in `docs/release/mac_acceptance.md`.
+- **Closing turn.** DIARY, PROGRESS, SESSIONS, STATUS, PRIMER and REQUIREMENTS_MAP updated. The remaining C7.7 steps are Breno's: `/export`, close, `scripts/finalize_release.sh` (freeze), upload.

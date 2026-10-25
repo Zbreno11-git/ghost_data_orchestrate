@@ -3,9 +3,18 @@
 > **For:** Breno, and anyone who needs the state without reading code. No jargon. **Updated at the end of each
 > session, with the date.** Numbers are re-checked at the source when written, never copied from the previous version.
 
-**Last update: 2026-10-25 04:44 UTC.**
+**Last update: 2026-10-25 04:52 UTC.**
 
 `██████████████░░ 7 of 8 sessions closed; the last one (S7) is under way`
+
+## 2026-10-25 04:52 UTC — your Mac check passed; over to you for the final steps
+
+Every check passed on your Mac (macOS 13.7.8, Intel, Python 3.13.5), a different machine, system and Python from
+the server: same files, the same answers reproduced byte for byte offline at no cost, 0 errors, 310 tests passed,
+and the viewer rebuilt identically. Recorded in `docs/release/mac_acceptance.md`; the closing log entry is written.
+
+**Now: steps 2-7 below** (`/export`, close Claude Code, run the script, copy, upload, tell me). Please don't send
+another message in this session before running the script: it checks that every message is in `log.txt`.
 
 ## 2026-10-25 04:44 UTC — the final steps are ready and rehearsed; waiting for your Mac result
 
