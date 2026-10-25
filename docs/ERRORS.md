@@ -17,8 +17,10 @@
 | 1 | Assumed a git command populated the working tree | 1 | After `reset --mixed`, check `git status` before anything else |
 | 2 | Staged with `git add -A` without listing new untracked files | 1 | `git status --short` and review every `??` before staging; stage explicit paths |
 | 3 | Wrote over a tracked file without reading it first | 1 | `git ls-files <path>` / Read before any `cat >` to a path in the repo |
-| 4 | A test fixture admitted a second explanation (mutation stayed green) | 2 | Build the fixture from the real shape that carries the risk, and order events so only the rule under test can explain the result |
-| 5 | Wrote a fact (a data literal, a timestamp) before measuring it | 3 | Measure the fact first (one query, `date -u`, `git log`), then write it |
+| 4 | A test fixture admitted a second explanation (mutation stayed green) | 5 | Build the fixture from the real shape that carries the risk, and order events so only the rule under test can explain the result |
+| 5 | Wrote a fact (a data literal, a timestamp) before measuring it | 9 | Measure the fact first (one query, `date -u`, `git log`), then write it; times go in by `$(date)` substitution, never typed |
+| 6 | Committed after a gate whose output I had not read | 1 | Chain the commit on the gate's exit code (`pytest -q && git commit`), never after a pipe or `;` |
+| 7 | A tool reported success on an empty input | 1 | A tool that can find nothing must say so and exit non-zero; "0 problems" over 0 items is not a pass |
 
 ---
 
@@ -82,6 +84,15 @@ comes *after* the record. Both mutations are now red.
 **The antidote, concrete:** take the fixture's keys from the real record that carries the risk, not from a
 convenient name. Order the events so that the rule under test is the *only* thing deciding the outcome.
 
+**3rd–5th occurrences, 2026-10-24/25, S5.** Three mutations survived first:
+- **C5.3:** the "table row" fixture put the resource in the panel's first row, which the document loop skipped,
+  so the row rule was never reached. The skip was removed; it changed 0 rows.
+- **C5.5a:** the fingerprint test edited a dataset table but never asserted that the fingerprint moved.
+- **C5.6:** the "no merge across rows" fixture took the row path, so the merge code was never exercised.
+
+Each was rebuilt so that only the rule under test decides, and each mutation is now red. What is new: two of the
+three were *unreached* code, not weak asserts.
+
 ---
 
 ### 5. Wrote a fact (a data literal, a timestamp) before measuring it
@@ -107,3 +118,40 @@ All stamps were corrected to commit-backed times. What is new: a timestamp is a 
 
 > **Never type a time from memory: `date -u` or `git log --date=format-local:%H:%MZ` first.**
 
+**4th–9th occurrences, 2026-10-24/25, S5: timestamps again, six times in one session.**
+- **Plan mode:** "21:5x" for an answer that came at 21:41:52, and "21:34–21:50" for an opening that ended at 21:44.
+- **Progress notes:** "C5.0 ✅ 21:47Z" (commit at 21:45:41) and "C5.5 ✅ 22:20Z", typed in the same command that
+  printed 22:16:31.
+- **Code:** a docstring said "measured 22:05 UTC" at 22:02.
+- **Decisions:** A28/A29 were dated "~22:28 UTC" when the owner's answer arrived at 00:41:32 the next day. The
+  wait for the answer took two hours, and I assumed none had passed.
+
+All were corrected to clock- or JSONL-backed times before or right after their commit. What is new: the rule
+alone failed six times, so it became structure. Progress notes now take times only from `$(date -u +%H:%MZ)`
+in an unquoted heredoc, and decisions take the event time from the session JSONL.
+
+
+---
+
+### 6. Committed after a gate whose output I had not read
+
+**2026-10-24 22:09 UTC — commit `5fbb4c2` (S5 C5.4).** One command ran the agent tests, printed `1 failed,
+14 passed`, and then committed. A `sed` had put `import json` inside the module docstring. The next commit
+(`0d93699`) fixed it. The failure was visible in the output that preceded the commit in the same command.
+
+> **A gate whose exit code does not stop the commit is decoration.**
+
+**The antidote, concrete:** `pytest -q && git commit …`, with no `| tail` in between (a pipe returns tail's
+status), or `set -o pipefail`.
+
+---
+
+### 7. A tool reported success on an empty input
+
+**2026-10-24, between commits `c3cc0fc` (22:23 UTC) and `092d700` (22:27 UTC) — `scripts/stage_traces.py` first dry run (S5 C5.13).** It printed `1 files; 0
+redactions …; problems: none` and exited 0. It had derived the session folder as `-root-hackthon_1`, but Claude
+Code writes `-root-hackthon-1`, so not one session was found. Only reading the file list showed the trace was
+empty. The folder is now derived the way Claude Code does it (every non-alphanumeric character becomes "-"),
+and finding no session exits 1.
+
+> **"No problems" over zero items is not a pass (falha-ruidosa: the empty result that looks healthy).**

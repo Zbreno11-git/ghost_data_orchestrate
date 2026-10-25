@@ -54,15 +54,15 @@ cases. Project spend $0.1074. Earlier (S0): repo, venv, Gemini smoke (keep `thou
 |---|---|
 | Output sort | Rows are in lexicographic `case_id` order (D5). Reopen if organizers clarify. |
 | Step order | phase → operation rank → system_id → resource_id, then step_no (D6). Dependencies stay internal. |
-| Admissibility | Evidence file `captured_at ≤ audit_at` (inclusive); activity/audit `event_time ≤ audit_at`. Enforced in the tool layer, not only in prompts. |
-| Ownership | `--ownership strict|scored`; the choice is made in S6 by measured sample metrics, with tuning exposure disclosed. |
-| Agent | The model can only cite observation IDs returned by tools. Policy and serialization are deterministic code. |
+| Admissibility | Two clocks (A26): an observation is admissible only if its artifact's `captured_at ≤ audit_at` **and** its own event time (`observed_at`, else capture) `≤ audit_at`, inclusive. An artifact captured later is never admitted by an older timestamp. Enforced in `CaseView`, which every engine and tool read goes through. |
+| Ownership | `--ownership strict|scored` (S6 decides by measured metrics). Owner index and one-to-one account assignment are evaluated **as of each case's cutoff** (A24). A table row belongs to one entity, for links, state and decoy checks (A25). |
+| Agent | The model cites only tool-returned obs_ids, and a decision is accepted only with a **lineage** of cited units to the subject; an exclusion needs evidence (of another owner if the link was explicit) (A27). No case_id in the brief. Policy and serialization are deterministic. Final runs review only weak/unresolved proposals (A28). Checkpoints are reused only with an equal input fingerprint. |
 | Model fallback | Never silent. A model change is a config change, recorded in DECISIONS. |
 | Wrapper vs fields | Lookup keys and ledger `subject_reference` live in `Observation.wrapper`; only `fields` is record content (FR-11). An identifier only in the wrapper never makes a record "exposed". |
 | Absence proof | An ABSENT verification may cite a snapshot that covers the system (table or bundle scope) and lacks the row: 4/75 sample citations do exactly that (C2.6). |
 | Unobservable | `audit_record_5569/6645` and `account_004` exist only in sample answers (D10, D13): never invent resources to chase recall. |
 | Copy-level state | State is reconstructed per physical copy (system/container/topology); a newer clean primary never clears an older dirty replica (A20). |
-| Verdict support | A row that validates is not a supported verdict. Every case is `resolved`, `weak` (workflow-only link) or `unresolved`; weak and unresolved cases are investigated before publication and never counted as resolved (A20). |
+| Verdict support | A row that validates is not a supported verdict. `planner.support_of` is the only rule: no account/intent or any unknown → unresolved; a workflow link, any ownership ambiguity or low-confidence intent → weak (A20, A24). Rows with no grounded proposal carry flagged **heuristic predictions** and stay unresolved (A29). |
 | Intent | An explicit deletion instruction wins over export, correction or marketing words in the same request (A20). |
 | Replay | Replay builds no provider client and reads no key (`.env` included); a cache miss is `ReplayMiss`, never a call (A20). |
 | Post-audit naming | A resource is never named, linked or cited from evidence captured after `audit_at` (D12), even when the sample answer names it. All engine and tool reads go through `temporal.CaseView`. |
