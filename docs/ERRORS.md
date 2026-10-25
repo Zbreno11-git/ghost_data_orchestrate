@@ -22,6 +22,7 @@
 | 6 | Committed after a gate whose output I had not read | 1 | Chain the commit on the gate's exit code (`pytest -q && git commit`), never after a pipe or `;` |
 | 7 | A tool reported success on an empty input | 1 | A tool that can find nothing must say so and exit non-zero; "0 problems" over 0 items is not a pass |
 | 8 | A search over encoded bytes was read as a search over content | 1 | Search decoded text (every decoder that applies); "not found" is a list of checks, never proof of absence |
+| 9 | A check proved *whose* a value is, never *what* it is | 1 | When a value fills a typed slot (the account, a system, a category), check its type in the slot's terms, not only its provenance |
 
 ---
 
@@ -188,4 +189,30 @@ be decoded), with the checks listed. `test_diagnose.py` is red against the raw-b
 as bytes).
 
 > **A search answers for the representation it searched. "Not in the bytes" is not "not in the document".**
+
+---
+
+### 9. A check proved *whose* a value is, never *what* it is
+
+**2026-10-25, found at S6 C6.7 by the independent custom case `tombstone_pair` (defect since S4/S5, `agent.py`).**
+The agent submitted the subject's tombstone as the person's *account*. The lineage check (A27) passed: the record
+does carry the subject's identifier. But `apply_submission` then wrote it into the account slot with the system
+forced to `account_service`, so policy read it as a USER_PROFILE and planned **DELETE** for a record the rules
+require to be kept and redacted (rule_15). Support also rose from unresolved to resolved.
+
+No sample exercised it: in the samples, every agent account pick was an `account_*` resource.
+
+Fixed: an account choice must be a resource whose own records belong to the account system
+(`canonical_system`, the same function the deterministic path uses). `apply_submission` no longer forces the
+system. Test red first, with a close positive (an account_service record with the same lineage is accepted);
+mutation red.
+
+**Second-order effect, caught by replay.** The first version put the new check *before* the existing candidacy
+check. Three cases (case_147/208/406), in which the S5 model had submitted a user id as the account, were then
+rejected with a different message. A different message makes a different repair request, so replay raised
+ReplayMiss, and the three cases fell back to their deterministic rows: same rows, no money spent. With the
+candidacy check first, the old wording and its cached repairs hold. A rejection message is part of the
+cache key.
+
+> **Provenance answers "whose"; a typed slot also needs "what". Check both where the value enters the slot.**
 

@@ -173,7 +173,7 @@ def run(dataset: Path, split: str, out_dir: Path, mode: str = "strict", engine: 
         intent = llm_intents.get(cid) or classify(row["request_text"])
         subject = resolved.get(cid)
         audit_at = by_case[cid].audit_at if cid in by_case else None
-        own, assessments, workflow = None, {}, None
+        own, assessments, workflow, agent_own = None, {}, None, None
         if isinstance(subject, Subject):
             view = CaseView(store, audit_at)
             workflow = workflows.for_case(cid)
@@ -204,6 +204,7 @@ def run(dataset: Path, split: str, out_dir: Path, mode: str = "strict", engine: 
                 tools = CaseTools(cid, view, subject, own, workflow, rules, store.resource_re, owners=owners)
                 outcome = investigate(row, tools, plan, gateway, model, cfg, times, intent, audit_at)
                 plan = outcome.plan
+                agent_own = outcome.ownership if outcome.status == "submitted" else None
                 agent_stats[outcome.status] += 1
                 agent_stats["model_calls"] += outcome.model_calls
                 agent_stats["cache_hits"] += outcome.cache_hits
@@ -212,9 +213,15 @@ def run(dataset: Path, split: str, out_dir: Path, mode: str = "strict", engine: 
                 extra["agent"] = {"status": outcome.status, "model": model, "model_calls": outcome.model_calls,
                                   "cost_usd": outcome.cost_usd, "tool_calls": outcome.tool_calls,
                                   "errors": outcome.errors, "submission": outcome.submission}
+        published = plan
         if isinstance(subject, Subject) and own is not None and not plan.steps and plan.status != "NOT_APPLICABLE":
             plan = _heuristic(cid, audit_at, intent, subject, own, assessments, view, rules, times, plan)
-        plan.trace = _trace(row, intent, cid in llm_intents, subject, own, workflow, mode, rules, plan, audit_at)
+        # The trace records the ownership the published plan was built from: the agent's applied one when its
+        # plan is published, else the deterministic one (the heuristic path is built from the deterministic).
+        traced = agent_own if agent_own is not None and plan is published else own
+        plan.trace = _trace(row, intent, cid in llm_intents, subject, traced, workflow, mode, rules, plan, audit_at)
+        if traced is agent_own and agent_own is not None:
+            plan.trace["account_source"] = "agent submission (lineage-checked, A27)"
         if engine == "agent":
             _save_case(out_dir, plan, extra, fp)
         plans.append(plan)

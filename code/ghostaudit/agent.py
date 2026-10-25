@@ -55,6 +55,7 @@ class AgentOutcome:
     cache_hits: int = 0
     errors: list = field(default_factory=list)
     submission: dict | None = None
+    ownership: Ownership | None = None      # what the published plan was built from (the trace records it, S6)
 
 
 def brief(row: dict, tools: CaseTools, det: Plan) -> dict:
@@ -148,8 +149,14 @@ def validate_submission(sub: dict, tools: CaseTools) -> list[str]:
     current = tools.ownership.account.resource_id if tools.ownership.account else None
     if acc and acc != current:
         cands = {c["account"] for c in tools.workflow_candidates()["candidates"]}
+        home = canonical_system(acc, tools.view.by_resource(acc))
         if acc not in cands and acc not in tools.ownership.links:
             errs.append(f"account {acc} is neither a workflow candidate nor a linked resource")
+        elif home != ACCOUNT_SYSTEM:
+            # S6: a linked record of another system (a tombstone, a ticket) is never the account; forcing it into
+            # account_service would re-categorize it and could delete what policy keeps. Checked after the
+            # candidacy rule, whose wording earlier repairs were cached under.
+            errs.append(f"{acc} is not an account: its records belong to {home}; keep it as a linked resource")
         elif lineage(acc, list((sub.get("account") or {}).get("evidence") or []), tools) is None:
             errs.append(f"account {acc}: no cited evidence links it to the subject; timing or candidacy is not a "
                         "link, so submit account null when nothing does")
@@ -204,7 +211,8 @@ def apply_submission(sub: dict, tools: CaseTools) -> Ownership:
         if own.account:
             own.links.pop(own.account.resource_id, None)
         tier, reasons = link_for(acc, ev)
-        own.account = Link(acc, ACCOUNT_SYSTEM, tier, reasons, note="agent")
+        own.account = Link(acc, canonical_system(acc, tools.view.by_resource(acc)) or ACCOUNT_SYSTEM, tier, reasons,
+                           note="agent")
         own.links[acc] = own.account
         own.ambiguities = [a for a in own.ambiguities if "primary profile" not in a]
     return own
@@ -257,6 +265,7 @@ def investigate(row: dict, tools: CaseTools, det: Plan, gateway, model: str, cfg
                 if not errs:
                     out.submission = args
                     own = apply_submission(args, tools)
+                    out.ownership = own
                     assessments = {r: assess(r, l.system_id, tools.view, tools.rules, tools.subject)
                                    for r, l in own.links.items()}
                     plan = plan_case(row["case_id"], audit_at, intent, tools.subject, own, assessments, times)

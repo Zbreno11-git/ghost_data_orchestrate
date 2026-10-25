@@ -245,3 +245,34 @@
   - **Explanations** from this run are in `docs/explanations/` (5 classes, first case of each class).
   - Reports: `make_reports.py` wording updated (decoded search; S6 changed no row; custom count derived), and
     `failures_and_fixes.md` gains the S6 items.
+- **C6.7 ✅ 02:05Z. Two independently specified custom cases, and the engine defect they found.**
+  - **The cases.** A subagent wrote them from problem_statement.md, AGENTS §6 and deletion_rules.csv only (never
+    the samples, the engine or our runs). Both expected outputs pass the contract validator; every file
+    ingests.
+    - `tombstone_pair` (custom_04): a tombstone compliant in the primary and exposing the old phone and an email
+      hash in the reporting replica; a look-alike decoy → INCOMPLETE, REPORT_EXPOSED_PII / REDACT_RECORD /
+      VERIFY_RECORD_REDACTED (rule_15).
+    - `clean_primary_dirty_replica` (custom_05): an older replica still holding the account, a newer clean
+      primary, and a post-cutoff clean replica as the trap → INCOMPLETE, the account's three steps.
+  - **Deterministic engine, first run, untuned:** 1/1 and 1/1.
+  - **Agent run.** Stated hypothesis: ≤ $0.01, 0 row changes. Actual: $0.004786 for the 2 cases.
+    - **The agent broke tombstone_pair (0/1).** It named the subject's tombstone as the *account*. The lineage
+      check passed (the record names the subject), and the engine forced the record into account_service as a
+      USER_PROFILE, so it planned **DELETE** for a record the rules keep (ERRORS #9).
+    - **Fix (`agent.py`):** an account choice must belong to the account system (`canonical_system`), and
+      `apply_submission` no longer forces the system. Test red first with a close positive; mutation red.
+    - **Re-run live** ($0.0009): the rule rejected the pick, the model resubmitted without an account, and the
+      row equals the expected answer (support unresolved, honest).
+  - **Second-order effect, caught by replay.** With the new check placed first, three S5 cases whose model had
+    submitted a user id got a different rejection text. Their repair requests missed the cache, so replay
+    refused to pay, and the cases fell back to their deterministic rows (same rows, $0). The check now comes
+    after the candidacy rule, and replay is 1722/1722 with 0 fallbacks.
+  - **Trace gap found on custom_05.** The agent's valid account (account_9111, an account_service record carrying
+    the subject's identifiers) made the case resolved, but the trace recorded the deterministic ownership
+    (account none).
+    - Fixed: `AgentOutcome.ownership`; the runner traces the ownership the published plan was built from,
+      with `account_source`; explain shows it.
+    - Test extended; mutation red.
+  - Custom-case floor raised to 5 (`test_custom_cases.py`).
+  - The sub-agent's own log.txt entry has a placeholder time. A CORRECTION with its JSONL-measured times was
+    appended (append-only).

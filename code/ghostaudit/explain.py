@@ -78,7 +78,8 @@ def explain(run: Path, case_id: str, dataset: Path, index: dict | None = None) -
     elif acc is None:
         L.append(f"- Account: **none attributed**; candidates left by the deduction: {t.get('account_candidates') or 'none'}")
     else:
-        L.append(f"- Account `{acc['resource_id']}`: tier **{acc['tier']}**, deduced by {acc.get('how') or MISSING}; "
+        L.append(f"- Account `{acc['resource_id']}`: tier **{acc['tier']}**, deduced by {acc.get('how') or MISSING}"
+                 f"{' (' + t['account_source'] + ')' if t.get('account_source') else ''}; "
                  f"evidence {', '.join(f'`{r}`' for r in acc.get('reasons', [])) or MISSING}")
     for dec in d.get("decisions", []):
         L.append(f"- `{dec['resource_id']}` ({dec.get('system_id')}): tier **{dec.get('tier')}**")

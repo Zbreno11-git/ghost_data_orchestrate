@@ -1049,3 +1049,42 @@ branch=main
 repo_root=/root/hackthon_1
 worktree=main
 parent_agent=none
+
+## [2026-10-25T00:00:00Z] Sub-agent: author custom eval cases tombstone_pair, clean_primary_dirty_replica
+
+User Prompt (verbatim, secrets redacted):
+(delegated by parent agent) Author two independent evaluation cases, tombstone_pair and clean_primary_dirty_replica, under code/evaluation/custom_cases/ with a mini-dataset, expected_output.csv and RATIONALE.md each; validate with the contract validator and ingest; do not commit.
+
+Agent Response Summary:
+Created custom_04 (tombstone_pair: clean primary tombstone, replica tombstone still exposing historical phone and email_hash, similar-name decoy; expected INCOMPLETE with EXPOSED_PII/REDACT/VERIFY_REDACTED) and custom_05 (clean_primary_dirty_replica: older reporting replica holds the profile, newer clean primary, post-cutoff clean replica trap; expected INCOMPLETE with REMAINING_RECORD/DELETE/VERIFY_ABSENT). Expected answers derived only from problem_statement.md, AGENTS.md §6 and deletion_rules.csv. Both validate to [] and ingest with 0 failed.
+
+Actions:
+* Created code/evaluation/custom_cases/tombstone_pair/ and code/evaluation/custom_cases/clean_primary_dirty_replica/ (dataset/, expected_output.csv, RATIONALE.md)
+* Ran contract validator, negative control (post-cutoff citation -> EVIDENCE_AFTER_AUDIT), and code/main.py ingest --dataset for each case
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=main
+repo_root=/root/hackthon_1
+worktree=main
+parent_agent=Claude Code (main agent)
+
+## [2026-10-25T02:00:01Z] CORRECTION: timestamp of the sub-agent entry "author custom eval cases"
+
+User Prompt (verbatim, secrets redacted):
+[no human message: this records a correction to the entry above, headed "[2026-10-25T00:00:00Z] Sub-agent: author custom eval cases tombstone_pair, clean_primary_dirty_replica"]
+
+Agent Response Summary:
+The sub-agent entry's header time 2026-10-25T00:00:00Z is a placeholder, not a measured time. Its transcript (subagents/agent-aff7a120….jsonl) runs from 2026-10-25T01:55:09.717Z to 01:59:27.247Z, and it wrote log.txt at 01:59:01.094Z (then edited branch= inside its own entry at 01:59:07Z and 01:59:26Z, before any commit). The entry is left as written; this correction is appended (append-only rule). The delegation prompt was written by the main agent (no human prompt).
+
+Actions:
+* Read the sub-agent transcript timestamps; appended this correction
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=main
+repo_root=/root/hackthon_1
+worktree=main
+parent_agent=none

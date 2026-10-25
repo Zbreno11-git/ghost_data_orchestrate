@@ -1,5 +1,5 @@
 """Custom evaluation cases (A13): each is a self-contained mini-dataset whose expected output obeys the contract
-and whose evidence every adapter can ingest. The case list is derived from the directory, with a floor of 3."""
+and whose evidence every adapter can ingest. The case list is derived from the directory, with a floor of 5."""
 from pathlib import Path
 
 import pytest
@@ -12,8 +12,8 @@ from ghostaudit.validate import validate_file
 CASES = sorted(p for p in (CODE / "evaluation" / "custom_cases").iterdir() if (p / "expected_output.csv").exists())
 
 
-def test_at_least_three_custom_cases():
-    assert len(CASES) >= 3
+def test_at_least_five_custom_cases():
+    assert len(CASES) >= 5          # 3 from S5, +2 from S6 (tombstone_pair, clean_primary_dirty_replica)
 
 
 @pytest.mark.parametrize("case", CASES, ids=lambda p: p.name)

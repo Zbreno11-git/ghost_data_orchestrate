@@ -93,6 +93,8 @@ def test_tool_call_then_valid_submission_recompiles_the_plan(case):
     assert {s["resource_id"] for s in out.plan.steps} == {"search_1", "search_2"}
     added = [d for d in out.plan.decisions if d["resource_id"] == "search_2"][0]
     assert added["tier"] == "explicit"            # its cited evidence carries the subject's email
+    # S6: the outcome carries the ownership its plan was built from, so the trace can record it
+    assert out.ownership is not None and set(out.ownership.links) == {d["resource_id"] for d in out.plan.decisions}
 
 
 def test_a_citation_no_tool_returned_is_rejected_and_repaired(case):
@@ -124,7 +126,7 @@ def test_a_provider_error_is_never_a_status(case):
 
 def _world(extra_obs, audit_rows=(), worker_rows=()):
     """Tools over a small world: subject Ana (a@x.com, formerly ana.old@x.com), a known other user Bob."""
-    store = EvidenceStore(resource_prefixes=["search", "account", "analytics"])
+    store = EvidenceStore(resource_prefixes=["search", "account", "analytics", "tombstone"])
     for o in [_obs("ev_search", "search_1", "search_service", {"email": "a@x.com"})] + list(extra_obs) + list(worker_rows):
         store.add(o)
     ids = [{"user_id": "user_1", "name": "Ana", "email": "a@x.com", "phone": "", "email_hash": "", "updated_at": ""},
@@ -231,3 +233,25 @@ def test_the_brief_never_shows_the_case_id(case):
     from ghostaudit.agent import brief
     tools, det, _, _ = case
     assert ROW["case_id"] not in json.dumps(brief(ROW, tools, det), default=str)
+
+
+def test_a_linked_record_of_another_system_cannot_become_the_account():
+    """S6 C6.7 (found by the independent tombstone_pair case): the agent named the subject's tombstone as the
+    account; the engine forced it into account_service as a USER_PROFILE and planned to DELETE a record the
+    policy keeps. The lineage was real, so only the account rule can stop it."""
+    t = _obs("ev_tomb", "tombstone_1", "identity_service", {"user_id": "user_1", "phone": "+1 555 0100"})
+    tools = _world([t])
+    tools.ownership.links["tombstone_1"] = Link("tombstone_1", "identity_service", "explicit", ("ev_tomb#1",))
+    errs = validate_submission(_sub(account={"resource_id": "tombstone_1", "evidence": ["ev_tomb#1"]}), tools)
+    assert any("not an account" in e for e in errs)
+
+
+def test_an_account_service_record_with_a_lineage_is_accepted_as_the_account():
+    """The close positive case: the same lineage on a record of the account system is a valid account choice."""
+    a = _obs("ev_prof", "account_5", "account_service", {"email": "a@x.com"})
+    tools = _world([a])
+    tools.ownership.links["account_5"] = Link("account_5", "account_service", "explicit", ("ev_prof#1",))
+    sub = _sub(account={"resource_id": "account_5", "evidence": ["ev_prof#1"]})
+    assert validate_submission(sub, tools) == []
+    own = apply_submission(sub, tools)
+    assert own.account.resource_id == "account_5" and own.account.system_id == "account_service"
