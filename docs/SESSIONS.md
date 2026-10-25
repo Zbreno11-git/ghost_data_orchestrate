@@ -19,9 +19,15 @@ Each session is a 1–2.5 h package that ends in something verifiable, plus a di
 
 ## ▶️ Start the next session here
 
-- Session: **S5 — pilot, full run, reports, safety package** — first step: write `docs/plans/session-05.md`. Then
-  C5.1, the pilot on 30 stratified targets with `main.py run --engine agent`, measuring $/case. Also decide
-  whether resolved cases skip the agent: the full projection is ≈$1.83 against a $1.75 envelope.
+- Session: **S5 in progress** (plan `docs/plans/session-05.md`). Remaining work:
+  - C5.8: the final full run on committed code;
+  - C5.9/C5.10: reports;
+  - C5.11: the package with the VPS checks;
+  - C5.15: diagnostics;
+  - C5.14: the close.
+
+  Then S6 (fixes driven by `diagnostics.md`, C6.5 explain) and S7 (release record, Mac runbook, cheat sheet;
+  Mac validation pending).
 - Read first: `docs/PRIMER.md`, `PROGRESS.md`, `docs/plans/session-03-04.md` (outcomes), DECISIONS A20–A23
 - Depends on Breno: before leaving, keep the session running with unattended permissions (Bash/Edit)
 
@@ -86,28 +92,106 @@ re-timed 05:30 UTC as the fallback. **Breno, 20:20 UTC (A18): no fixed time targ
 - [x] C4.5 real kill + resume: 0 duplicate paid calls; offline replay byte-identical (10 cases)
 - [x] C4.6 benchmark 10 × 2 models: flash-lite kept (A23); the agent ≈ the baseline
 
-### ⬜ S5 — Pilot, full run, 3 custom cases, reports, SAFETY PACKAGE · ≈$1.75 · due 04:00 UTC
-- [ ] C5.1 pilot projection ≤ $1.50
-- [ ] C5.2 518 valid rows; unresolved count
-- [ ] C5.3 evaluation_report.md with real metrics
-- [ ] C5.4 usage_report.md from the ledger
-- [ ] C5.5 package + clean-unpack replay identical (incl. `code/README.md` as source + root `README.md` pointer, D2) — *added 2026-10-24 at S0 close: README pointer had no checkpoint home*
-- [ ] C5.6 committed/pushed; STATUS upload instructions
+### 🔄 S5 — Pilot, full run, 3 custom cases, reports, SAFETY PACKAGE · ≈$1.75 · due 04:00 UTC
+> **Plan of record: `docs/plans/session-05.md`** (C5.0–C5.15; that file maps each MASTER_PLAN checkpoint in
+> brackets). **Changed 2026-10-24 21:34–21:59 UTC (Breno):**
+> - accuracy work first: temporal isolation, explicit state, agent lineage, case-by-case comparison and
+>   log corrections (C5.0–C5.6, C5.12, C5.13);
+> - five amendments (21:45 UTC);
+> - **the temporal correctness check is a separate work item, C5.3b (21:59 UTC), closed.**
+>
+> **Owner decisions (2026-10-25 00:41 UTC):** agent scope non_resolved (A28); flagged heuristic rows (A29).
+- [x] C5.1 pilot projection ≤ $1.50 — 30 targets, $0.0035/case, projection $1.22 (non_resolved) [session-05 C5.7]
+- [ ] C5.2 518 valid rows; unresolved count [C5.8] — first full run in progress 2026-10-25 00:42 UTC; the final run follows on committed code
+- [ ] C5.3 evaluation_report.md with real metrics [C5.9] — generator `scripts/make_reports.py` ready
+- [ ] C5.4 usage_report.md from the ledger [C5.10] — same generator, from the final run's `llm_keys.jsonl`
+- [ ] C5.5 package + clean-unpack replay identical, incl. `code/README.md` as source + root `README.md` pointer (D2) [C5.11]. `scripts/package_code.py` is ready. **Added 2026-10-25 (Breno), the VPS check:**
+  - unzip into an empty directory, with the dataset supplied outside the zip;
+  - a fresh venv from `code/requirements.txt` only;
+  - offline replay with the key unset and **network unavailable**;
+  - a scan of the unpacked tree for developer paths (`/root/`, the repo path), credentials and caches not
+    declared in a MANIFEST;
+  - validate the replayed output, then `cmp` it byte for byte with the frozen reference run.
+- [ ] C5.6 committed/pushed; STATUS upload instructions [C5.14]
+- [ ] **C5.15 (added 2026-10-25, Breno): mismatch diagnostics by earliest responsible stage.**
+  - **Builds on:** `classify_failures.py` (targets, no answers) and `compare.py` (per-case before/after).
+  - **Adds**, evaluator side only (`code/evaluation/diagnose.py`): every sample mismatch (a missing or extra
+    step, a wrong field, a status) gets exactly one earliest supported cause:
+
+    | Cause | Meaning |
+    |---|---|
+    | extraction | the fact is in the files but was not extracted |
+    | identity/resource association | |
+    | temporal state | |
+    | policy/treatment | |
+    | citation | |
+    | ordering/serialization | |
+    | undetermined | the cause cannot be established |
+
+    "Not extracted" (a raw byte search of the files finds the id) is kept apart from "absent from the supplied
+    evidence" (it does not, e.g. D10/D13). A parser miss is never reported as a dataset gap.
+  - ✅ **Acceptance:**
+    - `code/evaluation/diagnostics.md` with counts per cause, one or two representative examples each, and a
+      before/after table for this session's fixes (S3 baseline → final);
+    - full official denominators (193 steps, 32 cases);
+    - the sample answers are read only by this evaluator script; the grep gate on the prediction path stays
+      green.
 
 ## Block C — Improve and release
 
 ### ⬜ S6 — Measured improvement · ≈$1.00
-- [ ] C6.1 mismatch table by error class
+- [ ] C6.1 mismatch table by error class — **produced by C5.15 in S5 (moved 2026-10-25, Breno)**; S6 starts from `code/evaluation/diagnostics.md` and fixes the largest fixable cause first
 - [ ] C6.2 each fix: failing-then-passing test (+ ERRORS.md when ours)
 - [ ] C6.3 ownership mode chosen by metrics
-- [ ] C6.4 targeted rerun only of invalidated cases
+- [ ] C6.4 targeted rerun only of invalidated cases (checkpoint fingerprints, C5.5a, make this exact)
 - [ ] +2 custom cases if few sample fixes remain
+- [ ] **C6.5 (added 2026-10-25, Breno): explain one case from its decision trace,** after the correctness
+  fixes. **Depends on** the final `decisions.jsonl` schema (C5.8) and the provenance in the observations.
+  - **Command:** `main.py explain <case_id> --run runs/<id> [--md out.md]`.
+  - **It prints, from structured decisions and provenance only:**
+    - request intent and the identified person, with the relevant historical identifiers;
+    - the evidence chain from the person to each resource (obs_ids, source locators);
+    - each physical copy and its state at the cutoff (event time and time basis);
+    - the policy rule behind each action or retention;
+    - conflicts, unresolved links and confidence limits;
+    - the final status and the ordered steps.
+  - **It never makes an LLM call.** A reason missing from the trace is printed as **"not recorded in the
+    trace"**, never inferred.
+  - **Best-effort status and evidential certainty are shown separately:** support level, plus the
+    HEURISTIC PREDICTION label (A29) when present.
+  - ✅ **Acceptance:** explanations saved for one COMPLETE, one INCOMPLETE, one NOT_APPLICABLE and one unresolved
+    case (and one heuristic row), under `docs/explanations/`. A test runs the command on a fixture run and
+    asserts that every printed obs_id exists in that run's decisions.
 
 ### ⬜ S7 — Release freeze · ≤$0.80 · freeze 09:00 UTC
 - [ ] C7.1 final run or replay; validator; atomic output.csv
-- [ ] C7.2 reports regenerated; README verified from clean unpack
-- [ ] C7.3 traces staged outside repo; redaction scan 0 hits
+- [ ] C7.2 reports regenerated; README verified from clean unpack — **extended 2026-10-25 (Breno):**
+  - re-run C5.5's VPS check on the *submitted* `code.zip` against the frozen reference run;
+  - write `docs/release/RELEASE_RECORD.md`: commit SHA, configuration (engine, scope, model, ownership), the
+    run and case fingerprints, the vision/LLM MANIFEST sha256s, and the sha256 of `code.zip`, `output.csv`
+    and `log.txt`;
+  - keep **replay** (offline, free, from shipped responses) and **fresh paid execution** (live key, new
+    ledger rows) as separate, labelled instructions.
+- [ ] C7.3 traces staged outside repo; redaction scan 0 hits (`scripts/stage_traces.py`, incl. `subagents/`; release kit in session-05.md)
 - [ ] C7.4 STATUS upload checklist
+- [ ] **C7.5 (added 2026-10-25, Breno): Mac Intel runbook,** `docs/release/MAC_RUNBOOK.md`:
+  - commands: unzip, venv, install, place the dataset, replay, validate, evaluate, optional live run;
+  - the expected output of each step (row counts, `0 violations`, `cmp` silent);
+  - troubleshooting (Python version, SSL/certifi, pip wheels on Intel, missing dataset path, a ReplayMiss
+    meaning a missing shipped response).
+- [ ] **C7.6 (added 2026-10-25, Breno): interview cheat sheet,** `docs/release/INTERVIEW_CHEAT_SHEET.md`. It
+  covers:
+  - the architecture in one diagram-in-words;
+  - the agent's *measured* role: a reviewer of weak/unresolved proposals that is gated by lineage, and what
+    it changed;
+  - evidence handling: two clocks, per-copy state, row-bound screens;
+  - evaluation, with the full denominators and the ceiling;
+  - costs from the usage report;
+  - limitations: unattributable accounts, heuristic rows;
+  - one worked case from C6.5.
+- [ ] **C7.7 Mac validation — PENDING until actually run on the Mac (Breno).** It is recorded separately from
+  the VPS validation (C5.5/C7.2) and is never marked done from the VPS. Expected: the C7.5 runbook reproduces
+  `cmp`-identical output.
 
 ### ⬜ S8 — Optional static evidence viewer · $0
 > **Written trigger:** starts only if S7 is frozen with ≥ 2 h to the deadline; must not modify frozen artifacts.

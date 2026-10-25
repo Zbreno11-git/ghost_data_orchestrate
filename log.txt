@@ -895,3 +895,72 @@ branch=main
 repo_root=/root/hackthon_1
 worktree=main
 parent_agent=none
+
+## [2026-10-25T01:06:30Z] Roadmap: diagnostics (S5), explain-a-case (S6), release check and Mac handoff (S7)
+
+User Prompt (verbatim, secrets redacted):
+[event time 2026-10-25T01:05:14.268Z, session JSONL 3f2c5c59…:6060, uuid 2fdaf9c2-641c-4559-a0c4-695aba7f4d2c]
+While the S5 is running - add this this points to the docs, just as a reminder for the sessions - Please update `docs/SESSIONS.md` and the relevant session roadmaps with the following requirements, using our existing software_build workflow. Inspect current progress first: reuse completed work, preserve closed checkpoints, and add only the missing acceptance criteria to open or future checkpoints.
+
+Keep the temporal fixes already requested as a separate work item. These additions should fit the existing sessions without introducing new infrastructure or expanding the UI scope.
+
+**1. Diagnose failures by their earliest responsible stage — S5**
+
+Why: an aggregate score tells us how much is wrong, but not whether to fix extraction, identity matching, temporal reconstruction, policy, or output generation. This also prevents spending model calls on problems the investigator cannot solve.
+
+Extend the existing evaluation diagnostics to classify each mismatch by its earliest supported cause:
+- extraction;
+- identity/resource association;
+- temporal state;
+- policy/treatment;
+- citation;
+- ordering/serialization.
+
+Allow “undetermined” when the cause cannot be established. Distinguish “not extracted” from “absent from the supplied evidence”; a parser miss is not proof of a dataset gap.
+
+Acceptance: a readable Markdown summary with counts, representative examples, and before/after changes for fixes. Keep the full official scoring denominators. This is evaluation-only: expected answers must never influence runtime decisions.
+
+**2. Explain one case from the actual decision trace — after correctness fixes**
+
+Why: I need to inspect results, understand the system, and explain its behavior during the interview.
+
+Add a lightweight CLI command that prints a case explanation and can save it as Markdown. Include:
+- request intent and identified person, including relevant historical identifiers;
+- the evidence chain connecting the person to each resource;
+- the relevant physical copies and their state at the audit cutoff;
+- the policy rule behind each proposed action or retention decision;
+- conflicting evidence, unresolved links, and confidence limitations;
+- final status and ordered steps.
+
+Generate this from existing structured decisions and provenance, with evidence IDs and source locators. Do not make another LLM call to construct a retrospective explanation. Never invent a reason missing from the trace; identify that gap explicitly.
+
+Acceptance: demonstrate a COMPLETE, INCOMPLETE, NOT_APPLICABLE, and unresolved case where available. Explain any best-effort output status separately from its evidential certainty.
+
+**3. Validate the actual release package and prepare the Mac handoff — packaging/final session**
+
+Why: a successful VPS run does not prove that the submitted archive contains everything needed to reproduce it.
+
+Extract the generated `code.zip` into a clean temporary directory, supply the dataset externally, and run the documented setup and offline replay using only packaged dependencies and required replay assets. Check that no developer paths, hidden local caches, credentials, or network calls are needed for offline execution. Validate the output and compare it byte-for-byte with the corresponding frozen reference run.
+
+Keep replay and fresh paid execution instructions distinct. Record the commit, configuration, input/cache fingerprints, and artifact checksums.
+
+Prepare a short Mac Intel runbook with commands, expected outcomes, and troubleshooting, plus an interview cheat sheet covering architecture, the agent’s actual role, evidence handling, evaluation, costs, limitations, and one worked case.
+
+Mark VPS validation and Mac validation separately: the Mac check remains pending until we actually run it there.
+
+Update the roadmap with dependencies, concrete deliverables, and reachable checkpoints. Summarize what was already covered and what you added; continue the current session without restarting completed work.
+
+Agent Response Summary:
+Inspected docs/SESSIONS.md and the S5 plan first. Reused what exists (classify_failures.py for targets, compare.py for per-case deltas, package_code.py's clean-unpack replay) and added only the missing acceptance criteria: C5.15 mismatch diagnostics by earliest cause (evaluator-only, "not extracted" kept apart from "absent from evidence", full denominators); C5.11 extended with a network-off replay and a developer-path/credential scan; S6 C6.5 explain-a-case CLI from the decision trace with no LLM call; S7 release record with fingerprints and checksums, Mac Intel runbook, interview cheat sheet, and Mac validation kept pending until run there. Closed checkpoints untouched; the temporal fixes stay a separate closed item (C5.3b). The S5 work continues (final run, reports, package, diagnostics).
+
+Actions:
+* Edited docs/SESSIONS.md (S5 marked in progress with mapping; C5.15, C6.5, C7.2 extension, C7.5–C7.7)
+* Appended "Amendments 2" to docs/plans/session-05.md
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=main
+repo_root=/root/hackthon_1
+worktree=main
+parent_agent=none

@@ -446,3 +446,26 @@ Integrated into C5.3, C5.5, C5.11 and C5.12 above, without new modules:
   - **Final-config runs:** samples (`runs/s5/final-samples`, before A30) whole-case 12/32, agent $0.049089.
     Custom cases each run with the agent (3 cases, $0.007729), whole-case 3/3 to be re-checked on the final
     code.
+
+## Amendments 2 (Breno, 2026-10-25T01:06Z; roadmap in `docs/SESSIONS.md`)
+
+- **C5.11, extended (VPS check).**
+  - Unzip into an empty directory, with the dataset supplied outside the zip.
+  - Fresh venv from `code/requirements.txt` only.
+  - Replay with the key unset and the network unavailable (`unshare -rn`, or a dead proxy when unshare is
+    not permitted).
+  - Scan the unpacked tree for developer paths, credentials and undeclared caches.
+  - Validate, then `cmp` with the frozen reference run.
+  - Mac validation is a separate S7 item (C7.7), pending until it is run there.
+- **C5.15, new: mismatch diagnostics by earliest responsible stage** (evaluator only,
+  `code/evaluation/diagnose.py` → `code/evaluation/diagnostics.md`).
+  - **Causes:** extraction; identity/resource association; temporal state; policy/treatment; citation;
+    ordering/serialization; undetermined.
+  - **"Not extracted" vs "absent from the supplied evidence"** is decided by a raw byte search of the
+    participant files.
+  - **Report:** counts, representative examples, and before/after for this session's fixes. Full
+    denominators.
+  - **Reuses:** `classify_failures.py` (targets) and `compare.py` (per-case deltas).
+- **The temporal correctness work (C5.3b) stays a separate, closed item.**
+- **Moved to later sessions:** explain-a-case CLI → S6 C6.5; release record, Mac runbook, interview cheat sheet,
+  Mac validation → S7 C7.2/C7.5–C7.7.
