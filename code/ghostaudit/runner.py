@@ -73,6 +73,21 @@ def _trace(row: dict, intent, llm_used: bool, subject, own, workflow, mode: str,
     return t
 
 
+def label_nearest_anchor(plan: Plan, own) -> bool:
+    """A34 (Breno): a nearest-anchor account pick (48/168 correct in the masked backtest) is published only for a row
+    that would otherwise be empty, as a flagged heuristic prediction, never as evidence. Idempotent; True if the
+    published plan rests on such a pick."""
+    acc = getattr(own, "account", None)
+    if not plan.steps or acc is None or not acc.note.startswith("nearest anchor") \
+            or acc.resource_id not in {s["resource_id"] for s in plan.steps}:
+        return False
+    if not any(r.startswith("HEURISTIC PREDICTION (A34)") for r in plan.reasons):
+        plan.reasons.insert(0, f"HEURISTIC PREDICTION (A34), not an attributed account: {acc.resource_id} is the "
+                               f"{acc.note}")
+    plan.support = "unresolved"
+    return True
+
+
 def run_deterministic(dataset: Path, split: str, out_dir: Path, mode: str = "strict") -> dict:
     return run(dataset, split, out_dir, mode)
 
@@ -196,13 +211,7 @@ def run(dataset: Path, split: str, out_dir: Path, mode: str = "strict", engine: 
             assessments = {r: assess(r, l.system_id, view, rules, subject) for r, l in own.links.items()}
             plan = plan_case(cid, audit_at, intent, subject, own, assessments, times)
             plan.reasons.insert(0, "strict ownership attributed nothing; scored candidates used")
-            if plan.steps and own.account is not None and own.account.note.startswith("nearest anchor"):
-                # A34 (Breno): the nearest-anchor pick (48/168 correct in the masked backtest) is published only
-                # for a row that would otherwise be empty, and as a flagged heuristic prediction, never as evidence.
-                plan.reasons.insert(0, f"HEURISTIC PREDICTION (A34), not an attributed account: "
-                                       f"{own.account.resource_id} is the {own.account.note}")
-                plan.support = "unresolved"
-            elif plan.support == "resolved":
+            if not label_nearest_anchor(plan, own) and plan.support == "resolved":
                 plan.support = "weak"
         elif (mode == "strict" and plan.status != "NOT_APPLICABLE" and not plan.steps and isinstance(subject, Subject)
                 and cid in workflow.ranked and workflow.ranked[cid][0].record_type != "CLASSIFY_REQUEST"):
@@ -220,6 +229,9 @@ def run(dataset: Path, split: str, out_dir: Path, mode: str = "strict", engine: 
                 outcome = investigate(row, tools, plan, gateway, model, cfg, times, intent, audit_at)
                 plan = outcome.plan
                 agent_own = outcome.ownership if outcome.status == "submitted" else None
+                # The engine recompiles the agent's plan, which drops labels added before review: a published row
+                # that still rests on the nearest-anchor account keeps its HEURISTIC label (S7 C7.4 defect).
+                label_nearest_anchor(plan, agent_own or own)
                 agent_stats[outcome.status] += 1
                 agent_stats["model_calls"] += outcome.model_calls
                 agent_stats["cache_hits"] += outcome.cache_hits

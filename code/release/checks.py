@@ -29,7 +29,10 @@ NESTED_ARCHIVES = (".zip", ".tar", ".gz", ".tgz", ".7z", ".rar", ".bz2", ".xz")
 FORBIDDEN_SUFFIXES = NESTED_ARCHIVES + (".pyc", ".pyo")
 FORBIDDEN_DIRS = {".venv", "venv", "node_modules", "__pycache__", ".pytest_cache", ".git", ".mypy_cache"}
 FORBIDDEN_NAMES = re.compile(r"^(\.env(\..*)?|\.DS_Store|id_rsa|id_ed25519|credentials\.json|auth\.json)$")
-CREDENTIAL = re.compile(rb"AIza[0-9A-Za-z_\-]{30,}|gh[opsu]_[0-9A-Za-z]{30,}|sk-[A-Za-z0-9]{20,}|-----BEGIN [A-Z ]*PRIVATE KEY")
+# A key starts a token. The look-behind keeps a prefix that occurs by chance inside an opaque base64 value (Gemini's
+# `thought_signature` in a shipped response contained "sk-" mid-token, measured 2026-10-25) from counting.
+CREDENTIAL = re.compile(rb"(?<![A-Za-z0-9_\-+/])(?:AIza[0-9A-Za-z_\-]{30,}|gh[opsu]_[0-9A-Za-z]{30,}|sk-[A-Za-z0-9]{20,})"
+                        rb"|-----BEGIN [A-Z ]*PRIVATE KEY")
 REQUIRED = ("README.md", "code/main.py", "code/requirements.txt",
             "code/evaluation/evaluation_report.md", "code/evaluation/usage_report.md")
 ALLOWLIST = "code/evaluation/custom_cases/FIXTURE_ALLOWLIST.json"

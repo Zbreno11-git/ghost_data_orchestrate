@@ -1,6 +1,6 @@
 # Usage report
 
-Generated 2026-10-25 02:08 UTC by `scripts/make_reports.py` from `runs/s6/final/llm_keys.jsonl` (every model response the final run used) and `state/usage_ledger.jsonl` (every paid call of the project).
+Generated 2026-10-25 03:57 UTC by `scripts/make_reports.py` from `runs/s7/final-r2/llm_keys.jsonl` (every model response the final run used) and `state/usage_ledger.jsonl` (every paid call of the project).
 
 ## Final full-dataset run (the one that produced output.csv)
 
@@ -8,17 +8,17 @@ Provider: Google Gemini API. Requests: 518. Responses are counted once each; *li
 
 | model | purpose | calls | live | input tokens | output tokens (incl. thinking) | cost (USD) |
 |---|---|---|---|---|---|---|
-| gemini-3.1-flash-lite | agent | 1722 | 0 | 5,044,046 | 56,763 | 1.346142 |
+| gemini-3.1-flash-lite | agent | 1749 | 0 | 5,281,025 | 61,236 | 1.412100 |
 | gemini-3.1-flash-lite | intent-batch | 26 | 0 | 30,061 | 28,103 | 0.049669 |
-| **all** | | **1748** | 0 | **5,074,107** | **84,866** | **1.395811** |
+| **all** | | **1775** | 0 | **5,311,086** | **89,339** | **1.461769** |
 
 The cost column is what the responses behind this output cost when they were generated (the full price of the run); of it, $0.000000 was paid in this run and the rest earlier (provenance below).
 
-Per request (518): 3.37 calls, 9,959 tokens, $0.002695. Total tokens 5,158,973.
+Per request (518): 3.43 calls, 10,426 tokens, $0.002822. Total tokens 5,400,425.
 
-Agent scope `non_resolved`: 174 resolved proposals were published without a model call; 344 reviews submitted, 0 fell back to the deterministic proposal. Intent is one batched classification pass over all requests, cross-checked against the deterministic rule.
+Agent scope `non_resolved`: 166 resolved proposals were published without a model call; 352 reviews submitted, 0 fell back to the deterministic proposal. Intent is one batched classification pass over all requests, cross-checked against the deterministic rule.
 
-Provenance of cached responses (run that paid for them): `20261025T004200Z-agent-live-targets-strict` 1602, `20261024T222156Z-agent-live-targets-strict` 107, `c4.4-intent-targets` 26, `20261025T010756Z-agent-live-targets-strict` 13
+Provenance of cached responses (run that paid for them): `20261025T004200Z-agent-live-targets-strict` 1249, `20261025T034529Z-agent-live-targets-strict` 409, `20261024T222156Z-agent-live-targets-strict` 78, `c4.4-intent-targets` 26, `20261025T010756Z-agent-live-targets-strict` 13
 
 Screenshot extraction (one-time, cached in `state/vision_cache/` and shipped with the code) is part of ingestion, not of this run; it is in the cumulative table below.
 
@@ -26,7 +26,7 @@ Screenshot extraction (one-time, cached in `state/vision_cache/` and shipped wit
 
 | purpose | model | settled calls | cost (USD) |
 |---|---|---|---|
-| agent | gemini-3.1-flash-lite | 1958 | 1.531222 |
+| agent | gemini-3.1-flash-lite | 2413 | 1.925388 |
 | agent | gemini-3.8-flash | 64 | 0.177595 |
 | intent-batch | gemini-3.1-flash-lite | 39 | 0.060259 |
 | smoke-json | gemini-3.1-flash-lite | 1 | 0.000041 |
@@ -35,6 +35,6 @@ Screenshot extraction (one-time, cached in `state/vision_cache/` and shipped wit
 | smoke-vision | gemini-3.1-flash-lite | 1 | 0.000385 |
 | vision-extract | gemini-3.1-flash-lite | 11 | 0.027120 |
 | vision-extract | gemini-3.8-flash | 12 | 0.079747 |
-| **settled total** | | 2088 | **1.876477** |
+| **settled total** | | 2543 | **2.270643** |
 
-Open reservations: 1, $0.004447, counted against the budget because they may have been billed (an in-flight call of a run killed on purpose to prove resume). A ClientError (HTTP 4xx, code not recorded) on vision-extract was booked at its reservation, $0.017610, before rejected requests were settled at $0 (A21); the append-only ledger keeps it. Budget ceiling $4.50 (hard stop in the gateway). No key or credential appears in this report.
+Open reservations: 2, $0.004997, counted against the budget because they may have been billed: agent in run `20261024T210748Z-agent-live-samples-strict`; intent-batch in run `20261025T033340Z-agent-live-samples-strict` (in-flight calls of a run killed on purpose to prove resume, and a release-check control that stopped before sending). A ClientError (HTTP 4xx, code not recorded) on vision-extract was booked at its reservation, $0.017610, before rejected requests were settled at $0 (A21); the append-only ledger keeps it. Budget ceiling $4.50 (hard stop in the gateway). No key or credential appears in this report.

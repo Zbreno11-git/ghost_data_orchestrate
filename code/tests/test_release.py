@@ -104,3 +104,15 @@ def test_identical_bytes_are_not_acceptance_when_another_check_fails(change, rea
 
 def test_an_unisolated_replay_is_accepted_only_when_the_caller_says_so():
     assert acceptance({**GOOD, "isolated": False}, 518, allow_unisolated=True) == []
+
+
+@pytest.mark.parametrize("data,refused", [
+    (b'{"thought_signature": "yS2TvlN7IAKH6nQjG2Zbsk-PP4abcdefghijklmnopqrstu-C_EOhR"}', False),   # mid-token: base64
+    (b'{"x": "AbcAIza' + b"B" * 35 + b'"}', False),
+    (b'GEMINI_API_KEY="AIza' + b"B" * 35 + b'"', True),                                             # a key token
+    (b"token = sk-" + b"A" * 24, True),
+    (b"\nsk-" + b"A" * 24, True),
+])
+def test_a_credential_must_start_a_token_not_sit_inside_base64(data, refused):
+    got = _reasons(_clean(**{"runs/cache/llm/ab/x.json": data}))
+    assert ("runs/cache/llm/ab/x.json" in got) is refused, got

@@ -83,8 +83,9 @@ def evaluation_report(a) -> str:
          "Most unresolved rows lack an account: the candidate accounts appear only in deletion-worker activity rows "
          "(which carry no run identifier), so no evidence ties one to the subject; the engine reports the case "
          "rather than guess. Their other findings remain evidence-backed.", "",
-         f"**Heuristic predictions ({len(heur)} rows)**, by the owner's decision (A29), for rows with no grounded "
-         "proposal; each is unresolved and says so in its reasons:", ""]
+         f"**Heuristic predictions ({len(heur)} rows)**, by the owner's decisions (A29: screen rules; A34: the "
+         "nearest-in-time account pick), only for rows that would otherwise have no grounded proposal; each is "
+         "unresolved and says so in its reasons:", ""]
     for d in heur:
         L.append(f"- `{d['case_id']}` {d['status']}: {d['reasons'][0].split('|')[0].strip()}")
     L += ["", "## 3. Public samples (32 cases, full official denominators)", "",
@@ -99,15 +100,18 @@ def evaluation_report(a) -> str:
           "- D10: `audit_record_6645` and `audit_record_5569` (cases 18, 20) appear in no evidence file, table or "
           "image extract; a literal byte search of all participant files finds them only in the sample answers.",
           "- D13: `account_004` (case 04) likewise appears only in the sample answers.",
-          "- D12: six resources (case 09's `account_3960` and `audit_record_4902`; audit records 4128, 7095, 3954, "
-          "1707 in cases 23/24/29/30) are named only by files captured after their case's audit_at; the contract "
-          "forbids using them, so the engine never names them (account_3960 stays, named by an admissible row).",
-          "- Accounts named only by deletion-worker rows cannot be attributed without guessing (see §2).", "",
+          "- D12: six resources are named only by files captured after their case's audit_at. Under the time policy "
+          "A36 a snapshot envelope that states its own capture at or before audit_at is read (never cited); measured "
+          "on this run: " + d12_line(a.samples) + ".",
+          "- Accounts named only by deletion-worker rows cannot be attributed without guessing (see §2); the masked "
+          "backtest behind A34 is in `docs/diagnostics/s7/legacy_links.md` of the repository.", "",
           "These are explained beside the score, not removed from it.", "",
           "## 4. Custom evaluation cases (independently authored)", "",
           "Written by a subagent that did not see the engine code (A13); each has its own dataset and expected "
-          "output under `code/evaluation/custom_cases/`.", "", "| case | what it tests | status | whole-case | step P | step R |",
-          "|---|---|---|---|---|---|"]
+          "output under `code/evaluation/custom_cases/` (role and provenance: its README.md). Their policy file is the "
+          "official deletion_rules.csv, reused unchanged.", "",
+          "| case | what it tests | expected → observed status | status | whole-case | step P | step R |",
+          "|---|---|---|---|---|---|---|"]
     for run in a.custom:
         name = run.name.split("custom-", 1)[1]
         m = evaluate(load_output(run / "output.csv"), load_output(CUSTOM / name / "expected_output.csv"))
@@ -121,7 +125,9 @@ def evaluation_report(a) -> str:
                 break
             items += _re.findall(r"^\d+\. \*\*(.+?)\*\*", l)
         what = "; ".join(i.rstrip(".") for i in items) or name
-        L.append(f"| {name} | {what} | {_r(m['status_accuracy'])} | {_r(m['whole_case_exact'])} | "
+        exp_s = next(iter(load_output(CUSTOM / name / "expected_output.csv").values()))[0]
+        obs_s = next(iter(load_output(run / "output.csv").values()))[0]
+        L.append(f"| {name} | {what} | {exp_s} → {obs_s} | {_r(m['status_accuracy'])} | {_r(m['whole_case_exact'])} | "
                  f"{_r(m['step_precision'])} | {_r(m['step_recall'])} |")
     L += ["", "## 5. Case-by-case comparisons", "",
           "Each line compares two runs on the same cases against the answers. *Not in the answer but supported* "
@@ -147,7 +153,11 @@ def evaluation_report(a) -> str:
     L += ["", "On the target split (no answers), engine changes moved rows only where the per-case diffs were traced "
           "to raw evidence, and every INCOMPLETE→COMPLETE flip was investigated (`docs/plans/session-05.md`, "
           "C5.2–C5.6). Session 6 changed no row: its audits found no evidence-backed link or parsing defect to fix "
-          "(`docs/plans/session-06.md`).", ""]
+          "(`docs/plans/session-06.md`). Session 7 changed rows by two owner decisions, each measured "
+          "deterministically before adoption: A34/A34a (only the account deduction that held up in a masked backtest "
+          "is asserted) and A36 (the snapshot time policy).", ""]
+    if a.det_samples and a.det_targets:
+        L += contribution_section(a)
     diag = ROOT / "code" / "evaluation" / "diagnostics.md"
     if diag.exists():
         t = diag.read_text().splitlines()
@@ -168,6 +178,36 @@ def evaluation_report(a) -> str:
           "were specified independently of the engine. The samples have been inspected since the first session, so "
           "they are not a held-out set. No hidden-target accuracy is claimed.", ""]
     return "\n".join(L)
+
+
+def d12_line(samples: Path) -> str:
+    out = load_output(samples / "output.csv")
+    pairs = [("case_09", "account_3960"), ("case_09", "audit_record_4902"), ("case_23", "audit_record_4128"),
+             ("case_24", "audit_record_7095"), ("case_29", "audit_record_3954"), ("case_30", "audit_record_1707")]
+    named = [f"{r} ({c})" for c, r in pairs if any(s["resource_id"] == r for s in out[c][1])]
+    missing = [f"{r} ({c})" for c, r in pairs if not any(s["resource_id"] == r for s in out[c][1])]
+    return f"named {len(named)} of 6 ({', '.join(named) or 'none'}); not named: {', '.join(missing) or 'none'}"
+
+
+def contribution_section(a) -> list[str]:
+    """Deterministic gains and the agent's contribution, kept apart (Breno, S6/S7)."""
+    gold = load_output(DATASET / "sample_output.csv")
+    md, ma = evaluate(load_output(a.det_samples / "output.csv"), gold), evaluate(load_output(a.samples / "output.csv"), gold)
+    L = ["## 5a. Deterministic engine vs agent", "",
+         "The same configuration with no model (`--engine deterministic`, rule-based intent) and with the agent "
+         "reviewing weak and unresolved proposals:", "",
+         "| | deterministic | agent (final) |", "|---|---|---|"]
+    for k in ("status_accuracy", "whole_case_exact", "step_precision", "step_recall", "cited_evidence_recall"):
+        L.append(f"| samples {k} | {_r(md[k])} | {_r(ma[k])} |")
+    L.append(f"| samples step_f1 | {md['step_f1']:.4f} | {ma['step_f1']:.4f} |")
+    for split, d, f in (("samples", a.det_samples, a.samples), ("targets", a.det_targets, a.final)):
+        dd, ff = load_output(d / "output.csv"), load_output(f / "output.csv")
+        sd = {x["case_id"]: x["support"] for x in _decisions(d)}
+        sf = {x["case_id"]: x["support"] for x in _decisions(f)}
+        diff = sorted(c for c in ff if ff[c] != dd.get(c))
+        moves = Counter(f"{sd[c]}→{sf[c]}" for c in sf if sd.get(c) != sf[c])
+        L.append(f"| {split}: rows the agent changed | {len(diff)} of {len(ff)}{': ' + ', '.join(diff[:12]) if diff else ''} | support moves {dict(moves) or 'none'} |")
+    return L + [""]
 
 
 def usage_report(a) -> str:
@@ -232,7 +272,9 @@ def usage_report(a) -> str:
     open_res = [r for rid, r in res.items() if not any(s["kind"] == "settle" and s["res_id"] == rid for s in rows)]
     L += [f"| **settled total** | | {sum(calls.values())} | **{sum(cum.values()) / 1e6:.6f}** |", "",
           f"Open reservations: {len(open_res)}, ${sum(r['est_usd'] for r in open_res):.6f}, counted against the budget "
-          "because they may have been billed (an in-flight call of a run killed on purpose to prove resume). "
+          "because they may have been billed: " + "; ".join(f"{r.get('purpose')} in run `{r.get('run_id')}`" for r in open_res)
+          + " (in-flight calls of a run killed on purpose to prove resume, and a release-check control that stopped "
+          "before sending). "
           + "".join(f"A {r.get('error')} (HTTP {r.get('code') or '4xx, code not recorded'}) on {res.get(r['res_id'], {}).get('purpose')} was booked at "
                     f"its reservation, ${r.get('cost_usd') or 0:.6f}, before rejected requests were settled at $0 "
                     "(A21); the append-only ledger keeps it. "
@@ -248,6 +290,8 @@ def main(argv=None) -> int:
     ap.add_argument("--samples", type=Path, required=True)
     ap.add_argument("--custom", type=Path, nargs="+", default=[])
     ap.add_argument("--compare", nargs="*", default=[])
+    ap.add_argument("--det-samples", type=Path, help="deterministic run on the samples, same config (contribution)")
+    ap.add_argument("--det-targets", type=Path, help="deterministic run on the targets, same config (contribution)")
     a = ap.parse_args(argv)
     out = ROOT / "code" / "evaluation"
     (out / "evaluation_report.md").write_text(evaluation_report(a))

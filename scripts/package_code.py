@@ -22,6 +22,7 @@ Then it validates the replayed output, compares it byte for byte with the refere
 replay run and compares that byte for byte with the shipped one, and scans the unpacked tree.
 
 Usage: python3 -I scripts/package_code.py --run runs/<final> [--out code.zip] [--skip-venv] [--allow-unisolated]
+                                          [--report <json>]
 Exit 0 only when the inventory is clean and the replay is accepted.
 """
 from __future__ import annotations
@@ -158,7 +159,8 @@ def replay_check(zip_path: Path, run: Path, skip_venv: bool) -> dict:
 def scan(u: Path) -> dict:
     """Things a clean unpack must not need or carry: developer paths, credentials, undeclared caches."""
     pats = {"developer path": re.compile(re.escape(str(ROOT)) + "|/root/"),
-            "credential": re.compile(r"AIza[0-9A-Za-z_\-]{30,}|gh[opsu]_[0-9A-Za-z]{30,}|-----BEGIN [A-Z ]*PRIVATE KEY")}
+            "credential": re.compile(r"(?<![A-Za-z0-9_\-+/])(?:AIza[0-9A-Za-z_\-]{30,}|gh[opsu]_[0-9A-Za-z]{30,}|sk-[A-Za-z0-9]{20,})"
+                                     r"|-----BEGIN [A-Z ]*PRIVATE KEY")}
     hits = {k: [] for k in pats}
     for p in u.rglob("*"):
         if p.is_file() and not p.is_symlink() and "dataset" not in p.relative_to(u).parts[:1]:
@@ -182,11 +184,14 @@ def main(argv=None) -> int:
     ap.add_argument("--out", type=Path, default=ROOT / "code.zip")
     ap.add_argument("--skip-venv", action="store_true", help="reuse the current interpreter (faster, less clean)")
     ap.add_argument("--allow-unisolated", action="store_true", help="accept a replay without network isolation")
+    ap.add_argument("--report", type=Path, help="also save {build, check} as JSON here (read by release_record.py)")
     a = ap.parse_args(argv)
     info = build(a.run, a.out)
     print(json.dumps(info, indent=1))
     if info["problems"]:
         print("refusing: the archive inventory is not clean")
+        if a.report:
+            a.report.write_text(json.dumps({"build": info, "check": None}, indent=1) + "\n")
         return 1
     check = replay_check(a.out, a.run, a.skip_venv)
     rows = json.loads((a.run / "summary.json").read_text())["rows"]
@@ -194,6 +199,8 @@ def main(argv=None) -> int:
                        "reference output.csv": hashlib.sha256((a.run / "output.csv").read_bytes()).hexdigest()}
     check["not_accepted_because"] = acceptance(check, rows, a.allow_unisolated)
     print(json.dumps(check, indent=1))
+    if a.report:
+        a.report.write_text(json.dumps({"build": info, "check": check}, indent=1) + "\n")
     return 0 if not check["not_accepted_because"] else 1
 
 

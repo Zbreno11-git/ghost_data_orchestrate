@@ -83,6 +83,38 @@ repository's `docs/DECISIONS.md`.
   - Defect: resumed runs matched saved cases by id only.
   - Fix: a fingerprint of code, prompts, config, model, dataset and request row now gates reuse.
 
+**Session 7**
+- **Timing-deduced accounts asserted as steps (A34, A34a).**
+  - Finding: 19 target rows carried an account deduced only from timing and one-to-one matching. The CSV cannot
+    say "weak", so each was an asserted step.
+  - Measured: a masked-identity backtest. 177 explicitly proven accounts were hidden by cohort and the existing
+    mechanisms re-run. In the strict variants:
+    - `only_feasible_request` was wrong 1 of 1 times;
+    - `forced_matching` was right 1 of 2 and 0 of 1;
+    - the nearest-in-time fallback was right 48 of 168 times;
+    - window-unique `only_feasible_row` was right 4 of 4.
+  - Fix (owner's decision): only `only_feasible_row` is asserted, labelled a workflow inference. The weaker
+    picks became uncertain candidates with no step, and the nearest-in-time pick only fills a row that would
+    otherwise be empty, flagged a heuristic prediction.
+- **A first temporal variant that lost cited findings (A36, v1).**
+  - Defect: reading pre-audit snapshot envelopes inside later exports let an uncitable observation displace a
+    citable one of the same state. Sample F1 fell to 0.73, with 4 status flips.
+  - Fix (v2): cite the latest citable observation of the same copy state. Its measurement: +5 correct sample
+    steps, 0 lost, 0 flips.
+- **Explanations that could describe a different version.**
+  - Defect: `explain` re-ingested today's dataset to describe an older run, and nothing tied the explanation to
+    the submitted CSV.
+  - Fix: provenance is saved with each run. `explain` and the viewer attach it only after `output.csv`,
+    `decisions.jsonl` and `provenance.jsonl` match their recorded sha256 and each other.
+- **A package check weaker than it read.**
+  - Defects:
+    - acceptance followed byte equality, not explicit validation;
+    - the reports were counted by suffix;
+    - a dead proxy was called isolation;
+    - there was no rule against copies of dataset files.
+  - Fix: `code/release/checks.py`, with one test per rule. The fixture allowlist pins the custom cases' reused
+    policy file by path and sha256.
+
 **Earlier sessions**
 - **Copy-level state (A20, A22).**
   - Defect: a later partial capture erased a directly observed record.
@@ -95,7 +127,7 @@ repository's `docs/DECISIONS.md`.
 - **Accounts and anonymized records named only in deletion-worker rows** stay unattributed. The activity
   stream has no run identifier, the records name no one, and timing or position is not evidence. Session 6
   checked each one to its break point.
-- **Three target rows carry flagged heuristic predictions (A29).** The evidence there shows health,
-  retention or an alias, not a state.
+- **Four target rows carry flagged heuristic predictions**: three under A29 (the evidence shows health, retention or
+  an alias, not a state) and one under A34 (the nearest-in-time account pick for a row that would otherwise be empty).
 - **Screen aliases are not used for grounded state.** The same object under its alias would add findings to a
   sample case whose answer omits it.

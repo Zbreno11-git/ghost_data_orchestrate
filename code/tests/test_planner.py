@@ -257,3 +257,24 @@ def test_agent_scope_non_resolved_never_sends_a_resolved_case_to_the_model(tmp_p
     assert s["agent"]["skipped_resolved"] == len(resolved) and s["agent"].get("model_calls", 0) == 0
     det_rows = {r["case_id"]: r for r in read_csv(tmp_path / "det" / "output.csv")}
     assert all(det_rows[r["case_id"]] == r for r in read_csv(tmp_path / "agent" / "output.csv"))
+
+
+def test_a_nearest_anchor_account_keeps_its_heuristic_label_after_the_plan_is_rebuilt():
+    """S7 C7.4 defect: the agent's recompiled plan dropped the A34 label while the row still asserted the pick."""
+    from ghostaudit.ownership import Link, Ownership
+    from ghostaudit.planner import Plan
+    from ghostaudit.runner import label_nearest_anchor
+    step = {"step_no": 1, "phase": "VERIFICATION", "system_id": "account_service", "resource_id": "account_7",
+            "operation": "VERIFY_RECORD_ABSENT", "state": "ABSENT", "evidence_id": "ev_1"}
+    own = Ownership("c", account=Link("account_7", "account_service", "workflow", ("r#1",),
+                                       note="nearest anchor to reported_at (12 min); weak"))
+    rebuilt = Plan("c", "COMPLETE", [step], "weak", ["agent: left the account as it was"])
+    assert label_nearest_anchor(rebuilt, own) and rebuilt.support == "unresolved"
+    assert rebuilt.reasons[0].startswith("HEURISTIC PREDICTION (A34)")
+    assert label_nearest_anchor(rebuilt, own) and sum(r.startswith("HEURISTIC") for r in rebuilt.reasons) == 1
+    # close negatives: an agent-attributed account, or a plan that no longer uses the pick
+    agent = Ownership("c", account=Link("account_7", "account_service", "explicit", ("ev#1",), note="agent"))
+    other = Plan("c", "COMPLETE", [step], "resolved", [])
+    assert not label_nearest_anchor(other, agent) and other.support == "resolved"
+    unused = Plan("c", "COMPLETE", [{**step, "resource_id": "search_1"}], "weak", [])
+    assert not label_nearest_anchor(unused, own) and unused.support == "weak"

@@ -216,3 +216,23 @@ cache key.
 
 > **Provenance answers "whose"; a typed slot also needs "what". Check both where the value enters the slot.**
 
+
+### 10. A label added before a stage that rebuilds the object was silently dropped
+
+**Incident (S7 C7.4, 2026-10-25 ~04:10 UTC).** A34 labels a row whose account is the nearest-in-time pick as a
+HEURISTIC PREDICTION. The label was inserted into the plan's reasons before the agent's review. When the agent
+kept the account, the engine recompiled the plan from the agent's ownership, and the rebuilt plan carried no
+label. On case_63 the CSV row was identical, still asserting the pick, but the trace, the viewer and the reports
+would have shown an ordinary weak link: 3 heuristic rows reported instead of 4.
+
+**How it was caught.** The regenerated report's heuristic count disagreed with the deterministic run's.
+
+**Fixed:**
+- `runner.label_nearest_anchor`, idempotent, is applied before the review (unchanged, because it is part of the
+  brief, and therefore of the cache key) and again after the review, on whatever ownership the published plan was
+  built from.
+- Test with close negatives (an agent-attributed account; a plan that no longer uses the pick).
+- The final run re-made at $0 (all cache hits), CSV byte-identical, 4 heuristic rows.
+
+> **A property attached to an object holds only until the next stage that rebuilds the object. Apply labels where
+> the object is published, or re-apply after every rebuild, and compare the label count across stages.**
