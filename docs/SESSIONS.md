@@ -4,7 +4,7 @@ Each session is a 1–2.5 h package that ends in something verifiable, plus a di
 (command → expected number, 🐞 predicted defect) lives in `docs/plans/MASTER_PLAN.md`. This file holds the
 **state**, and any change to a checkpoint is noted here with a date and reason.
 
-**Progress: 5 of 8 sessions fully closed** (✅: S0, S1, S2, S3, S4; measured 2026-10-24 21:13 UTC). Partial (🔄) counts as partial.
+**Progress: 6 of 8 sessions fully closed** (✅: S0, S1, S2, S3, S4, S5; measured 2026-10-25 01:13 UTC). Partial (🔄) counts as partial.
 
 > **Order notes.** The order follows data dependency, not showcase value. The contract/evaluator (S1) comes before
 > ingestion because every later step is measured with it. The deterministic baseline (S3) comes before the agent (S4)
@@ -19,15 +19,10 @@ Each session is a 1–2.5 h package that ends in something verifiable, plus a di
 
 ## ▶️ Start the next session here
 
-- Session: **S5 in progress** (plan `docs/plans/session-05.md`). Remaining work:
-  - C5.8: the final full run on committed code;
-  - C5.9/C5.10: reports;
-  - C5.11: the package with the VPS checks;
-  - C5.15: diagnostics;
-  - C5.14: the close.
-
-  Then S6 (fixes driven by `diagnostics.md`, C6.5 explain) and S7 (release record, Mac runbook, cheat sheet;
-  Mac validation pending).
+- Session: **S6 — measured improvement** — first step: write `docs/plans/session-06.md` from this roadmap. Start
+  from `code/evaluation/diagnostics.md`: 24 association mismatches, of which ~6 are anonymized analytics records
+  and the rest accounts named only by worker rows. Then C6.5 (explain a case). S7 follows: release record, Mac
+  runbook, cheat sheet; the Mac check stays pending until it is run there.
 - Read first: `docs/PRIMER.md`, `PROGRESS.md`, `docs/plans/session-03-04.md` (outcomes), DECISIONS A20–A23
 - Depends on Breno: before leaving, keep the session running with unattended permissions (Bash/Edit)
 
@@ -92,7 +87,7 @@ re-timed 05:30 UTC as the fallback. **Breno, 20:20 UTC (A18): no fixed time targ
 - [x] C4.5 real kill + resume: 0 duplicate paid calls; offline replay byte-identical (10 cases)
 - [x] C4.6 benchmark 10 × 2 models: flash-lite kept (A23); the agent ≈ the baseline
 
-### 🔄 S5 — Pilot, full run, 3 custom cases, reports, SAFETY PACKAGE · ≈$1.75 · due 04:00 UTC
+### ✅ S5 — Pilot, full run, 3 custom cases, reports, SAFETY PACKAGE · spent $1.531410 (session, ledger) · closed 2026-10-25 01:13 UTC, before the 04:00 UTC due time
 > **Plan of record: `docs/plans/session-05.md`** (C5.0–C5.15; that file maps each MASTER_PLAN checkpoint in
 > brackets). **Changed 2026-10-24 21:34–21:59 UTC (Breno):**
 > - accuracy work first: temporal isolation, explicit state, agent lineage, case-by-case comparison and
@@ -102,18 +97,18 @@ re-timed 05:30 UTC as the fallback. **Breno, 20:20 UTC (A18): no fixed time targ
 >
 > **Owner decisions (2026-10-25 00:41 UTC):** agent scope non_resolved (A28); flagged heuristic rows (A29).
 - [x] C5.1 pilot projection ≤ $1.50 — 30 targets, $0.0035/case, projection $1.22 (non_resolved) [session-05 C5.7]
-- [ ] C5.2 518 valid rows; unresolved count [C5.8] — first full run in progress 2026-10-25 00:42 UTC; the final run follows on committed code
-- [ ] C5.3 evaluation_report.md with real metrics [C5.9] — generator `scripts/make_reports.py` ready
-- [ ] C5.4 usage_report.md from the ledger [C5.10] — same generator, from the final run's `llm_keys.jsonl`
-- [ ] C5.5 package + clean-unpack replay identical, incl. `code/README.md` as source + root `README.md` pointer (D2) [C5.11]. `scripts/package_code.py` is ready. **Added 2026-10-25 (Breno), the VPS check:**
+- [x] C5.2 518 valid rows; unresolved count [C5.8] — `runs/s5/final`: 518 rows, `0 violations`; 175 resolved / 18 weak / 325 unresolved (3 flagged heuristic, A29); root `output.csv` published (sha256 `ee9504d5…`, untracked: public repo)
+- [x] C5.3 evaluation_report.md with real metrics [C5.9] — samples 32/32 status, whole 12/32, P 162/163, R 162/193; custom 3/3; comparisons; diagnostics; failures and fixes
+- [x] C5.4 usage_report.md from the ledger [C5.10] — final run 1748 responses, 5.16 M tokens, $1.395811 at full price ($0.010792 paid in that run); cumulative $1.870528 + $0.004447 open
+- [x] C5.5 package + clean-unpack replay identical, incl. `code/README.md` as source + root `README.md` pointer (D2) [C5.11]. **VPS check passed 2026-10-25 01:12 UTC:** fresh venv, `unshare -rn`, no key, `cmp` identical, 0 violations, scan clean; `code.zip` sha256 `f58aaefe…`. **Added 2026-10-25 (Breno), the VPS check:**
   - unzip into an empty directory, with the dataset supplied outside the zip;
   - a fresh venv from `code/requirements.txt` only;
   - offline replay with the key unset and **network unavailable**;
   - a scan of the unpacked tree for developer paths (`/root/`, the repo path), credentials and caches not
     declared in a MANIFEST;
   - validate the replayed output, then `cmp` it byte for byte with the frozen reference run.
-- [ ] C5.6 committed/pushed; STATUS upload instructions [C5.14]
-- [ ] **C5.15 (added 2026-10-25, Breno): mismatch diagnostics by earliest responsible stage.**
+- [x] C5.6 committed/pushed; STATUS upload instructions [C5.14]
+- [x] **C5.15 (added 2026-10-25, Breno): mismatch diagnostics by earliest responsible stage.** — `code/evaluation/diagnostics.md`: 32 mismatches = 3 absent from evidence, 5 post-audit only, 24 association (S3 baseline 33)
   - **Builds on:** `classify_failures.py` (targets, no answers) and `compare.py` (per-case before/after).
   - **Adds**, evaluator side only (`code/evaluation/diagnose.py`): every sample mismatch (a missing or extra
     step, a wrong field, a status) gets exactly one earliest supported cause:

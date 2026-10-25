@@ -3,6 +3,42 @@
 > One entry per session, newest on top. Narrative: what was done, what was decided and **why**, and what was
 > learned. State does not live here (see PROGRESS.md).
 
+## 2026-10-25 — S5: accuracy before spend, owner decisions, final run, reports, proven package, $1.53
+
+**Done.** The six additions Breno sent at the start (plus five amendments, a temporal check and a roadmap
+request mid-session) reordered S5: fix what the evidence says before paying the model to look at it.
+- **Measured why rows are not resolved.** 342 of 349 non-resolved targets fail on account attribution, which the
+  data cannot settle: the activity stream has no run identifier.
+- **Fixed what was fixable, each with a red-first test and a mutation:**
+  - ownership and the account solver evaluated as of each cutoff (A24; 16 target accounts deduced from later
+    information became honestly ambiguous);
+  - explicit state results that the engine ignored, and screens treated as copies of processes (A25);
+  - table rows that leaked across customers, for links, state and decoys alike;
+  - the two clocks (A26; 4 investigated flips to COMPLETE);
+  - agent decisions gated by lineage (A27).
+- **Built the measuring tools:** compare.py separates "not in the answer" from "unsupported"; diagnose.py gives
+  each sample mismatch its earliest cause.
+- **Pilot:** the validated agent changed nothing on 40 measured cases. Breno chose to run it on weak and
+  unresolved cases only (A28), and to publish three unsettleable rows as flagged heuristic predictions (A29).
+- **Final run:** 518 rows, 0 violations; samples 12/32 whole-case (S3: 11/32), with nothing removed. The one gain
+  came from the agent's single real find, which A30 then generalized into the engine at $0.
+- **Package:** proven from a clean unpack with no network.
+- **Log:** corrected by appended records from the session JSONL.
+
+**Decided, and why.** A24–A30, each with its measurement in DECISIONS. The rule behind all of them: a verdict
+the evidence does not support is reported as such (weak, unresolved, heuristic), never filled to look complete.
+
+**Learned.**
+- An agent that "improves" the score can be taking a shortcut: case_07 → account_007, citing a page that never
+  names it. Validating what a citation *establishes* turned the S4 "+1" into 0, and made the real +1 (case_06)
+  visible.
+- Six timestamps typed from memory in one session made the rule into structure (`$(date)` only; ERRORS #5).
+- A commit chained after a failing gate (ERRORS #6) and a tool that passed on an empty input (ERRORS #7) are new
+  classes.
+
+**Spent.** $1.531410 this session (ledger $0.339118 → $1.870528; $0.004447 still open from S4), of which the
+two full runs were $1.274.
+
 ## 2026-10-24 — S4 (second half of S3+S4): gateway, agent, intent, resume/replay, benchmark, $0.237
 
 **Done.**

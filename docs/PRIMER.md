@@ -13,7 +13,7 @@
 A local Python CLI holding a bounded, tool-using deletion-audit agent for HackerRank Orchestrate Oct 2026,
 "Ghost Data Still Exists". For each of the 518 requests in `dataset/deletion_requests.csv` it writes one row of
 `output.csv`: `COMPLETE` / `INCOMPLETE` / `NOT_APPLICABLE` plus canonically ordered steps grounded in
-participant evidence available at `audit_at`. Owner: Breno. State on 2026-10-24 21:13 UTC: S3+S4 closed (baseline + agent, gateway, replay); S5 next.
+participant evidence available at `audit_at`. Owner: Breno. State on 2026-10-25 01:13 UTC: S5 closed (final run published, package proven on the VPS); S6 next.
 
 ## The requirement that breaks ties
 
@@ -40,13 +40,24 @@ participant evidence available at `audit_at`. Owner: Breno. State on 2026-10-24 
 
 ## Current session
 
-⚠️ **S5 next: pilot, full run, reports, safety package.** S3+S4 closed 2026-10-24 21:13 UTC (A19): deterministic
-baseline (status 32/32, steps P 161/162 R 161/193), agent on flash-lite (A23), gateway/cache/resume/replay proven.
-Plan of record: `docs/plans/session-03-04.md` (outcomes at the end). No fixed time target (A18).
+✅ **S5 closed 2026-10-25 (plan `docs/plans/session-05.md`).**
+- **Accuracy work before spend:**
+  - as-of ownership (A24);
+  - explicit state and row-bound screens (A25);
+  - two clocks (A26);
+  - agent decisions gated by lineage (A27);
+  - subject records link their named sources (A30).
+- **Owner decisions:** agent on weak/unresolved only (A28); flagged heuristic rows (A29).
+- **Final run `runs/s5/final`:**
+  - 518 rows, 0 violations; support 175 resolved / 18 weak / 325 unresolved;
+  - samples whole-case 12/32, steps P 162/163, R 162/193.
+- **Published:** root `output.csv` (sha256 `ee9504d5…`) and `code.zip` (VPS check passed). Both are untracked:
+  the repo is public.
+- **Next:** S6 (fixes driven by `code/evaluation/diagnostics.md`; C6.5 explain-a-case), then S7 (release record,
+  Mac runbook, cheat sheet; the Mac check stays pending until it is run).
 
-Previous (S1+S2 merged, 2026-10-24, A15): contract/serializer/validator/evaluator proven on samples (193/193 legal,
-32/32 canonical, 0 violations); all 94 evidence files → 7,604 Observations (94/94 processed, 0 unparsed); 3 custom
-cases. Project spend $0.1074. Earlier (S0): repo, venv, Gemini smoke (keep `thought_signature`).
+Previous (S3+S4 merged, 2026-10-24, A19): deterministic baseline (status 32/32, steps P 161/162, R 161/193); agent,
+gateway, cache, resume and replay proven; flash-lite kept (A23).
 
 ## Boundaries and triggers in force
 

@@ -4,7 +4,97 @@
 > handoff moves to `docs/HANDOFFS.md`, after relocating what lives only here (open decision → SESSIONS,
 > lesson → ERRORS, constraint → PRIMER).
 
-## ⏱ Live — S3+S4 closed 2026-10-24 21:13 UTC (`79f33e4`); log of its checkpoints
+## ⏱ Live — S5 closed 2026-10-25 01:14 UTC
+
+The checkpoint log, with every number and its time, is in `docs/plans/session-05.md` ("Progress"). This file
+only points to it, so each fact has one source.
+
+- **What S5 did:**
+  - accuracy fixes before spend: A24, as-of ownership; A25, explicit state and row-bound screens; A26, two
+    clocks; A27, agent lineage; A30, subject records link their sources;
+  - the case-by-case harness (`compare.py`) and the diagnostics (`diagnose.py`);
+  - the pilot;
+  - Breno's decisions: A28, agent scope non_resolved; A29, flagged heuristic rows;
+  - the final run, the reports, the package with the VPS check, the log corrections, the trace stager and the
+    release kit.
+- **Published locally, not committed (the repo is public):**
+  - root `output.csv` = `runs/s5/final/output.csv` (sha256 `ee9504d517fb…`);
+  - `code.zip` (sha256 `f58aaefe3c17…`).
+
+## ▶️ RESUME HERE — 2026-10-25 01:14 UTC — S5 closed; S6 next
+
+**Repository state:** HEAD = the "Close S5" commit, pushed. Background runs: none. Locks: none. Untracked on
+purpose: `output.csv` (and `code.zip`, gitignored).
+
+**State of the world (measured at the close):**
+- **Ledger:** settled $1.870528, outstanding $0.004447 (the C4.5 kill), ceiling $4.50.
+- **Tests:** 225 passing.
+- **Log:** `log_audit.py` reports 19/19 human messages logged literally.
+- **Deadline:** 12:00 UTC.
+
+**Exact next step:** write `docs/plans/session-06.md` from `docs/SESSIONS.md` (S6: C6.1–C6.5). Start from
+`code/evaluation/diagnostics.md`: 24 association mismatches, mostly accounts named only by worker rows (not
+fixable without guessing) and ~6 anonymized analytics records. Look for a lineage the engine can see. Any fix
+needs:
+- a failing test first, and a mutation;
+- `compare.py` showing no unexplained regression;
+- a targeted re-run (fingerprints make it exact).
+
+Then C6.5: `main.py explain <case>` from `decisions.jsonl` only.
+
+**After every engine change:**
+1. Re-run the final configuration:
+   `main.py run --engine agent --mode live --agent-scope non_resolved --split targets --out runs/s6/final`.
+   Cache hits make it cheap.
+2. `validate`.
+3. `scripts/make_reports.py` (arguments as in the S5 close; see `session-05.md` C5.9).
+4. `scripts/package_code.py --run runs/s6/final` (must exit 0).
+5. Re-publish root `output.csv` atomically only if all of these pass.
+
+**Don't forget:**
+- Times are typed only through `$(date)` (ERRORS #5, 9 occurrences).
+- Chain the commit on the gate: `pytest -q && git commit`, never after a pipe (ERRORS #6).
+- Run the scripts with `.venv/bin/python`; the system python has no deps.
+- Kill by PID.
+- `gh api …/actions/runs?head_sha=` for CI.
+- Never commit `output.csv` or `code.zip` without Breno's OK (public repo).
+
+**Depends on Breno:**
+- whether `output.csv`/`code.zip` should ever be committed (default: no);
+- `/export` of this session, then quit it, before the final trace copy;
+- the upload;
+- running the Mac check (S7 C7.7).
+
+**Re-read, in this order:**
+1. `AGENTS.md`
+2. `docs/PRIMER.md`
+3. this block
+4. `docs/SESSIONS.md` (S6, S7)
+5. `docs/plans/session-05.md` (Release kit; Progress)
+6. `docs/DECISIONS.md` A24–A30
+7. `code/evaluation/diagnostics.md`
+8. skills `software-build`, `testes-que-provam`
+
+**Before trusting this block, check:**
+- `git status --short` → only `?? output.csv`;
+- `git rev-parse HEAD origin/main` → equal; CI on that SHA green;
+- `main.py status` → settled $1.870528;
+- `pytest code/tests -q` → `225 passed`;
+- `sha256sum output.csv` → `ee9504d517fb36f0af3c361bba833bf8129a5ae4a8a78d4efce448925b398c4c`.
+
+## Proofs from S5
+
+| Proof | Command | Result (literal) | When |
+|---|---|---|---|
+| suite | `pytest code/tests -q` | `225 passed` | 01:12Z |
+| final run | `main.py run --engine agent --mode live --agent-scope non_resolved --split targets --out runs/s5/final` + validate | `518 rows`; `0 violations`; support 175/18/325 | 01:08Z (file mtime) |
+| samples | `evaluation/main.py --pred runs/s5/final-samples2/output.csv` | status 32/32, whole 12/32, P 162/163, R 162/193 | 01:08Z (run mtime) |
+| package | `scripts/package_code.py --run runs/s5/final` | `"identical": true`, `"network": "none (unshare -rn)"`, scan empty, 0 violations | 01:12Z |
+| log | `scripts/analysis/log_audit.py` | `human messages 19, logged literally 19, not 0` | 01:12Z |
+| traces | `scripts/stage_traces.py --dry-run` | `8 files; 0 redactions …; problems: none` | 2026-10-24, between commits c3cc0fc (22:23Z) and 092d700 (22:27Z) |
+
+
+## Earlier — S3+S4 closed 2026-10-24 21:13 UTC (`79f33e4`); log of its checkpoints
 
 - Plan: `docs/plans/session-03-04.md`, with Breno's six safeguards integrated after approval (A20: weak workflow
   links, copy-level state, resolved/weak/unresolved, provisional ceiling, mixed intent, offline replay). The 4xx
@@ -77,84 +167,6 @@
   byte-identical; offline resume test + mutation.
 - ✅ C4.6: benchmark 10 × 2 models → flash-lite kept (A23); the agent ≈ the baseline. **S4 closed.**
 - ▶️ Next: S5 (see the resume block).
-
-## ▶️ RESUME HERE — 2026-10-24 21:17 UTC (16:17 CDT) — before a compact; S3+S4 closed; S5 next
-
-**Repository state:** see the check list below. HEAD = the "Close S4" commit, pushed. Background runs: none.
-Locks: none.
-
-**State of the world (measured 21:15 UTC):**
-- Ledger settled $0.339118, outstanding $0.004447. The open amount is one reservation in flight when C4.5
-  killed a run on purpose; by design it stays counted, because it may have been billed.
-- 177 tests passing. Deadline 12:00 UTC (≈14.5 h). No intermediate target (A18).
-
-**Current goal: S5.** A pilot, the full 518-row run, the evaluation and usage reports, and the safety package.
-Root `output.csv` is published only after validation.
-
-**Exact next step:**
-1. Write `docs/plans/session-05.md` from MASTER_PLAN §S5. Fold in:
-   - the budget question: agent on all 508 authorized cases ≈ $1.83, or on non-resolved cases only ≈ $1.22;
-   - the 5 rows with no grounded proposal (case_39, 46, 53, 55, 61): Breno's decision;
-   - unresolved investigation before publication (A20).
-2. C5.1 pilot: 30 stratified targets, `main.py run --engine agent --split targets --cases <30>`. Measure
-   $/case and how support levels move, and write the projection.
-
-**Engines and how to run them:**
-- Deterministic: `main.py run --split samples|targets [--ownership strict|scored]`
-- Agent: `main.py run --engine agent --mode live|replay --cases …`
-- Responses are cached in `runs/cache/llm/` (gitignored). Replay on a clean clone would need that cache:
-  decide in S5 packaging whether to ship it (the vision cache is already committed, A17).
-
-**Measured (2026-10-24):**
-- **Baseline (strict, full denominators):** samples status 32/32; steps P 161/162, R 161/193.
-- **Agent benchmark (A23):** the agent ≈ the baseline; flash-lite ≈ $0.0036/case.
-- **Intent:** targets 508 deletion / 10 NA, rule = LLM on every case (cached).
-- **Targets (strict, deterministic):** 169 resolved, 34 weak, 315 unresolved, 5 invalid (no grounded proposal).
-
-**Don't forget:**
-- **Kill by PID,** never `pkill -f <pattern>`: the pattern matched my own shell.
-- **Check CI** with `gh api repos/Zbreno11-git/ghost_data_orchestrate/actions/runs` by headSha; plain
-  `gh run list` prints nothing here.
-- **The workflow assignment is global:** load every request file.
-- **Remaining ambiguity, for Breno:** unresolved rows carry the grounded proposal's status, flagged; the 5
-  rows with no proposal need a decision.
-
-**S5 checkpoints** (MASTER_PLAN §S5; copy them into `session-05.md`, adapting each with its reason):
-- C5.1 pilot projection;
-- C5.2 full 518 run, validated, with the unresolved count;
-- C5.3 `code/evaluation/evaluation_report.md`: status, step, field, sequence and evidence metrics, the
-  confusion matrix, 3 custom cases, the tuning-exposure note, and D10/D12/D13 explained beside the full
-  denominators (A20);
-- C5.4 `code/evaluation/usage_report.md` from the ledger rows of the run, plus cumulative spend, including the
-  $0.0176 S2 400 row and the open $0.0044;
-- C5.5 `scripts/package_code.py` + a clean-unpack replay (D2 layout: `README.md` + `code/`);
-- C5.6 commit/push + STATUS upload instructions.
-
-**Risks of the next step:**
-- **Paid spend:** pilot ≈ $0.11, full run ≈ $1.2–1.8, all through the gateway with the hard stop at $4.50.
-- **Root `output.csv`:** it is overwritten only by the validated full run (PRIMER rule), written atomically.
-- **code.zip on a clean unpack can replay only if `runs/cache/llm/` ships with it.** Decide in C5.5, and
-  record the decision.
-- **Timing:** MASTER_PLAN's S5 targets the safety package at 04:00 UTC. A18 says no fixed target unless
-  fewer than 4 h remain without one; 04:00 UTC is ≈6.7 h away (measured 21:15 UTC).
-
-**Re-read, in this order:**
-1. `AGENTS.md`
-2. `docs/PRIMER.md`
-3. this block
-4. `docs/plans/MASTER_PLAN.md` §S5
-5. `docs/plans/session-03-04.md` (outcomes)
-6. `docs/DECISIONS.md` A10, A17, A20–A23, D2
-7. skills `software-build`, `falha-ruidosa`
-
-**Depends on Breno:** keep the session running unattended; decide on the 5 rows that have no grounded proposal.
-
-**Before trusting this block, check:**
-- `git status --short` → empty; `git rev-parse HEAD origin/main` → identical; `git log -1 --format=%s` starts
-  "Checkpoint before compact (S5"; CI on that SHA green (`gh api repos/Zbreno11-git/ghost_data_orchestrate/actions/runs?head_sha=<sha>`)
-- `ls code/ghostaudit/agent.py code/ghostaudit/llm/gateway.py` → both exist; `ls docs/plans/session-05.md` → no such file yet
-- `main.py status` → settled $0.339118, outstanding $0.004447
-- `pytest code/tests -q` → `177 passed`
 
 ## Proofs from S4
 

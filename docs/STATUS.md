@@ -3,9 +3,45 @@
 > **For:** Breno, and anyone who needs the state without reading code. No jargon. **Updated at the end of each
 > session, with the date.** Numbers are re-checked at the source when written, never copied from the previous version.
 
-**Last update: 2026-10-24 21:13 UTC.**
+**Last update: 2026-10-25 01:14 UTC.**
 
-`██████████░░░░░░ 5 of 8 sessions closed`
+`████████████░░░░ 6 of 8 sessions closed`
+
+## 2026-10-25 01:14 UTC — the answer file and the code package are ready to upload (safety package done)
+
+**What changed:**
+- **The answers file is ready:** `output.csv` at the root of the project holds all 518 answers.
+  - It passes every format rule with 0 problems.
+  - 175 answers are fully backed by evidence, 18 partly, and 325 have an open point. Most of those 325 have no
+    evidence saying which deleted account was the person's; the rest of each answer is still evidence-backed.
+  - 3 answers are informed guesses, as you decided, and are labelled as guesses.
+- **The code package `code.zip` is ready.** We unpacked it in an empty folder on this server, installed only what
+  it lists, cut off the network, and re-ran it. It reproduced the answers file exactly, without the API key.
+- **The two required reports are inside the package:** the evaluation report and the usage report.
+- **Score on the 32 example answers:**
+  - every deletion status is right;
+  - 12 examples are fully right (11 before this session);
+  - 162 of the 193 expected steps are found, and 162 of the 163 steps we list are right.
+- **The AI investigator** now has to prove every decision with a chain of evidence. Its one earlier "win" turned out
+  to be a lucky guess; the one real find is now applied to every case.
+- **The chat log (`log.txt`)** was checked against the original session records. Two old entries were corrected by
+  adding records at the end; nothing was erased.
+
+**Spending:** $1.87 of your $4.50 (this session $1.53).
+
+**To upload** (at https://www.hackerrank.com/contests/hackerrank-orchestrate-october26/challenges/ghost-data-still-exists):
+1. `/root/hackthon_1/output.csv`
+2. `/root/hackthon_1/code.zip`
+3. `/root/hackthon_1/log.txt` as the chat transcript
+4. Optional: `agent-trace.zip`. Before we build it, run `/export` in this Claude Code session, save the export
+   into `~/agent-trace/claude-code/`, and quit the session.
+
+**Needs your decision:** `output.csv` and `code.zip` are **not** in the public GitHub repo, so other teams cannot
+copy them. Say so if you want them there.
+
+**Next:** session 6 (fix the largest remaining cause the examples show; a command that explains any one case), then
+session 7 (release record, a Mac runbook, an interview cheat sheet). The Mac check stays "pending" until it is run
+on your Mac.
 
 ## 2026-10-24 — The project folder now tracks the official challenge files
 
