@@ -279,6 +279,12 @@ def copy_states(resource_id: str, system: str | None, treat: str, view: CaseView
                                      f"{e[2].obs_id}={e[1]}" for e in last), DIRECT, time_basis(o)))
             continue
         _, state, o, why = last[-1]
+        if not view.citable(o.obs_id):
+            # S7 C7.1T v2: the state is the latest readable observation's; the citation is the latest citable
+            # observation of this copy showing the same state (none: keep it, and assess() reports unknown).
+            same = [e for e in evs if e[1] == state and view.citable(e[2].obs_id)]
+            if same:
+                t, _, o, why = max(same, key=lambda e: (e[0], e[2].obs_id))
         out.append(CopyState(key, state, o.obs_id, o.source_id, t, why, INFERRED if o.kind == "scope" else DIRECT,
                              time_basis(o)))
     return sorted(out, key=lambda c: (str(c.copy), c.obs_id))

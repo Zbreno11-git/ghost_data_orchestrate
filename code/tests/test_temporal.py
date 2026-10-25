@@ -177,3 +177,20 @@ def test_an_unknown_time_policy_fails_loudly():
     store.time_policy = "any_old_timestamp"
     with pytest.raises(ValueError):
         CaseView(store, AUDIT)
+
+
+def test_v2_a_later_uncitable_snapshot_of_the_same_state_keeps_the_citable_proof(tmp_path):
+    """case_24's shape: a citable observation and a later-export snapshot of the same copy agree (PRESENT); the
+    finding stays cited from the citable one. If they disagree, the later state stands and is not citable."""
+    from conftest import DATASET, read_csv
+    from ghostaudit.policy import assess, load_rules
+    rules = load_rules(read_csv(DATASET / "deletion_rules.csv"))
+    store = _bundle(tmp_path, [_snap(AUDIT)])                                       # captured at the audit, exported later
+    store.add(Observation(obs_id="early#r", source_id="early", source_kind="json", kind="record",
+                          captured_at=AUDIT - timedelta(days=1), observed_at=AUDIT - timedelta(days=1),
+                          system_id="account_service", resource_id="account_1", container="customer_profiles",
+                          fields={"resource_id": "account_1", "email": "a@x.com"}, locator="r"))
+    v = _policy(store, "snapshot_capture")
+    assert {o.source_id for o in v.by_resource("account_1")} == {"early", "bundle"}  # both readable
+    a = assess("account_1", "account_service", v, rules)
+    assert a.verdict == "violation" and a.proof.source_id == "early"

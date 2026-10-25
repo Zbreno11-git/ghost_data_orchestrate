@@ -1,4 +1,4 @@
-# C7.1T: temporal interpretation, written before measuring sample gains (2026-10-25 ~03:25 UTC)
+# C7.1T: temporal interpretation, written before measuring sample gains (2026-10-25 03:09 UTC, commit 8c58d55)
 
 Breno's amendment 2 asks whether we treat an artifact's export time and the creation time of a historical snapshot
 inside it too uniformly. This file fixes the interpretation and its assumptions **before** any sample or target
@@ -69,3 +69,17 @@ Before writing this, an evaluator-side look at the public answers showed two thi
 
 That observation motivated scoping the variant to envelope capture times. It does not tune the variant to any
 case: the rule contains no id, family or label. The samples are not a held-out set for this experiment.
+
+## Amendment v2 (written after the v1 measurement, before re-measuring; 2026-10-25 03:10 UTC)
+
+**What v1 got wrong.** v1 (commit 8c58d55) cited the copy's *latest* readable observation. When a later export's
+snapshot became the latest observation of a copy, it displaced a citable observation that shows the **same** state.
+The row then lost a cited finding it already had. Trace, case_24 account_5334: evidence_92's profile lookup is
+PRESENT and citable; evidence_02's snapshot (captured at audit_at, exported 09-17) is PRESENT and not citable; v1
+gave "unknown".
+
+**v2 rule (generic: no id, family or label).** A copy's state is still its latest readable observation. Its
+citation is the latest **citable** observation of that copy showing the **same state**. If no citable
+observation shows that state, the copy keeps the uncitable reference and the assessment is `unknown`, as in v1.
+Under `manifest` every readable observation is citable, so the baseline is unchanged. v1 and v2 results are both
+reported.
