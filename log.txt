@@ -985,3 +985,67 @@ branch=main
 repo_root=/root/hackthon_1
 worktree=main
 parent_agent=none
+
+## [2026-10-25T01:35:06Z] S6 opened after compact: reading, checks, plan; C6.1 pre-measured
+
+User Prompt (verbatim, secrets redacted):
+[event time 2026-10-25T01:28:47.540Z, session JSONL 3f2c5c59…:6605, uuid 2a7277e8-50e5-49ed-90ca-012c259c61e3; pasted block, wrapper tags omitted]
+Resuming after a compact. Don't start with the work — start with the reading.
+
+1. Read, in this order: AGENTS.md, docs/PRIMER.md, the "▶️ RESUME HERE" block at the top of PROGRESS.md,
+   docs/SESSIONS.md (§ S6 and § S7), docs/plans/MASTER_PLAN.md (§ S6, § S7), docs/plans/session-05.md
+   (Progress, Release kit, Amendments 2), docs/DECISIONS.md (A24–A31), code/evaluation/diagnostics.md,
+   docs/ERRORS.md (#4–#7), and the skills software-build, testes-que-provam and falha-ruidosa.
+2. Before trusting the block, check:
+   - git status --short is empty; HEAD = origin/main; git log -1 subject starts "Checkpoint before compact (S6";
+   - CI on that SHA is green, checked through
+     gh api repos/Zbreno11-git/ghost_data_orchestrate/actions/runs?head_sha=<sha>;
+   - .venv/bin/python code/main.py status → settled $1.870528, outstanding $0.004447;
+   - .venv/bin/python -m pytest code/tests -q → 225 passed;
+   - sha256sum output.csv → ee9504d517fb36f0af3c361bba833bf8129a5ae4a8a78d4efce448925b398c4c;
+   - docs/plans/session-06.md does not exist yet.
+   If anything diverges from the block, the disk wins — tell me what diverged before going on.
+3. Next step: S6. First write docs/plans/session-06.md (skill format: checkpoint map from SESSIONS § S6,
+   C6.1–C6.5, each with Does / ✅ / 🐞, adapted with reasons). Then execute it:
+   - C6.1 from diagnostics.md. Measure, for each of the 24 association misses (17 account steps, 7 anonymized
+     analytics records), whether any admissible observation ties the resource to something already linked
+     to the subject.
+   - C6.2: fix only generic lineages the evidence shows. Each fix needs a red test first, a red mutation,
+     compare.py with no unexplained regression, and diagnose.py before/after.
+   - C6.3: ownership mode chosen by metrics.
+   - C6.4: targeted re-run through the fingerprints.
+   - C6.5: main.py explain <case> from decisions.jsonl and provenance only, with no LLM call. Saved examples
+     for COMPLETE, INCOMPLETE, NOT_APPLICABLE, unresolved and heuristic.
+   After any engine change, follow the block's re-publication recipe: final run, validate, reports,
+   package_code.py exit 0, atomic root output.csv.
+   Run C6.1–C6.5 without asking me between checkpoints. Close S6 with the software-build ritual, then
+   continue into S7 (C7.1–C7.7) the same way, leaving C7.7 (the Mac check) pending.
+4. Rules for this step:
+   - stage explicit paths only (never git add -A; public repo); never commit output.csv or code.zip (A31);
+   - sample_output.csv is evaluator-only; no hardcoded labels, evidence ids or case-family shortcuts;
+   - every paid call goes through llm/gateway.py and the ledger;
+   - times only from $(date) or the session JSONL;
+   - commit only chained on the gate (pytest -q && git commit);
+   - run scripts with .venv/bin/python; kill by PID;
+   - append a log.txt entry every turn (prompts copied literally from the JSONL).
+5. Depends on me: nothing until the end. /export, the trace zip, the upload and the Mac check come only after
+   all sessions are finished (A31). Keep the session running with unattended permissions.
+
+When you finish the reading and checks, tell me in one line what you found and proceed with step 3.
+
+Agent Response Summary:
+Read the required docs and skills and ran every check: tree clean, HEAD=origin=16183c2, CI success 01:24:28Z, ledger $1.870528/$0.004447, 225 passed, output.csv sha256 ee9504d5…, no session-06.md — no divergence. Pre-measured C6.1 read-only: 0/23 association misses share any admissible observation with a subject identifier or linked resource (worker rows and anonymous records only); found a non-timing run signal (reported_status vs the run's reported_result compatibility) that excludes 0/31 sample gold rows. Planned S6 (C6.0–C6.7, A32/A33) in plan mode and got approval; executing.
+
+Actions:
+* Read AGENTS.md, PRIMER, PROGRESS, SESSIONS, MASTER_PLAN, session-05.md, DECISIONS A24–A31, diagnostics.md, ERRORS #4–#7
+* Ran git status/rev-parse, gh api runs?head_sha, main.py status, pytest, sha256sum
+* Scratchpad read-only measurement scripts (c61.py, timing.py, compat.py); compare.py strict vs scored to scratchpad
+* Wrote the plan file; ExitPlanMode approved
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=main
+repo_root=/root/hackthon_1
+worktree=main
+parent_agent=none

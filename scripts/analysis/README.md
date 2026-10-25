@@ -12,3 +12,12 @@ python3 -I scripts/analysis/window.py dataset      # 3-15 candidate accounts per
 
 `linkaudit.py` and `window.py` read `sample_output.csv` **on purpose**: they measure how much ownership is
 derivable. They are evaluation-side tools only.
+
+**S6 (2026-10-25), evaluator side, also read `sample_output.csv` on purpose:**
+
+```bash
+.venv/bin/python scripts/analysis/extraction_audit.py --run runs/<samples run> --out <md>     # C6.1
+```
+
+`extraction_audit.py` compares every decoded line that names a mismatch resource (raw text, two PDF decoders,
+vision extracts; `code/evaluation/corpus.py`) with the observations built from that source.

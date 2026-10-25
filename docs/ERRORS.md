@@ -18,9 +18,10 @@
 | 2 | Staged with `git add -A` without listing new untracked files | 1 | `git status --short` and review every `??` before staging; stage explicit paths |
 | 3 | Wrote over a tracked file without reading it first | 1 | `git ls-files <path>` / Read before any `cat >` to a path in the repo |
 | 4 | A test fixture admitted a second explanation (mutation stayed green) | 5 | Build the fixture from the real shape that carries the risk, and order events so only the rule under test can explain the result |
-| 5 | Wrote a fact (a data literal, a timestamp) before measuring it | 9 | Measure the fact first (one query, `date -u`, `git log`), then write it; times go in by `$(date)` substitution, never typed |
+| 5 | Wrote a fact (a data literal, a timestamp) before measuring it | 10 | Measure the fact first (one query, `date -u`, `git log`), then write it; times go in by `$(date)` substitution, never typed |
 | 6 | Committed after a gate whose output I had not read | 1 | Chain the commit on the gate's exit code (`pytest -q && git commit`), never after a pipe or `;` |
 | 7 | A tool reported success on an empty input | 1 | A tool that can find nothing must say so and exit non-zero; "0 problems" over 0 items is not a pass |
+| 8 | A search over encoded bytes was read as a search over content | 1 | Search decoded text (every decoder that applies); "not found" is a list of checks, never proof of absence |
 
 ---
 
@@ -155,3 +156,26 @@ empty. The folder is now derived the way Claude Code does it (every non-alphanum
 and finding no session exits 1.
 
 > **"No problems" over zero items is not a pass (falha-ruidosa: the empty result that looks healthy).**
+
+**10th occurrence, 2026-10-25 01:35 UTC, S6 opening.** The approved plan dated the C6.1 pre-measurement "01:33–01:40
+UTC"; the first log write read the clock at 01:35:06Z, so the end was an estimate. session-06.md carries only
+clock-bounded times ("before 01:35:06Z").
+
+---
+
+### 8. A search over encoded bytes was read as a search over content
+
+**2026-10-25, found at S6 C6.1 (defect from S5 C5.15, `code/evaluation/diagnose.py`).** The cause "absent from
+supplied evidence" was decided by a raw-byte regex over every participant file. All four PDFs are
+FlateDecode-compressed: 10 of the 10 resource and user ids in them are invisible to that search (measured with
+pypdf vs the bytes). support_001 occurs in no other source, so a miss on it would have been published as a
+dataset gap. S5's `diagnostics.md` and the evaluation report used the phrase for 3 items; the decoded search
+still finds none of those 3, but the S5 claim was unproven when written.
+
+Fixed: `code/evaluation/corpus.py` decodes every source (raw text, pypdf and pdftotext, all vision extracts, the
+activity and audit CSVs) and the cause is now "no supporting fact found" (or "undetermined" when a source cannot
+be decoded), with the checks listed. `test_diagnose.py` is red against the raw-byte version (mutation: PDFs read
+as bytes).
+
+> **A search answers for the representation it searched. "Not in the bytes" is not "not in the document".**
+
