@@ -17,7 +17,7 @@
 | 1 | Assumed a git command populated the working tree | 1 | After `reset --mixed`, check `git status` before anything else |
 | 2 | Staged with `git add -A` without listing new untracked files | 1 | `git status --short` and review every `??` before staging; stage explicit paths |
 | 3 | Wrote over a tracked file without reading it first | 1 | `git ls-files <path>` / Read before any `cat >` to a path in the repo |
-| 4 | A test fixture admitted a second explanation (mutation stayed green) | 5 | Build the fixture from the real shape that carries the risk, and order events so only the rule under test can explain the result |
+| 4 | A test fixture admitted a second explanation (mutation stayed green) | 8 | Build the fixture from the real shape that carries the risk, and order events so only the rule under test can explain the result |
 | 5 | Wrote a fact (a data literal, a timestamp) before measuring it | 10 | Measure the fact first (one query, `date -u`, `git log`), then write it; times go in by `$(date)` substitution, never typed |
 | 6 | Committed after a gate whose output I had not read | 1 | Chain the commit on the gate's exit code (`pytest -q && git commit`), never after a pipe or `;` |
 | 7 | A tool reported success on an empty input | 1 | A tool that can find nothing must say so and exit non-zero; "0 problems" over 0 items is not a pass |
@@ -93,6 +93,16 @@ convenient name. Order the events so that the rule under test is the *only* thin
 
 Each was rebuilt so that only the rule under test decides, and each mutation is now red. What is new: two of the
 three were *unreached* code, not weak asserts.
+
+**6th–8th occurrences, 2026-10-25, S6.**
+- **C6.2:** the "trace missing" test asserted that "not recorded in the trace" appeared *anywhere*, and other
+  lines print it too, so two mutations stayed green. The asserts are now line by line.
+- **C6.5:** a robustness fixture was an unknown JSON shape. Ingest marked it failed in coverage, but the
+  test never looked, so "no contamination" was trivially true.
+- **C6.5:** another fixture put the shared name in a lookup field that the adapter drops.
+
+Positive controls caught both C6.5 fixtures: the same input, changed so it *must* alter the answer. What is new:
+every metamorphic test now carries a control, and the harness asserts that no input failed to ingest.
 
 ---
 

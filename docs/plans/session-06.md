@@ -181,3 +181,27 @@
   - **Conclusion:** the evidence supports **no new association** among the sample misses. C6.4 therefore has no
     association fix to make. A link rule written now would rest on timing or position, which the owner rule
     forbids.
+- **C6.4 ✅ 01:54Z. Generic fixes: none warranted by the evidence.**
+  - Association: C6.3 found no admissible link.
+  - Parsing: the line-coverage check was extended from the mismatch sources to **every** source
+    (scratchpad `fullcov.py`, reusing `extraction_audit`). 7338 decoded lines name resources; every named
+    resource is in an observation of that source; 81 token gaps in 13 sources, all explained:
+    - SQL JSON booleans are stored as Python `True`/`False` (present; the checker's regex was case-sensitive);
+    - a log trace's `observed_at` is its read line's time, so the scan-start timestamp is not stored, by the A26
+      per-format rule.
+  - No engine change, so no compare.py delta to report here.
+- **C6.5 ✅ 01:54Z. Metamorphic robustness tests** (`code/tests/test_robustness.py`, 4 tests, end to end through
+  `run_deterministic` on the custom mini-datasets; each compares against the unmodified dataset in the same
+  test and has a positive control proving its fixture reaches the engine):
+
+  | Test | Change made | Control | Mutation (safeguard off) → result |
+  |---|---|---|---|
+  | shuffled | a later NOT_FOUND added; then JSON records and every CSV reversed | without the NOT_FOUND the case is INCOMPLETE | copy state = last in input order → RED |
+  | duplicate | an identical evidence copy under a new file_id | base cites the original | copy key includes source → RED |
+  | another person | the subject's exact name with another person's email, as a profile row | the same row with the subject's historical email links | weak identifiers link → RED |
+  | post-cutoff | a file captured after audit_at holding a pre-cutoff-dated record of the subject | captured before the cutoff, the row changes | admissibility drops the capture clock → RED |
+
+  - **Hollow at first (ERRORS #4, 7th and 8th occurrences).** The first versions passed with fixtures the
+    engine never read: one JSON file was an "unknown JSON shape" (it failed ingestion, recorded in coverage
+    but never checked), and the lookup adapter drops `customer_name`. The controls exposed both. `_run` now
+    asserts `ingest_failed_files == []`, and the name path goes through a SQL row.
