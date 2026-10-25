@@ -88,7 +88,7 @@ cmp viewer-rebuilt.html code/viewer/viewer.html && echo VIEWER-IDENTICAL
 open code/viewer/viewer.html
 ```
 Expect:
-- `307 passed` (no `failed`, no `skipped`);
+- `310 passed` (no `failed`, no `skipped`);
 - `VIEWER-IDENTICAL`;
 - the viewer opens in your browser.
 

@@ -534,3 +534,11 @@ changes afterwards without a rebuild and a new checksum. The "re-zip after the e
   - **Fallback:** the S5 package is preserved in `/root/ghost-fallback-s5/` (`ee9504d5…`, `f58aaefe…`).
   - **Browser check of the viewer extracted from code.zip:** chromium 156, 1280/390 px, no network, hostile text inert.
   - Reports, diagnostics and explanations (now 7 classes, including A34 and A36 examples) are regenerated from `final-r2`. `303 passed`.
+- **Post-compact (04:07Z).** Checks matched the resume block (CI green 04:04:16Z, 303 passed, ledger, both sha256s, fallback). One divergence in the reading: ERRORS #10 dated its incident "~04:10", a typed time; corrected to the JSONL/commit time.
+- **Step 0 ✅ 04:16Z** (`57c6be1`). `verify_run` splits provenance.jsonl at "\n" only; test red first (3 separators). Runs re-made at $0 (replay probe, then live), 7/7 identical.
+- **C7.5 ✅ 04:21Z** (`57c6be1`, `b6c8136`). The starter list and AGENTS §6.8 were re-read against the docs. Gap found: code.zip's root README was the starter's page. It is now the solution entry point, with its commands pinned to code/README.md by a test (mutation red); the starter text moved to docs/STARTER_README.md. A second gap: `package_code.py` wrote onto code.zip before checking. Now it builds a candidate and moves it only when accepted (3 tests in the new repo-only `scripts/tests/`; mutation red; CI runs both folders).
+- **C7.6 handed over 04:32Z** (`23f14a3`).
+  - WALKTHROUGH.md: 7 cases + case_78, each claim checked against the run.
+  - While writing it: **ERRORS #10, 2nd occurrence**. `apply_submission` dropped the uncertain candidates (3 target rows lost them from trace, explain and viewer; CSV unaffected). Fixed at the copy with a dataclass-derived test; runs re-made at $0, 7/7 identical.
+  - code.zip `0c4dfef1…` accepted; the shipped suite gives 310 passed unpacked; packaged viewer browser-checked (518/518 cases, desktop and phone).
+  - Mac file set in `/root/ghost-mac/`. **Mac acceptance PENDING.**

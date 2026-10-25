@@ -4,7 +4,7 @@
 > handoff moves to `docs/HANDOFFS.md`, after relocating what lives only here (open decision → SESSIONS,
 > lesson → ERRORS, constraint → PRIMER).
 
-## ⏱ Live — S7 in progress (opened 2026-10-25 02:45 UTC; measured 04:00 UTC)
+## ⏱ Live — S7 in progress (opened 2026-10-25 02:45 UTC; measured 04:31 UTC)
 
 Plan and checkpoint log: `docs/plans/session-07.md` (Amendments + "Progress"). S7 = S7+S8 merged by Breno (A35).
 
@@ -16,11 +16,11 @@ Plan and checkpoint log: `docs/plans/session-07.md` (Amendments + "Progress"). S
 | C7.2 provenance + viewer + run binding | ✅ | `f21a996`, `8d83eb2`, `d6f75a2` |
 | C7.3 packaging hardening | ✅ | `d84ae0c` (+ token-boundary credential rule in `d578d09`) |
 | C7.4 final integration + release candidate | ✅ ~03:58Z | `d578d09`; `docs/diagnostics/s7/final_gate.md`, `target_changes.md`; CI green 03:59:51Z |
-| C7.5 submission docs | 🔄 mostly drafted (README, REQUIREMENTS_MAP, reports regenerated); final review pending | |
-| C7.6 Mac handoff + **Mac acceptance (Breno)** | 🔄 runbook + cheat sheet drafted; WALKTHROUGH.md missing; acceptance PENDING | `docs/release/` |
+| C7.5 submission docs | ✅ 04:21Z: root README is the solution entry point (commands pinned by a test); package guard (refused build never replaces code.zip) | `57c6be1`, `b6c8136` |
+| C7.6 Mac handoff + **Mac acceptance (Breno)** | 🔄 handed over 04:31Z (`/root/ghost-mac/`); WALKTHROUGH written; ERRORS #10 2nd occurrence fixed; **acceptance PENDING** | `23f14a3` |
 | C7.7 traces, checksums, release record, freeze | ⬜ `release_record.py` written but **untested**; `finalize_release.sh` not written | amendment 6 order |
 
-## ▶️ RESUME HERE — 2026-10-25 04:00 UTC — S7 after C7.4; before C7.5/C7.6/C7.7
+## ▶️ RESUME HERE — 2026-10-25 04:31 UTC — S7: C7.5 done, Mac acceptance handed over (PENDING); C7.7 next
 
 **Settled; do not reopen** (DECISIONS):
 - A33: strict ownership.
@@ -38,56 +38,53 @@ only_feasible_row, nearest_anchor]`, `historical_snapshots = "snapshot_capture"`
 **Published locally (A31: not uploaded, not committed):**
 - root `output.csv` sha256 `0e04ffe214bb9450b0aed886f4b7ba8c73af62b7ef5552ff6ad55c6e4b8ef06d` = `runs/s7/final-r2/output.csv`;
   518 rows, `0 violations`;
-- `code.zip` sha256 `47df5065b66e63a101b65ce419baa9ed90541f343aab70f5e00e898e4ca16dde` (1927 entries, 2,578,083 bytes), built
-  from `d578d09` with `package_code.py --run runs/s7/final-r2 --report runs/s7/package_report.json`. The check
-  ACCEPTED it: fresh venv, `unshare -rn`, client blocked, output and viewer byte-identical, inventory clean.
+- `code.zip` sha256 `0c4dfef137985cf8f712deb1680b3546b94b2a505ca88a6177d99a09790318b2` (1927 entries, 2,577,392 bytes), built
+  from `23f14a3` with `package_code.py --run runs/s7/final-r2 --report runs/s7/package_report.json` (it now builds
+  `code.zip.candidate` and moves it only when accepted). ACCEPTED: fresh venv, `unshare -rn`, client blocked, output
+  and viewer byte-identical, inventory clean; shipped suite `310 passed` inside the unpacked zip; packaged viewer
+  browser-checked 04:29Z (518/518 cases desktop and phone, hostile inert).
+- **Mac file set:** `/root/ghost-mac/` = code.zip, output.csv, SHA256SUMS (those two), MAC_RUNBOOK.md, WALKTHROUGH.md.
 - **Fallback (untouched):** S5 package in `/root/ghost-fallback-s5/` (`output.csv` `ee9504d5…`, `code.zip`
   `f58aaefe…`).
 
-**Measured (04:00Z):**
-- **Reference runs:** `runs/s7/final-r2` (targets), `runs/s7/final-r2-samples`, `runs/s7/final-r2-custom-*`.
-  Re-made at $0 from `runs/s7/final*` after ERRORS #10; the CSVs are identical.
+**Measured (04:31Z):**
+- **Reference runs:** `runs/s7/final-r2` (targets), `runs/s7/final-r2-samples`, `runs/s7/final-r2-custom-*`,
+  re-made twice after the compact ($0, replay probe first each time, 7/7 CSVs byte-identical to the 04:00 runs,
+  backups in `runs/s7/final-r2.bak*`). Trace now carries 3 uncertain-candidate rows (= deterministic) and 4
+  heuristic rows. Run fingerprint `b0f0247857e1…`. Re-make script logs go to `runs/s7/logs/`, never beside run dirs
+  (a `final-r2-custom-*.log` broke make_reports' glob once).
 - **Samples vs S6:** status 32/32, whole-case 12→14, P 167/168, R 167/193, F1 0.9101→0.9252, cited recall 62/75,
   sequence 14/32. Correct steps +5 / −0, incorrect +0, 0 flips. The agent changed 0 rows (support moves only).
 - **Custom:** 5/5.
 - **Targets:** 60 rows changed vs S6, all attributed (A36 59, A34/A34a 3); 0 status flips; 4 heuristic rows
   (case_39/55/61 A29, case_63 A34).
-- **Ledger:** settled $2.270662, outstanding $0.004997, of $4.50. S7 spend $0.394 (C7.4). `303 passed`.
+- **Ledger:** settled $2.270662, outstanding $0.004997, of $4.50 (unchanged since 04:00). Tests: `313 passed`
+  (`pytest code/tests scripts/tests`; 310 shipped + 3 repo-only in `scripts/tests/`; CI runs both).
 
 **Exact next steps, in order:**
-0. **Latent defect (found at the checkpoint, 04:03Z; same class as the log_audit and stage_traces fixes):**
-   - The bug: `code/ghostaudit/provenance.py` `verify_run` reads provenance.jsonl with `str.splitlines()`, which
-     also splits at U+2028/U+2029/U+0085 inside an excerpt, so a run would be wrongly "damaged".
-   - Not present in the release: neither final-r2 provenance file contains such a character, and both verify.
-   - Fix: `split("\n")`, plus a test with a U+2028 excerpt (red first). Because `ghostaudit/` enters the code
-     fingerprint, re-make `runs/s7/final-r2*` (`--mode live`, all cache hits, $0), check the CSVs are
-     byte-identical, and rebuild code.zip (step 1).
-1. **C7.5:** re-read `README.md` (starter "Before submitting" list) and AGENTS §6 against `code/README.md`,
-   `REQUIREMENTS_MAP.md` and both reports. Expected: no gap. Any edit under `code/` means **rebuilding code.zip**
-   (`package_code.py --run runs/s7/final-r2 --report runs/s7/package_report.json`, then `mv code.zip.candidate
-   code.zip` only if accepted).
-2. **C7.6:**
-   - write `docs/release/WALKTHROUGH.md` (the cases in `docs/explanations/README.md`: case_113, case_105,
-     case_533, case_100, case_39, case_63, case_123);
-   - check the numbers in `INTERVIEW_CHEAT_SHEET.md` (it points to the reports);
-   - hand Breno `docs/release/MAC_RUNBOOK.md` plus the 3 files (code.zip, output.csv, SHA256SUMS: a pre-release
-     SHA256SUMS for code.zip and output.csv is enough for the Mac check);
-   - **wait for his Mac results** (PENDING), record them in `docs/release/mac_acceptance.md`, fix any failure.
-3. **C7.7** (amendment 6 order):
-   - write `scripts/finalize_release.sh`: stage traces (`stage_traces.py --zip`), verify the four files, then
-     `release_record.py` (checksums into `/root/ghost-release/SHA256SUMS` and `docs/release/SHA256SUMS`, plus
-     `docs/release/RELEASE_RECORD.md`), commit and push;
-   - test `release_record.py` on a scratch release dir first;
-   - add a redaction test for `stage_traces.py`;
-   - log the closing turn; then **Breno** runs `/export`, quits, runs the script, freezes and uploads (checklist
-     in STATUS, URL from AGENTS §4.1).
+1. **C7.6, waiting on Breno:** he runs `/root/ghost-mac/MAC_RUNBOOK.md` on his Mac and sends the outputs of
+   steps 1, 4, 5, 6, macOS version and chip, browser. Record them in `docs/release/mac_acceptance.md` (literal);
+   any failure → fix, rebuild, new file set, re-run. Expected: 2× OK, the four replay lines, IDENTICAL, `0
+   violations … against 518`, `310 passed`, VIEWER-IDENTICAL.
+2. **C7.7 preparation (does not depend on the Mac; do it while waiting):**
+   - write `scripts/finalize_release.sh`: stage traces (`stage_traces.py --zip`), verify the four files (code.zip
+     and output.csv must equal `/root/ghost-mac/` sums), then `release_record.py` (checksums into
+     `/root/ghost-release/SHA256SUMS` and `docs/release/SHA256SUMS`, plus `docs/release/RELEASE_RECORD.md`),
+     commit and push;
+   - test `release_record.py` on a scratch release dir (`scripts/tests/`);
+   - add a redaction test for `stage_traces.py` (`scripts/tests/`);
+   - STATUS upload checklist (slots: code.zip, output.csv, chat_transcript = log.txt, agent-trace.zip, AI
+     interview; URL from AGENTS §4.1).
+3. **Close:** log the closing turn; then **Breno** runs `/export`, quits, runs the script, freezes, uploads.
 
 **Don't forget:**
-- JSONL is split at "\n" only, never `splitlines()` (fixed in log_audit.py and stage_traces.py at 04:03Z; provenance.py is step 0).
+- JSONL is split at "\n" only, never `splitlines()` (log_audit.py, stage_traces.py, provenance.py: all fixed).
 - Times only from `date -u` or the JSONL (ERRORS #5).
 - `pytest -q && git commit` (ERRORS #6).
 - Stage explicit paths. Never commit output.csv, code.zip or `code/viewer/*.html`.
-- A label added before a rebuild gets lost: compare label counts across stages (ERRORS #10).
+- A field set before a rebuild gets lost: compare label/field counts across stages; check constructors field by field (ERRORS #10, twice).
+- `package_code.py` replaces code.zip only when accepted; a refused build stays as `code.zip.candidate`.
+- Repo-only tests go in `scripts/tests/` (code/tests ships and must pass inside the unpacked zip).
 - Credential prefixes inside base64 are not keys (checks.py look-behind).
 - The backtest variants are never pooled.
 - A rejection message is part of the replay cache key.
@@ -107,11 +104,10 @@ upload.
 8. skills software-build, testes-que-provam, falha-ruidosa, frontend-e-ux (for WALKTHROUGH/viewer)
 
 **Check before trusting:**
-- `git status --short` → empty; HEAD = origin/main; subject starts "Checkpoint before compact (S7 after C7.4";
-  CI green by head_sha;
+- `git status --short` → empty; HEAD = origin/main; CI green by head_sha;
 - `main.py status` → $2.270662 / $0.004997;
-- `pytest -q` → 303 passed;
-- `sha256sum output.csv code.zip` → `0e04ffe2…`, `47df5065…`.
+- `pytest code/tests scripts/tests -q` → 313 passed;
+- `sha256sum output.csv code.zip` → `0e04ffe2…`, `0c4dfef1…`; `sha256sum -c /root/ghost-mac/SHA256SUMS` → 2× OK.
 
 ## Proofs from S5
 

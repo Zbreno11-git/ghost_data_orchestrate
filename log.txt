@@ -1599,3 +1599,73 @@ branch=main
 repo_root=/root/hackthon_1
 worktree=main
 parent_agent=none
+
+## [2026-10-25T04:33:03Z] Post-compact resume: reading, checks, step 0 and C7.5
+
+User Prompt (verbatim, secrets redacted):
+[event time 2026-10-25T04:07:37.913Z, session JSONL 3f2c5c59…:10826, uuid b469fc29-61e5-4cd8-bda0-ceccfb6add58; the post-compact prompt pasted after /compact]
+<pasted_content id="0f11">
+Resuming after a compact. Don't start with the work — start with the reading.
+
+1. Read, in this order: AGENTS.md, docs/PRIMER.md, the "▶️ RESUME HERE" block in PROGRESS.md,
+   docs/plans/session-07.md (Amendments and Progress), docs/DECISIONS.md (A31–A36, incl. A34a),
+   docs/ERRORS.md (#4–#10), docs/diagnostics/s7/final_gate.md, and the skills software-build,
+   testes-que-provam, falha-ruidosa and frontend-e-ux.
+2. Before trusting the block, check:
+   - git status --short is empty; HEAD = origin/main; git log -1 subject starts "Checkpoint before compact (S7 after C7.4";
+   - CI on that SHA is green: gh api repos/Zbreno11-git/ghost_data_orchestrate/actions/runs?head_sha=<sha>;
+   - .venv/bin/python code/main.py status → settled $2.270662, outstanding $0.004997;
+   - .venv/bin/python -m pytest code/tests -q → 303 passed;
+   - sha256sum output.csv code.zip → 0e04ffe2…ef06d, 47df5065…6dde;
+   - /root/ghost-fallback-s5/ holds the S5 fallback (ee9504d5…, f58aaefe…).
+   If anything diverges from the block, the disk wins — tell me what diverged.
+3. Then continue S7 from the block's "Exact next steps": step 0 (provenance.py split("\n") fix + test, $0 re-run
+   of runs/s7/final-r2*, package rebuild), then C7.5, C7.6 (WALKTHROUGH.md, hand me the Mac runbook and wait for
+   my Mac results), then C7.7 in amendment 6's order. Don't ask me to export or quit before development and the
+   Mac acceptance are done. Report in one line what you found after the checks, then proceed.
+4. Rules in force: settled decisions stay settled (A33, A34+A34a, A35, A36, A31); stage explicit paths only
+   (public repo); never commit output.csv, code.zip or code/viewer/*.html; sample_output.csv is evaluator-only;
+   no new links from timing, naming, labels or one-to-one assumptions; every paid call through the gateway and
+   ledger; times only from date -u or the JSONL; pytest -q && git commit; .venv/bin/python; kill by PID; any edit
+   under code/ means rebuilding code.zip with package_code.py; append a log.txt entry every turn (prompts copied
+   literally from the JSONL).
+</pasted_content id="0f11">
+
+Agent Response Summary:
+Read the files in the stated order. Then checked the disk against the resume block: tree clean, HEAD = origin = bde646f, CI green (04:04:16Z), ledger $2.270662/$0.004997, 303 passed, both sha256s and the S5 fallback all matched. One divergence in the reading: ERRORS #10 dated its incident "~04:10", a typed time; corrected to the JSONL/commit time (before 03:55:31Z). Step 0: verify_run now splits provenance.jsonl at "\n" only (test red first for 3 separators); the final runs were re-made at $0 (replay probe first, then live, 7/7 byte-identical). C7.5: code.zip's root README was the starter's page, so it became the solution's entry point (commands pinned to code/README.md by a test) and the starter text moved to docs/STARTER_README.md. code.zip was rebuilt and accepted. Found that package_code.py wrote onto code.zip before checking; started fixing it in the next turn.
+
+Actions:
+* code/ghostaudit/provenance.py, code/tests/test_provenance.py (+3), code/tests/test_release.py (+1), README.md (new), docs/STARTER_README.md (moved), DECISIONS D2 note, REQUIREMENTS_MAP, ERRORS #10 time
+* Runs: runs/s7/probe-r3* (replay), runs/s7/final-r2* re-made live (all cache hits, $0); explanations, gate, diagnostics and reports regenerated
+* Commit 57c6be1; package_code.py (accepted, code.zip b1cd3438…)
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=main
+repo_root=/root/hackthon_1
+worktree=main
+parent_agent=none
+
+## [2026-10-25T04:33:03Z] Continue: package guard, ERRORS #10 again, walkthrough, Mac handover
+
+User Prompt (verbatim, secrets redacted):
+[event time 2026-10-25T04:23:30.461Z, session JSONL 3f2c5c59…:11693, uuid e9a5adea-99e7-498d-88d4-3a734cabda37]
+Please, continue...
+
+Agent Response Summary:
+package_code.py now builds code.zip.candidate and replaces code.zip only when the check accepts it, so a refused build can no longer overwrite the released archive. Its 3 tests live in a new repo-only scripts/tests/ folder (code/tests ships and must pass inside the unpacked zip); CI runs both folders. While writing docs/release/WALKTHROUGH.md I found a second instance of ERRORS #10: agent.apply_submission dropped the uncertain candidates, so 3 reviewed target rows (case_78, case_94, case_376) lost them from the trace, explain and the viewer. The CSV was unaffected. Fixed at the copy, with a test derived from the dataclass fields; runs re-made at $0, 7/7 identical. code.zip 0c4dfef1… was accepted, the shipped suite gives 310 passed unpacked, and the packaged viewer passed the browser check. The Mac file set is staged in /root/ghost-mac/ and the Mac acceptance is handed to Breno (PENDING).
+
+Actions:
+* scripts/package_code.py, scripts/tests/test_package_main.py (new), .github/workflows/ci.yml, .gitignore (*.zip.candidate); commit b6c8136
+* code/ghostaudit/agent.py, code/tests/test_agent.py (+3), docs/ERRORS.md (#10, 2nd occurrence), docs/release/WALKTHROUGH.md (new), MAC_RUNBOOK.md, INTERVIEW_CHEAT_SHEET.md; commit 23f14a3
+* Runs: runs/s7/probe-r4* (replay), runs/s7/final-r2* re-made live ($0); package_code.py accepted (code.zip 0c4dfef1…); viewer_browser_check.py (chromium 156, 518/518, failures none)
+* /root/ghost-mac/ (code.zip, output.csv, SHA256SUMS, runbook, walkthrough); STATUS, PROGRESS, SESSIONS, session-07.md
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=main
+repo_root=/root/hackthon_1
+worktree=main
+parent_agent=none

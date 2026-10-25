@@ -3,9 +3,28 @@
 > **For:** Breno, and anyone who needs the state without reading code. No jargon. **Updated at the end of each
 > session, with the date.** Numbers are re-checked at the source when written, never copied from the previous version.
 
-**Last update: 2026-10-25 04:01 UTC.**
+**Last update: 2026-10-25 04:31 UTC.**
 
 `██████████████░░ 7 of 8 sessions closed; the last one (S7) is under way`
+
+## 2026-10-25 04:31 UTC — package rebuilt after two small fixes; your Mac check is next
+
+**What changed:**
+- **Same answers.** The answers file is unchanged (`0e04ffe2…`); every re-run since 04:01 reproduced it byte for
+  byte, all from saved AI responses, at **$0**.
+- **Two display defects fixed** (neither touched an answer):
+  - a file-reading check could have called an intact run "damaged" if a record held a rare Unicode line break;
+  - for 3 cases, after the AI review the viewer stopped showing the "uncertain account" note.
+- **The package's front page (`README.md`) is now ours.** It used to be the challenge's starter page, telling a
+  reader to "build your solution". The starter text is kept in `docs/`.
+- **A safety rule moved into code:** a package that fails its checks can no longer overwrite the last good one.
+- **New package `0c4dfef1…`** passed every check again (offline, no key, answers and viewer identical). The
+  viewer was re-checked in a browser at desktop and phone width.
+- **Spending:** unchanged, $2.27 of $4.50.
+
+**Coming to you, in order:**
+1. **Now: the Mac check**: files in `/root/ghost-mac/` on the server, steps in `MAC_RUNBOOK.md` there.
+2. Then the final steps: `/export`, quit, run the finalize script, upload.
 
 ## 2026-10-25 04:01 UTC — new answers file built and checked; three steps left
 
