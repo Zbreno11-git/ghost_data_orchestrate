@@ -1,3 +1,6 @@
+> **Solution in this repository:** a deletion-audit agent. Setup, run commands, architecture and replay are in
+> [`code/README.md`](./code/README.md); the evaluation and usage reports are in `code/evaluation/`.
+
 # HackerRank Orchestrate - October 2026
 
 ## Ghost Data Still Exists

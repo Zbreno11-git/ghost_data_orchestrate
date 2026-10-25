@@ -195,6 +195,7 @@ def run(dataset: Path, split: str, out_dir: Path, mode: str = "strict", engine: 
                                 ensure_ascii=False, default=str) + "\n")
     summary = {
         "split": split, "ownership": mode, "engine": engine, "model": model, "gateway_mode": gateway_mode,
+        "agent_scope": cfg["agent"].get("scope", "all"),
         "rows": len(plans), "agent": dict(agent_stats), "tool_use": dict(tool_use),
         "status": dict(Counter(p.status for p in plans)),
         "support": dict(Counter(p.support for p in plans)),
