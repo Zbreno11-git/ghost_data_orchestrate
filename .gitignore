@@ -16,3 +16,5 @@ agent-trace/
 .DS_Store
 # ledger lock file
 state/*.lock
+# the submitted answers file: local only until Breno uploads (public repo, A31)
+/output.csv

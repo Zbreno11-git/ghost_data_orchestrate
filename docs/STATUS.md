@@ -29,7 +29,7 @@
 
 **Spending:** $1.87 of your $4.50 (this session $1.53).
 
-**To upload** (at https://www.hackerrank.com/contests/hackerrank-orchestrate-october26/challenges/ghost-data-still-exists):
+**To upload — at the very end, after all sessions (your call, 01:21 UTC)** (at https://www.hackerrank.com/contests/hackerrank-orchestrate-october26/challenges/ghost-data-still-exists):
 1. `/root/hackthon_1/output.csv`
 2. `/root/hackthon_1/code.zip`
 3. `/root/hackthon_1/log.txt` as the chat transcript

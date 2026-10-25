@@ -20,9 +20,10 @@ Each session is a 1–2.5 h package that ends in something verifiable, plus a di
 ## ▶️ Start the next session here
 
 - Session: **S6 — measured improvement** — first step: write `docs/plans/session-06.md` from this roadmap. Start
-  from `code/evaluation/diagnostics.md`: 24 association mismatches, of which ~6 are anonymized analytics records
-  and the rest accounts named only by worker rows. Then C6.5 (explain a case). S7 follows: release record, Mac
-  runbook, cheat sheet; the Mac check stays pending until it is run there.
+  from `code/evaluation/diagnostics.md`: 24 association mismatches = 17 account steps (16 missing accounts named
+  only by worker rows + 1 extra) and 7 anonymized analytics records. Then C6.5 (explain a case). S7 follows:
+  release record, Mac runbook, cheat sheet; the Mac check stays pending until it is run there. **Export and
+  upload only after all sessions are finished (Breno, A31).**
 - Read first: `docs/PRIMER.md`, `PROGRESS.md`, `docs/plans/session-03-04.md` (outcomes), DECISIONS A20–A23
 - Depends on Breno: before leaving, keep the session running with unattended permissions (Bash/Edit)
 
