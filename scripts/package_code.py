@@ -23,7 +23,8 @@ replay run and compares that byte for byte with the shipped one, and scans the u
 
 Usage: python3 -I scripts/package_code.py --run runs/<final> [--out code.zip] [--skip-venv] [--allow-unisolated]
                                           [--report <json>]
-Exit 0 only when the inventory is clean and the replay is accepted.
+Exit 0 only when the inventory is clean and the replay is accepted. The archive is built and checked as
+`<out>.candidate` and moved onto `<out>` only then, so a refused build never replaces the released one.
 """
 from __future__ import annotations
 
@@ -186,22 +187,29 @@ def main(argv=None) -> int:
     ap.add_argument("--allow-unisolated", action="store_true", help="accept a replay without network isolation")
     ap.add_argument("--report", type=Path, help="also save {build, check} as JSON here (read by release_record.py)")
     a = ap.parse_args(argv)
-    info = build(a.run, a.out)
+    # the released archive is replaced only by an accepted build; a refused one stays beside it for inspection
+    cand = a.out.with_name(a.out.name + ".candidate")
+    info = build(a.run, cand)
     print(json.dumps(info, indent=1))
     if info["problems"]:
-        print("refusing: the archive inventory is not clean")
+        print(f"refusing: the archive inventory is not clean; {a.out.name} untouched, build left in {cand.name}")
         if a.report:
             a.report.write_text(json.dumps({"build": info, "check": None}, indent=1) + "\n")
         return 1
-    check = replay_check(a.out, a.run, a.skip_venv)
+    check = replay_check(cand, a.run, a.skip_venv)
     rows = json.loads((a.run / "summary.json").read_text())["rows"]
-    check["sha256"] = {"code.zip": hashlib.sha256(a.out.read_bytes()).hexdigest(),
+    check["sha256"] = {"code.zip": hashlib.sha256(cand.read_bytes()).hexdigest(),
                        "reference output.csv": hashlib.sha256((a.run / "output.csv").read_bytes()).hexdigest()}
     check["not_accepted_because"] = acceptance(check, rows, a.allow_unisolated)
     print(json.dumps(check, indent=1))
     if a.report:
         a.report.write_text(json.dumps({"build": info, "check": check}, indent=1) + "\n")
-    return 0 if not check["not_accepted_because"] else 1
+    if check["not_accepted_because"]:
+        print(f"not accepted; {a.out.name} untouched, build left in {cand.name}")
+        return 1
+    os.replace(cand, a.out)
+    print(f"accepted: {cand.name} → {a.out.name}")
+    return 0
 
 
 if __name__ == "__main__":

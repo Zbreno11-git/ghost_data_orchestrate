@@ -12,6 +12,7 @@ __pycache__/
 runs/
 # archives and trace staging (never committed)
 *.zip
+*.zip.candidate
 agent-trace/
 .DS_Store
 # ledger lock file
