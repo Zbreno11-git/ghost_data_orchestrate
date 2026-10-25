@@ -38,6 +38,7 @@ def world(tmp_path, monkeypatch):
     monkeypatch.setattr(st, "ROOT", repo)
     monkeypatch.setattr(st, "PROJECT", proj)
     monkeypatch.setattr(st, "STAGE", stage)
+    monkeypatch.setattr(st, "EXPORTS", tmp_path / "default-exports")              # never the real ~/ghost-exports
     return repo, proj, stage, exports
 
 
@@ -85,5 +86,10 @@ def test_a_required_export_that_is_missing_fails_loudly(world, tmp_path):
 
 
 def test_no_session_is_a_failure_not_an_empty_trace(world, tmp_path, monkeypatch):
+    """An export transcript alone is not a trace (found by the finalize rehearsal: the guard counted any file staged
+    under claude-code/, so a trace with an export and no session JSONL passed)."""
+    repo, proj, stage, exports = world
     monkeypatch.setattr(st, "PROJECT", tmp_path / "empty-proj")
-    assert st.main(["--dry-run"]) == 1
+    assert st.main(["--dry-run", "--exports", str(exports)]) == 1               # exports holds a transcript
+    assert st.main(["--zip", "--exports", str(exports)]) == 1
+    assert not (stage.parent / "agent-trace.zip").exists()

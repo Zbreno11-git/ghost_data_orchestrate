@@ -121,8 +121,8 @@ def main(argv=None) -> int:
     if a.require_export and not n_exports:
         print(f"no /export transcript in {a.exports}: run /export in the session first (or drop --require-export)")
         return 1
-    if not any(dst.parts[-2:-1] == ("claude-code",) or "claude-code" in dst.parts for _, dst in pairs):
-        print(f"no Claude Code session found under {PROJECT}: nothing staged")   # an empty trace is a failure
+    if not any(src.parent == PROJECT and src.suffix == ".jsonl" for src, _ in pairs):
+        print(f"no Claude Code session found under {PROJECT}: nothing staged")   # exports alone are no trace
         return 1
     if not a.dry_run and STAGE.exists():
         shutil.rmtree(STAGE)                               # generated: nothing from an earlier staging survives
