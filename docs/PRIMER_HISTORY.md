@@ -22,3 +22,9 @@ The S0 rule ("keep `thought_signature`") is enforced in code: `agent.py` appends
 S3+S4 merged (2026-10-24, A19): deterministic baseline (status 32/32, steps P 161/162, R 161/193); agent, gateway,
 cache, resume and replay proven; flash-lite kept (A23).
 
+
+## S5 (moved from PRIMER at S7 opening, 2026-10-25 02:47 UTC; narrative only)
+
+Previous (S5, 2026-10-25): as-of ownership (A24), explicit state and row-bound screens (A25), two clocks (A26), agent
+lineage (A27), scope non_resolved (A28), flagged heuristic rows (A29); final run 518 rows, 0 violations; package
+proven from a clean unpack.

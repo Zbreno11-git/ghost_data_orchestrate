@@ -1214,3 +1214,187 @@ branch=main
 repo_root=/root/hackthon_1
 worktree=main
 parent_agent=none
+
+## [2026-10-25T02:45:47Z] S7 opened: S7+S8 merged by Breno; plan written
+
+User Prompt (verbatim, secrets redacted):
+[event time 2026-10-25T02:25:16.344Z, session JSONL 3f2c5c59…:8596, uuid 0c9ffcdf-ddd6-4ca5-a3b8-d55c9d2b76e0; first message after /compact]
+Resuming after a compact. Don't start with the work — start with the reading.
+
+1. Read, in this order: AGENTS.md, docs/PRIMER.md, the "▶️ RESUME HERE" block at the top of PROGRESS.md,
+   docs/SESSIONS.md (§ S6 and § S7), docs/plans/session-06.md (Progress), docs/DECISIONS.md (A31–A33),
+   docs/ERRORS.md (#4–#9), docs/diagnostics/s6/final_gate.md, and the skills software-build, testes-que-provam
+   and falha-ruidosa.
+2. Before trusting the block, check:
+   - git status --short is empty; HEAD = origin/main; git log -1 subject starts "Checkpoint before compact (S6 closed";
+   - CI on that SHA is green, checked through
+     gh api repos/Zbreno11-git/ghost_data_orchestrate/actions/runs?head_sha=<sha>;
+   - .venv/bin/python code/main.py status → settled $1.876497, outstanding $0.004447;
+   - .venv/bin/python -m pytest code/tests -q → 244 passed;
+   - sha256sum output.csv → ee9504d517fb36f0af3c361bba833bf8129a5ae4a8a78d4efce448925b398c4c;
+   - docs/plans/session-07.md does not exist.
+   If anything diverges from the block, the disk wins — tell me what diverged.
+Rules in force: stage explicit paths only (never git add -A; public repo); never commit output.csv or code.zip
+   (A31); sample_output.csv is evaluator-only; no new links from timing, naming, labels or one-to-one assumptions;
+   every paid call goes through llm/gateway.py and the ledger; times only from $(date) or the session JSONL;
+   commit only chained on the gate (pytest -q && git commit); .venv/bin/python; kill by PID; append a log.txt
+   entry every turn (prompts copied literally from the JSONL). - S6 is closed. Lift the S7 hold and use our personal `software_build` skill to merge S7 and S8 into one final session:
+
+**S7 — Final integration, evidence viewer, hardening, Mac acceptance and submission release.**
+
+This is an owner-approved roadmap change. The viewer is part of the deliverable, not an optional activity after freeze. “Deploy” means preparing the documents and exact HackerRank submission artifacts; no public hosting is needed.
+
+**Freeze is the last release checkpoint, after implementation, tests, documentation, Mac acceptance and final trace collection.** Do not ask me to export, quit or submit while development remains unfinished.
+
+### C7.0 — Refresh the state and rewrite the roadmap
+
+Read the current repository and S6 outcomes, including:
+- PROGRESS, PRIMER, SESSIONS, MASTER_PLAN and session-06;
+- DECISIONS A20, A29, A31–A33;
+- the final accuracy gate, extraction audit, association paths and explanations;
+- official problem_statement.md, README.md, AGENTS.md and agent_trace_instructions.md.
+
+Verify the current HEAD, CI, budget and artifacts. At the reviewed state, S6 output matches S5 byte-for-byte, but `code.zip` is still the S5 build. Do not mistake an unchanged CSV for an up-to-date deliverable.
+
+Create `session-07.md` with reachable checkpoints, dependencies, acceptance criteria and proving commands. Map all former S7/S8 obligations into it. Update active docs consistently and add a dated superseding amendment to the frozen MASTER_PLAN, preserving history.
+
+Use the actual remaining time and budget. Preserve the previous safety package.
+
+### C7.1 — Resolve the legacy workflow-link decision with a concrete comparison
+
+Do not silently retain legacy timing/elimination links merely because they predate S6, or silently remove them from the published output.
+
+First reconcile the reported 19 affected target rows and four sample steps against the actual final agent run. Distinguish deterministic candidates, accounts actually used in published steps, agent changes, support labels and the separate A29 heuristic predictions.
+
+Prepare an isolated comparison of:
+1. the current release candidate;
+2. a candidate that excludes timing/elimination-only account assignments from asserted ownership and generated steps, retaining them as explicitly uncertain investigation candidates.
+
+Measure sample precision/recall/F1, whole-case and status accuracy, correct/incorrect steps removed, target status changes, support changes and format violations. Preserve independently grounded findings and retained records. Do not invent replacement findings to make rows valid.
+
+Present a compact decision table and recommendation to Breno before selecting the release configuration. Explain that the CSV schema itself cannot carry our confidence labels. Keep A29 separate unless the comparison exposes an interaction requiring review.
+
+Continue viewer, documentation and other independent work while this decision is pending. Do not freeze without recording the decision.
+
+### C7.2 — Build a useful offline evidence viewer
+
+Reuse S6’s recorded decisions and explanation logic. Prefer lightweight static HTML with no external CDN, backend, API key or model calls. If local serving is needed, provide one localhost-only command.
+
+Include:
+- case search and filters by output status and support level;
+- intent, current/historical identity and evidence chains;
+- physical copies, state, both timestamps and policy treatment;
+- ordered findings, proposed remediation and verification;
+- evidence IDs, source locators and useful excerpts;
+- conflicts, unresolved links and conspicuous heuristic labels;
+- the selected run/version and its summary.
+
+Keep status and certainty separate. Do not present unresolved COMPLETE predictions as proven deletion, or proposed remediation as executed actions.
+
+Render untrusted evidence safely, including HTML/script-like text. Use progressive disclosure and clear language.
+
+**Provenance integrity:** `explain.py` currently re-ingests the dataset to display provenance. An unchanged obs_id does not prove unchanged content. Verify compatible dataset, extraction and run fingerprints before attaching provenance, or use provenance saved with the run. Reject or clearly flag mismatches; never silently mix versions. Apply the same protection to the viewer.
+
+Ensure all viewer inputs are packaged or reproducibly generated by documented commands. No dependency on an undeclared VPS directory.
+
+### C7.3 — Focused repository review and hardening
+
+Review code, CLI, viewer, dependencies, packaging and docs. Correct stale commands, conflicting metrics, broken links and undeclared dependencies. Avoid unrelated refactors.
+
+Address these concrete packaging issues:
+- `package_code.py` runs validation but its final success condition currently depends on byte equality and scan results. Require successful validation explicitly; equality with an invalid reference is not acceptance.
+- Check the exact required report paths, not merely the count of filenames ending in `_report.md`.
+- An invalid proxy is not equivalent to network isolation. State the protection actually used and verify replay cannot reach a provider.
+- Check the archive inventory for all prohibited archive formats, credentials, environment/build/dependency files and the supplied challenge dataset.
+
+Keep independently authored custom fixtures clearly distinguished from the supplied challenge dataset. Document their role and include readable case specifications in Markdown.
+
+Add focused regression tests for these release checks and provenance integrity. Verify that each important negative fixture actually reaches the tested behavior.
+
+### C7.4 — Final integration and accuracy checks
+
+Use the approved configuration. Recompute only invalidated work, with correct fingerprints and budget controls.
+
+Run the existing suite, S6 robustness tests and five custom cases. Compare the final candidate against the S6 baseline and explain every change. Report full-denominator status, step, field, citation and sequence metrics, plus support counts, heuristics and measured agent contribution.
+
+Test viewer/CLI agreement, empty results, uncertainty labels, evidence rendering and no-network/no-model behavior.
+
+Build a release candidate from the current code. Extract it into an empty directory, install only declared dependencies, supply the dataset externally, replay without credentials and with network access blocked during execution, validate, then compare against the reference output.
+
+Test the actual packaged viewer in a browser. Record browsers and environments actually tested.
+
+### C7.5 — Organize the submission documentation
+
+Provide one clear README entry point covering setup, dataset placement, replay, fresh paid execution, evaluation, explanations and the viewer. Keep offline and paid instructions distinct.
+
+Re-read the official contract and update REQUIREMENTS_MAP with artifact paths and verification evidence.
+
+Ensure the submitted archive contains:
+- `code/evaluation/evaluation_report.md`;
+- `code/evaluation/usage_report.md`.
+
+These are the starter README’s explicit paths. Reconcile other official path wording without maintaining divergent report copies.
+
+Write required evaluation metrics, at least three custom cases with expected/observed behavior, failures and improvements directly in Markdown. Include all five cases if still applicable.
+
+The usage report must describe the final full-dataset run: providers/models, calls, input/output tokens, totals/averages and per-model/overall costs. Separate cached provenance, newly incurred spend and cumulative project spend.
+
+Required explanations must not exist only in CSV/JSON/JSONL; the official README says those formats are ignored by the code evaluator/interviewer.
+
+Use bounded claims: “no supporting link found after documented checks,” not “no links are possible”; extraction coverage is not proof of perfect semantic interpretation.
+
+### C7.6 — Mac Intel handoff and owner acceptance
+
+Prepare a copy-paste Mac runbook with expected results and troubleshooting:
+- obtain the exact revision and transfer the candidate artifacts;
+- transfer required ignored assets separately where needed;
+- set up Python and a clean environment;
+- replay the extracted archive, validate and compare with the VPS reference;
+- run relevant tests and open the viewer.
+
+Use macOS-compatible commands; Linux `unshare` is not available there. Distinguish dependency installation from offline runtime testing.
+
+Give Breno a short walkthrough of COMPLETE, INCOMPLETE, NOT_APPLICABLE, unresolved and heuristic cases where present. Have him inspect the person, evidence, state, policy and uncertainty.
+
+Create an interview cheat sheet explaining the architecture, actual agent/tools, deterministic responsibilities, two clocks, retention, evaluation, costs, limitations and one worked case.
+
+Complete independent VPS work before handing over. Mac acceptance remains pending until actually performed. Fix failures before freeze.
+
+### C7.7 — Final artifacts, trace closure and freeze
+
+Prepare:
+- `code.zip`: runnable code, prompts, configuration, README, reports, viewer and declared replay assets;
+- `output.csv`: exact schema, 518 unique sorted rows, canonical steps and citation rules;
+- root `log.txt` for the chat_transcript submission;
+- separate `agent-trace.zip` following the official instructions.
+
+Rebuild from the final code. Exclude the supplied dataset, virtual environments, dependency/build caches, secrets and nested archives. Explicitly inventory required model-response and vision replay assets.
+
+Audit log completeness and metadata. Preserve original history; handle corrections transparently. Include relevant planning, coding, debugging and review sessions across harnesses, plus subagent traces where available. Preserve original formats and redact staged copies. Do not label the trace archive optional without an official basis.
+
+Prepare finalization scripts before requesting session export/shutdown. Only after development and acceptance are complete should Breno export and close sessions for the final trace copy. Include closing turns without creating a cycle that requires another agent session to finish logging.
+
+Record the tested source revision, configuration, fingerprints, metrics, limitations, VPS/Mac results, artifact sizes and SHA-256 checksums. Keep the checksum manifest outside the archive it hashes.
+
+**Freeze this final verified artifact set.** After freeze, only transfer and submit it. A necessary change reopens the affected checks and produces a new release record.
+
+Provide an exact upload checklist mapped to the official submission requirements. I submits manually; do not report submission as complete before confirmation.
+
+Start by rewriting the plan and summarizing the checkpoints, then proceed with authorized work. Pause only for the concrete legacy-link decision, genuinely missing information or actual Mac acceptance. Do not declare completion while required acceptance items remain open.
+
+Agent Response Summary:
+Read the docs in the requested order and ran every check: all match the resume block (tree clean, HEAD=origin 94ebac5, CI green 02:17:07Z, ledger $1.876497/$0.004447, 244 passed, output.csv ee9504d5…, no session-07.md); code.zip is still the S5 build f58aaefe…. Wrote and got approval for the merged S7 plan (C7.0–C7.7: legacy-link comparison for Breno, provenance integrity + offline viewer, packaging hardening, integration, docs, Mac acceptance, freeze). Pre-measured the legacy links read-only: 19 target rows and 4 sample rows rest on a workflow-tier account; removing them would empty 4 rows (case_63; samples case_01/02/04), the A29 interaction to measure.
+
+Actions:
+* git status/rev-parse/log, gh api runs?head_sha=94ebac5, main.py status, pytest, sha256sum (read-only)
+* Read PROGRESS, SESSIONS, DECISIONS, session-06 Progress, final_gate.md, README.md, agent_trace_instructions.md, problem_statement.md, package_code.py, explain.py, stage_traces.py, runner.py
+* Read-only reconciliation of workflow-tier accounts in runs/s6/final and final-samples
+* Wrote the plan file (approved); appended this entry
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=main
+repo_root=/root/hackthon_1
+worktree=main
+parent_agent=none

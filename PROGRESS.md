@@ -4,110 +4,32 @@
 > handoff moves to `docs/HANDOFFS.md`, after relocating what lives only here (open decision → SESSIONS,
 > lesson → ERRORS, constraint → PRIMER).
 
-## ⏱ Live — S6 closed 2026-10-25 02:08 UTC
+## ⏱ Live — S7 in progress (opened 2026-10-25 02:45 UTC)
 
-The checkpoint log, with every number and its time, is in `docs/plans/session-06.md` ("Progress").
+Plan and checkpoint log: `docs/plans/session-07.md` ("Progress"). S7 and S8 merged by Breno (A35).
 
-- **What S6 did:** audits before fixes (Breno's mid-turn rule: evidence-backed recall at preserved precision; no
-  link from timing, naming, labels or one-to-one assumptions).
-  - extraction coverage audit and decoded-content search (ERRORS #8);
-  - decision trace and `main.py explain`;
-  - rejected association paths to their break points (no admissible link exists for the 24 sample misses);
-  - metamorphic robustness tests;
-  - ownership mode by a pre-written criterion (A33; A32 rejected);
-  - +2 independent custom cases, one of which exposed and fixed an engine defect (ERRORS #9);
-  - final gate vs the frozen S5 baseline.
-- **Published locally, unchanged:** root `output.csv` (sha256 `ee9504d517fb…`) = `runs/s5/final/output.csv` =
-  `runs/s6/final/output.csv` (byte-identical). `code.zip` is still the S5 build; S7 rebuilds it from the S6 code.
+| C | State |
+|---|---|
+| C7.0 roadmap rewrite | ✅ 02:49Z |
+| C7.1 legacy-link comparison | pre-measured read-only (19 target / 4 sample rows on a workflow-tier account); runs pending; then **Breno decides (A34)** |
+| C7.2 provenance + viewer | pending |
+| C7.3 hardening | pending |
+| C7.4 integration + release candidate | pending |
+| C7.5 docs | pending |
+| C7.6 Mac handoff + acceptance | pending (Breno) |
+| C7.7 artifacts + freeze | pending |
 
-## ▶️ RESUME HERE — 2026-10-25 02:15 UTC — before a compact; S6 closed; S7 ON HOLD (Breno)
+## ▶️ RESUME HERE — 2026-10-25 02:47 UTC — S7 C7.0
 
-**Hold (Breno, 2026-10-25T02:12:14Z, session JSONL :8479): "Don't open S7 yet".** Do not write
-`docs/plans/session-07.md` or start any S7 checkpoint until Breno says to. After the compact, do the reading and
-checks, report, and wait for his instruction.
-
-**Repository state:** HEAD = the "Checkpoint before compact (S6 closed, S7 on hold)" commit, pushed; tree clean.
-Root `output.csv` gitignored (A31); `code.zip` gitignored (`*.zip`). Background runs: none. Locks: none
-(`state/usage_ledger.lock` is the ledger's persistent lock file, not a held lock).
-
-**State of the world (measured 2026-10-25 02:14 UTC):**
-- **Ledger:** settled $1.876497, outstanding $0.004447, ceiling $4.50 ($2.62 of headroom).
-- **Tests:** `244 passed` (02:11 UTC). CI green on `fdb3ba5` ("Close S6", 02:12:40Z) and `b2a0e35` (02:13:27Z).
-- **Published locally** (A31: not uploaded, not committed):
-  - `output.csv` sha256 `ee9504d517fb36f0af3c361bba833bf8129a5ae4a8a78d4efce448925b398c4c`, byte-identical to
-    `runs/s5/final/output.csv` and `runs/s6/final/output.csv`;
-  - `code.zip` sha256 `f58aaefe3c174a9ea1919aeb62f5fd07089f6d57d0913d27b9618a512c56ecff` is the **S5 build**. The S6 code
-    (trace, explain, account rule, evaluator tools) is not in it yet; S7 C7.2 rebuilds it.
-- **Final runs on the S6 code:**
-  - `runs/s6/final` (agent, replay, `--agent-scope non_resolved`, strict): 518 rows, 0 violations, support
-    175 / 18 / 325, 1722/1722 cache hits, $0;
-  - `runs/s6/final-samples`: status 32/32, whole-case 12/32, P 162/163, R 162/193, F1 0.9101;
-  - `runs/s6/final-custom-*`: 5/5.
-- **Deadline** 12:00 UTC (≈9.75 h at 02:14 UTC). MASTER_PLAN: freeze 09:00 UTC; Breno uploads ≈10:00 UTC.
-
-**Exact next step:** none until Breno answers. When he says go, the next step is S7: write
-`docs/plans/session-07.md` from `docs/SESSIONS.md` § S7 (C7.1–C7.7). In outline:
-- C7.1 = `runs/s6/final` (engine unchanged since): validate it, and `cmp` it with root `output.csv`;
-- C7.2 = `.venv/bin/python scripts/package_code.py --run runs/s6/final` → exit 0, `cmp` identical, clean scan;
-  then `docs/release/RELEASE_RECORD.md`, and replay vs paid instructions labelled apart;
-- C7.3 = `stage_traces.py --dry-run` → 0 redactions;
-- C7.4 = STATUS upload checklist;
-- C7.5 = Mac runbook;
-- C7.6 = cheat sheet;
-- C7.7 = PENDING.
-
-**Open question for Breno (asked in chat 02:13 UTC, recorded in STATUS, SESSIONS and PRIMER):** keep or remove the
-pre-S6 timing/one-to-one workflow-tier accounts (19 target rows and 4 sample steps, all labelled weak). Default:
-kept.
-- Removing them changes rows, so it needs a deterministic rerun, a gate against `runs/s6/final`, and a replay
-  plus republish.
-
-**S6 in one paragraph** (details in `docs/plans/session-06.md` "Progress"): audits before fixes, under Breno's
-mid-turn rule (no new links from timing, naming, labels or one-to-one assumptions).
-- Extraction coverage is complete. The evaluator's "absent" verdict now searches decoded text (ERRORS #8).
-- The 24 sample association misses have no admissible link (21 anonymous records, 3 post-cutoff lineage), so no
-  rule was added.
-- Strict mode kept (A33); status compatibility rejected (A32).
-- An independent custom case exposed an engine defect, a tombstone accepted as the account (ERRORS #9); fixed.
-- Built `main.py explain`, `gate.py`, metamorphic tests with controls, and 5 custom cases.
-
-**Don't forget:**
-- Times only from `$(date)` or the JSONL (ERRORS #5, 10 occurrences).
-- `pytest -q && git commit`, never after a pipe (ERRORS #6).
-- An empty result is a failure (ERRORS #7).
-- Every metamorphic test has a positive control, and the harness asserts no ingest failure (ERRORS #4,
-  8 occurrences).
-- "Not found" in the bytes is not absence (ERRORS #8).
-- A typed slot needs *what*, not only *whose* (ERRORS #9). A rejection message is part of the replay cache key.
-- A sub-agent wrote a placeholder log time. Brief sub-agents to take times from `date -u`; a correction was
-  appended.
-- Never commit `output.csv` or `code.zip` (A31). Stage explicit paths only. `.venv/bin/python` for every script.
-  Kill by PID.
-- CI by `gh api repos/Zbreno11-git/ghost_data_orchestrate/actions/runs?head_sha=<sha>`.
-
-**Depends on Breno:**
-- the go for S7;
-- the weak-accounts question above;
-- at the very end only (A31): `/export`, quit, `stage_traces.py --zip`, upload;
-- the Mac check (C7.7).
-
-**Re-read, in this order:**
-1. `AGENTS.md`
-2. `docs/PRIMER.md`
-3. this block
-4. `docs/SESSIONS.md` § S6 and § S7
-5. `docs/plans/session-06.md` (Progress)
-6. `docs/DECISIONS.md` A31–A33
-7. `docs/ERRORS.md` #4–#9
-8. `docs/diagnostics/s6/final_gate.md`
-9. skills `software-build`, `testes-que-provam`, `falha-ruidosa`
-
-**Before trusting this block, check:**
-- `git status --short` → empty; `git rev-parse HEAD origin/main` → equal; the subject starts "Checkpoint before
-  compact (S6 closed"; CI green on that SHA;
-- `.venv/bin/python code/main.py status` → settled $1.876497, outstanding $0.004447;
-- `.venv/bin/python -m pytest code/tests -q` → `244 passed`;
-- `sha256sum output.csv` → `ee9504d5…8c4c`; `ls docs/plans/session-07.md` → not there.
+- **State:** HEAD = origin `94ebac5` + C7.0 doc edits (uncommitted until the C7.0 commit). Root `output.csv`
+  `ee9504d5…` (= `runs/s6/final`); `code.zip` `f58aaefe…` is the S5 build (the fallback package, kept untouched).
+  Ledger $1.876497 + $0.004447 open. `244 passed`.
+- **Next step:** finish C7.0 (STATUS, commit), then C7.1: add `[ownership] workflow_accounts` ("assert" default /
+  "candidate") with tests, run `runs/s7/c71-{assert,candidate}-{samples,targets,custom-*}` deterministic, then the
+  agent pass on "candidate" in live mode (≈$0.09, hard stop $0.20), then `gate.py` → decision table to Breno.
+- **Depends on Breno:** the A34 decision; the Mac acceptance; export and upload at the very end (A31).
+- **Re-read:** AGENTS.md, docs/PRIMER.md, this block, docs/plans/session-07.md, DECISIONS A31–A35, ERRORS #4–#9.
+- **Check before trusting:** `git status --short`, `git log -1`, `main.py status`, `pytest -q`, `sha256sum output.csv`.
 
 ## Proofs from S5
 

@@ -13,7 +13,7 @@
 A local Python CLI holding a bounded, tool-using deletion-audit agent for HackerRank Orchestrate Oct 2026,
 "Ghost Data Still Exists". For each of the 518 requests in `dataset/deletion_requests.csv` it writes one row of
 `output.csv`: `COMPLETE` / `INCOMPLETE` / `NOT_APPLICABLE` plus canonically ordered steps grounded in
-participant evidence available at `audit_at`. Owner: Breno. State on 2026-10-25 02:08 UTC: S6 closed (engine frozen; published rows reproduced by replay); S7 next.
+participant evidence available at `audit_at`. Owner: Breno. State on 2026-10-25 02:47 UTC: S7 in progress (S7+S8 merged by Breno, A35); S6 closed.
 
 ## The requirement that breaks ties
 
@@ -40,18 +40,15 @@ participant evidence available at `audit_at`. Owner: Breno. State on 2026-10-25 
 
 ## Current session
 
-✅ **S6 closed 2026-10-25 02:08 UTC (plan `docs/plans/session-06.md`).** Audits first, fixes only where evidence shows a defect.
-- Extraction coverage complete; the evaluator's "absent" verdict now searches decoded text (ERRORS #8).
-- The 24 sample association misses have no admissible link (21 anonymous records, 3 post-cutoff lineage): no rule added.
-- Strict ownership kept by a pre-written criterion (A33); status-compatibility run matching rejected (A32, Breno's rule).
-- Engine fix found by an independent custom case: a non-account can never be the account (ERRORS #9).
-- Trace + `main.py explain` (no model call); metamorphic tests; 5 custom cases (5/5).
-- `runs/s6/final` (replay, $0) reproduces root `output.csv` (sha256 `ee9504d5…`); samples unchanged (12/32, P 162/163, R 162/193).
-- **Next:** S7 release freeze (session-07.md) — **ON HOLD until Breno says go** (02:12 UTC, "Don't open S7 yet"); C7.7 Mac check pending.
+🔄 **S7 opened 2026-10-25 02:45 UTC (plan `docs/plans/session-07.md`): final integration, evidence viewer,
+hardening, Mac acceptance and release.** S7 and S8 merged by Breno (A35); the viewer is a deliverable; freeze is
+the **last** checkpoint, after Mac acceptance and the final trace. Pauses only for the C7.1 legacy-link decision
+(A34), missing information, or the Mac acceptance. `code.zip` on disk is the S5 build and is rebuilt in C7.4.
 
-Previous (S5, 2026-10-25): as-of ownership (A24), explicit state and row-bound screens (A25), two clocks (A26), agent
-lineage (A27), scope non_resolved (A28), flagged heuristic rows (A29); final run 518 rows, 0 violations; package
-proven from a clean unpack.
+Previous (S6, closed 02:08 UTC): audits before fixes; extraction coverage complete (ERRORS #8); the 24 sample
+association misses have no admissible link; strict kept (A33), A32 rejected; engine fix from an independent custom
+case (ERRORS #9); trace + `main.py explain`; metamorphic tests; 5 custom cases; `runs/s6/final` (replay, $0)
+reproduces root `output.csv` (`ee9504d5…`).
 
 ## Boundaries and triggers in force
 

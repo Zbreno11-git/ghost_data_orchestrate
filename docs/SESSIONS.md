@@ -4,7 +4,7 @@ Each session is a 1–2.5 h package that ends in something verifiable, plus a di
 (command → expected number, 🐞 predicted defect) lives in `docs/plans/MASTER_PLAN.md`. This file holds the
 **state**, and any change to a checkpoint is noted here with a date and reason.
 
-**Progress: 7 of 8 sessions fully closed** (✅: S0, S1, S2, S3, S4, S5, S6; measured 2026-10-25 02:08 UTC). Partial (🔄) counts as partial.
+**Progress: 7 of 8 sessions fully closed; S7 in progress** (✅: S0–S6; 🔄 S7; S8 merged into S7 by Breno, 2026-10-25 02:25 UTC; measured 02:47 UTC). Partial (🔄) counts as partial.
 
 > **Order notes.** The order follows data dependency, not showcase value. The contract/evaluator (S1) comes before
 > ingestion because every later step is measured with it. The deterministic baseline (S3) comes before the agent (S4)
@@ -19,14 +19,11 @@ Each session is a 1–2.5 h package that ends in something verifiable, plus a di
 
 ## ▶️ Start the next session here
 
-- **ON HOLD (Breno, 2026-10-25 02:12 UTC: "Don't open S7 yet").** Wait for his go before anything below.
-- Session: **S7 — release freeze** — first step: write `docs/plans/session-07.md` from § S7 (C7.1–C7.7). The
-  engine is frozen after S6: `runs/s6/final` reproduces the published `output.csv` byte for byte; C7.1 is a
-  replay plus the package rebuild (code changed in S6: trace, explain, account rule). C7.7 (Mac) stays pending.
-  **Export and upload only after all sessions are finished (Breno, A31).**
-- Read first: `docs/PRIMER.md`, `PROGRESS.md`, `docs/plans/session-06.md` (Progress), DECISIONS A31–A33, ERRORS #8–#9
-- Depends on Breno: the existing timing/one-to-one workflow accounts (19 target rows, labelled weak) stay unless he
-  says otherwise (session-06.md C6.3)
+- **S7 in progress** (opened 2026-10-25 02:45 UTC; plan `docs/plans/session-07.md`). S7 and S8 were merged by
+  Breno (02:25:16 UTC, A35): final integration, evidence viewer, hardening, Mac acceptance and release. Freeze is
+  the last checkpoint. **Export and upload only after it (A31).**
+- Read first: `docs/PRIMER.md`, `PROGRESS.md`, `docs/plans/session-07.md` (Progress), DECISIONS A31–A35.
+- Depends on Breno: the C7.1 legacy-link decision (A34), the Mac acceptance (C7.6), the export and the upload.
 
 Timeline as approved (UTC; CDT = UTC−5): S0 16:50–18:00 · S1 18:00–19:00 · S2 19:00–21:00 · S3 21:00–23:00 ·
 S4 23:00–01:30 · S5 01:30–04:00 **safety package** · S6 04:00–07:30 · S7 07:30–09:00 **freeze** ·
@@ -152,35 +149,18 @@ no links from timing, naming, labels or one-to-one assumptions).
 - [x] C6.8 targeted recompute by replay ($0, 1722/1722 cache hits): published rows unchanged; final gate
   `docs/diagnostics/s6/final_gate.md`
 
-### ⬜ S7 — Release freeze · ≤$0.80 · freeze 09:00 UTC
-- [ ] C7.1 final run or replay; validator; atomic output.csv
-- [ ] C7.2 reports regenerated; README verified from clean unpack — **extended 2026-10-25 (Breno):**
-  - re-run C5.5's VPS check on the *submitted* `code.zip` against the frozen reference run;
-  - write `docs/release/RELEASE_RECORD.md`: commit SHA, configuration (engine, scope, model, ownership), the
-    run and case fingerprints, the vision/LLM MANIFEST sha256s, and the sha256 of `code.zip`, `output.csv`
-    and `log.txt`;
-  - keep **replay** (offline, free, from shipped responses) and **fresh paid execution** (live key, new
-    ledger rows) as separate, labelled instructions.
-- [ ] C7.3 traces staged outside repo; redaction scan 0 hits (`scripts/stage_traces.py`, incl. `subagents/`; release kit in session-05.md)
-- [ ] C7.4 STATUS upload checklist
-- [ ] **C7.5 (added 2026-10-25, Breno): Mac Intel runbook,** `docs/release/MAC_RUNBOOK.md`:
-  - commands: unzip, venv, install, place the dataset, replay, validate, evaluate, optional live run;
-  - the expected output of each step (row counts, `0 violations`, `cmp` silent);
-  - troubleshooting (Python version, SSL/certifi, pip wheels on Intel, missing dataset path, a ReplayMiss
-    meaning a missing shipped response).
-- [ ] **C7.6 (added 2026-10-25, Breno): interview cheat sheet,** `docs/release/INTERVIEW_CHEAT_SHEET.md`. It
-  covers:
-  - the architecture in one diagram-in-words;
-  - the agent's *measured* role: a reviewer of weak/unresolved proposals that is gated by lineage, and what
-    it changed;
-  - evidence handling: two clocks, per-copy state, row-bound screens;
-  - evaluation, with the full denominators and the ceiling;
-  - costs from the usage report;
-  - limitations: unattributable accounts, heuristic rows;
-  - one worked case from C6.5.
-- [ ] **C7.7 Mac validation — PENDING until actually run on the Mac (Breno).** It is recorded separately from
-  the VPS validation (C5.5/C7.2) and is never marked done from the VPS. Expected: the C7.5 runbook reproduces
-  `cmp`-identical output.
+### 🔄 S7 — Final integration, evidence viewer, hardening, Mac acceptance, release · ≤$0.20 planned · freeze is the last checkpoint
+> **Changed 2026-10-25 02:25 UTC (Breno, A35):** S7 and S8 merged; the viewer is a deliverable; "deploy" =
+> documents and the exact HackerRank artifacts; freeze after Mac acceptance and the final trace. Old items mapped
+> in `docs/plans/session-07.md` (C7.0) and in the MASTER_PLAN amendment; the old S7 list (C7.1–C7.7 of
+> 2026-10-25) is superseded by:
+- [x] C7.0 state refresh, session-07.md, roadmap rewrite, MASTER_PLAN amendment
+- [ ] C7.1 legacy workflow-link comparison (assert vs candidate) → **Breno decides (A34)**
+- [ ] C7.2 provenance integrity (saved with the run, fingerprint-checked) + offline evidence viewer [old S8]
+- [ ] C7.3 focused review + packaging hardening (explicit validation, exact report paths, truthful isolation, inventory) [old C7.2 part]
+- [ ] C7.4 final integration on the approved config; release candidate; clean-unpack VPS check; viewer in a browser [old C7.1, C7.2]
+- [ ] C7.5 submission documentation: README entry point, REQUIREMENTS_MAP, reports [old C7.2 docs, C7.4]
+- [ ] C7.6 Mac runbook, walkthrough, interview cheat sheet → **Mac acceptance by Breno (PENDING until run on the Mac)** [old C7.5–C7.7]
+- [ ] C7.7 final artifacts, trace closure, RELEASE_RECORD, checksums, upload checklist, **freeze** [old C7.3, C7.4]
 
-### ⬜ S8 — Optional static evidence viewer · $0
-> **Written trigger:** starts only if S7 is frozen with ≥ 2 h to the deadline; must not modify frozen artifacts.
+### ⤴ S8 — merged into S7 (Breno, 2026-10-25 02:25 UTC, A35); the viewer is C7.2

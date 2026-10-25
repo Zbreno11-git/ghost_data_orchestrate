@@ -260,3 +260,38 @@ FR-01 C4.4 · FR-02 C3.1 · FR-03 C2.1–C2.6 · FR-04 C3.2 · FR-05 C2.3/C3.4 �
 3. Confirm with `git status` that only our files are untracked and `.env` is ignored.
 
 **Resume after an interruption:** read `PROGRESS.md` ▶️ RESUME HERE.
+
+---
+
+## Amendment 2026-10-25 (S7 opening): S7 and S8 merged into one final session
+
+> Appended, not edited in place: the S7 and S8 text above is kept as history and is **superseded** by this
+> amendment and by `docs/plans/session-07.md`.
+
+- **Who and when:** Breno, in the first message after the S6 compact (2026-10-25T02:25:16Z, session JSONL :8596).
+- **What changes:**
+  - S7 becomes "Final integration, evidence viewer, hardening, Mac acceptance and submission release";
+  - S8 (optional viewer) is merged into it, and the viewer becomes a **deliverable** (A35 supersedes A14);
+  - "deploy" means preparing the documents and the exact HackerRank artifacts; no public hosting;
+  - freeze is the **last** checkpoint, after implementation, tests, documentation, Mac acceptance and the final
+    trace collection, instead of a fixed 09:00 UTC step followed by optional work.
+- **Mapping:**
+
+  | Old item | New checkpoint |
+  |---|---|
+  | old C7.1 (final run) | C7.4 |
+  | old C7.2 (reports, clean unpack) | C7.3 + C7.4 + C7.7 |
+  | old C7.3 (traces) | C7.7 |
+  | old C7.4 (upload checklist) | C7.7 |
+  | S8 (viewer) | C7.2 |
+
+- **Added:**
+  - C7.1, a measured comparison of the legacy timing/one-to-one workflow accounts, decided by Breno;
+  - provenance integrity for explain and the viewer;
+  - packaging hardening;
+  - the Mac acceptance as a gate before freeze.
+- **Unchanged:**
+  - the deadline (12:00 UTC);
+  - the $4.50 cap;
+  - A31: export and upload come only after all of this, and the last validated package is uploaded if fewer than
+    2 h remain.

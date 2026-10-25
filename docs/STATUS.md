@@ -3,9 +3,21 @@
 > **For:** Breno, and anyone who needs the state without reading code. No jargon. **Updated at the end of each
 > session, with the date.** Numbers are re-checked at the source when written, never copied from the previous version.
 
-**Last update: 2026-10-25 02:09 UTC.**
+**Last update: 2026-10-25 02:48 UTC.**
 
-`██████████████░░ 7 of 8 sessions closed`
+`██████████████░░ 7 of 8 sessions closed; the last one (S7) is under way`
+
+## 2026-10-25 02:48 UTC — final session started (S7, with the viewer folded in)
+
+**What changed:** you merged the last two sessions into one. It ends with the frozen upload set, after the evidence
+viewer, the hardening, your Mac check and the trace collection. Nothing has been uploaded; nothing will be until you
+do it yourself.
+
+**Coming to you, in order:**
+1. A short table on the 19 "weak" timing-picked accounts: keep them, or turn them into "uncertain candidates" (no
+   step in the answers). Measured on both sides before you choose.
+2. The Mac check, with a copy-paste runbook.
+3. At the very end: `/export`, quit, then the upload checklist.
 
 ## 2026-10-25 02:09 UTC — session 6: checked every remaining gap; one real bug found and fixed; answers unchanged
 
